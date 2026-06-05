@@ -1,0 +1,1627 @@
+fileFormatVersion: 2
+guid: d6b07e6c822d6ba459c267289266bb59
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TX_Cards_0
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9107e1c6101130498ecdaae5f3918e4
+      internalID: 720328074
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_1
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c4923e2247d759478c6de8bb9ea1bd2
+      internalID: -1286594886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_2
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b9892a944b314c44b995d5622d931df9
+      internalID: 937311670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_3
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1ae1fc860ea73a41b171e31af2f889e
+      internalID: -1202402272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_4
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6415e29ede8b6b498ef54744f6b52d8
+      internalID: 2003639349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_5
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2267f97ad99ca6d45bd7993759c38a1e
+      internalID: 1430172131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_6
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d94aed5d35d46ac46987f99c09301cc4
+      internalID: 1012471220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_7
+      rect:
+        serializedVersion: 2
+        x: 678
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53c669517ce5e17408c1b4f3ee19e247
+      internalID: -1454950648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_8
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c8c35580f0b9804c9b5cb9064e21ab7
+      internalID: 278814802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_9
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 917cf3bca5ca0a144b18e22214e96b77
+      internalID: 1260602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_10
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8396a17ad18c21c41a1fb9487d7d0272
+      internalID: -449695369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_11
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7ca8d7187f1a70a448f23d908cb9ced3
+      internalID: -564444592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_12
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 1004
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4bf3e4266c135fc4cb36ad4207d4c969
+      internalID: 545281150
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_13
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d427a08d5bd8b441ad2122ecfa3b109
+      internalID: 1235908712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_14
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0114fc4163cb5da49a36625d900513d3
+      internalID: -1835541294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_15
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d721f554661f7e41b276f701d2ec618
+      internalID: 385944448
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_16
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b3e32facdd10686449ef630148d00eac
+      internalID: 299909970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_17
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cdb53d6ce1254254dbb98944607360ce
+      internalID: 183386701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_18
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bbebc112f747f0e4a9b7f9d58c4d0669
+      internalID: -858471782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_19
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 208c72f59e1c9e44c87be67c034a17eb
+      internalID: 1728295471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_20
+      rect:
+        serializedVersion: 2
+        x: 678
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e3a80f0e76e627b44a00b92c99b55f42
+      internalID: 1116338508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_21
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2165017e48c462c46927628824e66237
+      internalID: -1410368702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_22
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5019269776fd374092b0e57e5a3daee
+      internalID: -714169821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_23
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e4693a036dbf0e458ea76b9261acfdc
+      internalID: -1343459244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_24
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df547fae164971f48bcb7325bb431a65
+      internalID: 382361435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_25
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 754
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0391e76bbca43142aa772a2e6f7cdc4
+      internalID: -1121299552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_26
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97cad168d6820a24891b3e32e89cfad6
+      internalID: 29958526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_27
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 485cf3163f3b9064c936c33df2361152
+      internalID: 1322876788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_28
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5660b4c5aa848ae40b2b921c6889e3c6
+      internalID: 715380149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_29
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2cab5404ee74d334fbfae0e862da7eb8
+      internalID: -1339951367
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_30
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 08602944609573047bce0ec2baa919f1
+      internalID: -722606834
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_31
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 507
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f68a77a20c8b4bf408b5de5756dda147
+      internalID: 1765708094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_32
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c0f78010a5b7034c8db0ef1b999a979
+      internalID: -1034672497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_33
+      rect:
+        serializedVersion: 2
+        x: 678
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6007e1f9570768d41bcb63a60caccd11
+      internalID: -1996344906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_34
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bbc3b9ab5ec252d47874bee26197c2ff
+      internalID: 529460551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_35
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 428258ec43d393a4693e06a5fae2bb83
+      internalID: -1467009583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_36
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 479f53af2158db94c958cfbad0bbc058
+      internalID: -1572614537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_37
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8384007a1e6f24a47b6d2e5fa5be83cf
+      internalID: 1549175024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_38
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 504
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1032e39e634427f44b784320f4878915
+      internalID: -1643438592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_39
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61df54d447d471d4bbf968bf89cde2a9
+      internalID: 781939997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_40
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 604d8847e1bc9214ead5bea81e5f4844
+      internalID: -1010260921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_41
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a8e6192b64731b64692a84d20349f1f9
+      internalID: -1549069238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_42
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: adc8f1c88875ad2469e06bd345d821c9
+      internalID: 1181232928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_43
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c592c81c9a19cc248b0551dc48addc56
+      internalID: 1903120929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_44
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d2488628817f6b4b836f7b9326505aa
+      internalID: 713406174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_45
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b12515812d0c62b4981e9c6c0c3c0749
+      internalID: 906893792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_46
+      rect:
+        serializedVersion: 2
+        x: 678
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3cebb2a71f654e3488f99f3dad7a88e4
+      internalID: -1845576508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_47
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c0e2535a09bc3fc4aafa34a40937359f
+      internalID: -1165221330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_48
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b7c0edaf879e594a9ac07f512cf5edb
+      internalID: 1536953529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_49
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4def6dc382c0c24689493b3575a7e87
+      internalID: 1192529188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_50
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 82e8f3e2828088d4dbd4e123b9203a27
+      internalID: 908631650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_51
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 254
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 83036ebf91fbe1a409d7afacc40f72d4
+      internalID: -579178507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_52
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed0360eab7e273742879eeb3d63a78e9
+      internalID: -1983501390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_53
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c003b20826197e409e076ef464fe8d1
+      internalID: 228762559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_54
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32558d12c290e474d83d843f4a7ecbfd
+      internalID: -1004038050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_55
+      rect:
+        serializedVersion: 2
+        x: 298
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be15e217bec554e418cd783fab714e22
+      internalID: 167250059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_56
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 975fc1768135e24459660294ded761b7
+      internalID: 1357562609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_57
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9876682531ae30d4aa40c24d02d8ec33
+      internalID: -980367724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_58
+      rect:
+        serializedVersion: 2
+        x: 583
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e8985e0101fe5349aba5be924251f7c
+      internalID: -1786693705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_59
+      rect:
+        serializedVersion: 2
+        x: 678
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d9eee3a5f6f4064ba5c95ae28e9d853
+      internalID: -112855272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_60
+      rect:
+        serializedVersion: 2
+        x: 773
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 080269416b47c9040b5ef7355e8cb9a7
+      internalID: -1238252205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_61
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0a3686ebf5deee40b10fa2a04d70dad
+      internalID: 1401975432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_62
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13717f72a724283488f4ea59ab918b78
+      internalID: -465395571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_63
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c1b9d7e418dac0d4e8fc1b510c5907b5
+      internalID: 957152795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TX_Cards_64
+      rect:
+        serializedVersion: 2
+        x: 1153
+        y: 4
+        width: 95
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32357b4d775f3a14faf4e3103b948bdd
+      internalID: 80612192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 716efebc723d48c42a05e014cc11d7af
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":13.0,"y":5.0},"gridSpriteSize":{"x":95.0,"y":250.0},"gridSpriteOffset":{"x":13.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      TX_Cards_0: 720328074
+      TX_Cards_1: -1286594886
+      TX_Cards_10: -449695369
+      TX_Cards_11: -564444592
+      TX_Cards_12: 545281150
+      TX_Cards_13: 1235908712
+      TX_Cards_14: -1835541294
+      TX_Cards_15: 385944448
+      TX_Cards_16: 299909970
+      TX_Cards_17: 183386701
+      TX_Cards_18: -858471782
+      TX_Cards_19: 1728295471
+      TX_Cards_2: 937311670
+      TX_Cards_20: 1116338508
+      TX_Cards_21: -1410368702
+      TX_Cards_22: -714169821
+      TX_Cards_23: -1343459244
+      TX_Cards_24: 382361435
+      TX_Cards_25: -1121299552
+      TX_Cards_26: 29958526
+      TX_Cards_27: 1322876788
+      TX_Cards_28: 715380149
+      TX_Cards_29: -1339951367
+      TX_Cards_3: -1202402272
+      TX_Cards_30: -722606834
+      TX_Cards_31: 1765708094
+      TX_Cards_32: -1034672497
+      TX_Cards_33: -1996344906
+      TX_Cards_34: 529460551
+      TX_Cards_35: -1467009583
+      TX_Cards_36: -1572614537
+      TX_Cards_37: 1549175024
+      TX_Cards_38: -1643438592
+      TX_Cards_39: 781939997
+      TX_Cards_4: 2003639349
+      TX_Cards_40: -1010260921
+      TX_Cards_41: -1549069238
+      TX_Cards_42: 1181232928
+      TX_Cards_43: 1903120929
+      TX_Cards_44: 713406174
+      TX_Cards_45: 906893792
+      TX_Cards_46: -1845576508
+      TX_Cards_47: -1165221330
+      TX_Cards_48: 1536953529
+      TX_Cards_49: 1192529188
+      TX_Cards_5: 1430172131
+      TX_Cards_50: 908631650
+      TX_Cards_51: -579178507
+      TX_Cards_52: -1983501390
+      TX_Cards_53: 228762559
+      TX_Cards_54: -1004038050
+      TX_Cards_55: 167250059
+      TX_Cards_56: 1357562609
+      TX_Cards_57: -980367724
+      TX_Cards_58: -1786693705
+      TX_Cards_59: -112855272
+      TX_Cards_6: 1012471220
+      TX_Cards_60: -1238252205
+      TX_Cards_61: 1401975432
+      TX_Cards_62: -465395571
+      TX_Cards_63: 957152795
+      TX_Cards_64: 80612192
+      TX_Cards_7: -1454950648
+      TX_Cards_8: 278814802
+      TX_Cards_9: 1260602
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

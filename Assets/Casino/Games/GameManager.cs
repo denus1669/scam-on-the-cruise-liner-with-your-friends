@@ -1,3 +1,5 @@
+/*
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -180,4 +182,6 @@ public class GameManager : MonoBehaviour
         else Debug.Log($"У каждого должно быть минимум 2 карты. Сейчас у игрока {playerCards.Count}, а у бота {botCards.Count}");
     }
 
-}
+
+
+*/

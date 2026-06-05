@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf37193e6d0c29340a4f3427948b2811, type: 3}
+  m_Name: BlackjackConfig
+  m_EditorClassIdentifier: Assembly-CSharp::BlackjackConfig
+  dealingPhaseDuration: 3
+  cheatWindowDuration: 5
+  resolvePhaseDuration: 4
+  suspicionGrowthOnSuccess: 12
+  suspicionGrowthOnFail: 25
+  suspicionDecayRate: 3
+  maxSuspicion: 100
+  interactionDistance: 2.5
