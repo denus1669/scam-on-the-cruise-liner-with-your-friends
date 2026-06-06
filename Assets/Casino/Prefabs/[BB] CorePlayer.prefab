@@ -66,13 +66,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.8
-  m_Radius: 0.28
+  m_Height: 2.58
+  m_Radius: 0.51
   m_SlopeLimit: 45
   m_StepOffset: 0.25
   m_SkinWidth: 0.02
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0.93, z: 0}
+  m_Center: {x: 0, y: 1.31, z: 0}
 --- !u!114 &3878622245546933837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -428,7 +428,7 @@ Transform:
   m_GameObject: {fileID: 5532120002174217937}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.375, z: 0}
+  m_LocalPosition: {x: -0.026, y: 1.865, z: 0.118}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -452,15 +452,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3982758211856778267, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.2223
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3982758211856778267, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.7107
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3982758211856778267, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.02753
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3982758211856778267, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_LocalRotation.w
@@ -490,9 +490,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4083178374930752853, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4327477455579127457, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_Name
       value: CH_Hero
+      objectReference: {fileID: 0}
+    - target: {fileID: 6220613569944238606, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8987002216832525942, guid: fb039e5e76be74842ad487480d0eba72, type: 3}
       propertyPath: m_LocalPosition.x
