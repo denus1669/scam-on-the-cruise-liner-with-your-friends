@@ -30,6 +30,11 @@ namespace Blocks.Gameplay.Core
         [Tooltip("Raised when the menu button is pressed.")]
         [SerializeField] private GameEvent onMenuPressed;
 
+
+        [Header("Game Events")]
+        [SerializeField] private GameEvent onFinishGamePressed;  
+
+
         private GameplayInputSystem_Actions m_InputActions;
 
         #endregion
@@ -81,6 +86,8 @@ namespace Blocks.Gameplay.Core
             m_InputActions.Player.PrimaryAction.canceled += HandlePrimaryActionReleased;
 
             m_InputActions.Player.Menu.performed += HandleMenuPressed;
+
+            m_InputActions.Player.FinishGame.performed += HandleFinishGame;
         }
 
         private void UnregisterInputActions()
@@ -101,6 +108,9 @@ namespace Blocks.Gameplay.Core
             m_InputActions.Player.PrimaryAction.canceled -= HandlePrimaryActionReleased;
 
             m_InputActions.Player.Menu.performed -= HandleMenuPressed;
+
+            m_InputActions.Player.FinishGame.performed -= HandleFinishGame;
+
         }
 
         #endregion
@@ -115,6 +125,8 @@ namespace Blocks.Gameplay.Core
         private void HandlePrimaryActionPressed(InputAction.CallbackContext context) => onPrimaryActionPressed?.Raise();
         private void HandlePrimaryActionReleased(InputAction.CallbackContext context) => onPrimaryActionReleased?.Raise();
         private void HandleMenuPressed(InputAction.CallbackContext context) => onMenuPressed?.Raise();
+        private void HandleFinishGame(InputAction.CallbackContext context) => onFinishGamePressed?.Raise();
+
 
         #endregion
     }

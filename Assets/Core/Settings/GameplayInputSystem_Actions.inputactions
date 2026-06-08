@@ -95,6 +95,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "FinishGame",
+                    "type": "Button",
+                    "id": "811d5a7c-c065-4564-a20c-e3005ec9aabc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -376,7 +385,7 @@
                 {
                     "name": "",
                     "id": "70d17f9c-053f-49d7-a6c9-2991614c0b5f",
-                    "path": "<Mouse>/leftButton",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -414,6 +423,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c403bfb5-e5df-4179-80dd-9dc8c8d8fa6a",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FinishGame",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
