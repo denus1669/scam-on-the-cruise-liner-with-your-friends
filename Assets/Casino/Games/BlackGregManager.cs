@@ -14,11 +14,13 @@ public class BlackGregManager : NetworkBehaviour
     [Header("Руки (визуальные контейнеры на столе)")]
     [SerializeField] private Transform playerHandParent;
     [SerializeField] private Transform botHandParent;
+    [SerializeField] private Transform cardTablePosition; // Позиция для сброшенных/оставленных карт
+
 
     [Header("Настройки позиционирования")]
     [SerializeField] private Vector3 startPosition = new Vector3(0.11f, 1.393f, 1.066f);
     [SerializeField] private float spreadDistance = 0.22f;
-    [SerializeField] private Vector3 startRotation = new Vector3(-30, 0, 0);
+    [SerializeField] private Vector3 startRotation = new Vector3(30, 180, 0);
 
     [Header("Настройки игры")]
     [SerializeField] private int cardLimit = 10;
@@ -40,8 +42,37 @@ public class BlackGregManager : NetworkBehaviour
     public UnityEvent OnBotWon;
     public UnityEvent OnDraw;
 
-
     #region Server-only logic
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // Подписываемся на смену владельца стола, чтобы двигать карты
+        if (tableInteractable != null)
+        {
+            tableInteractable.OccupiedByClientIdVar.OnValueChanged += HandleOccupantChanged;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (tableInteractable != null)
+        {
+            tableInteractable.OccupiedByClientIdVar.OnValueChanged -= HandleOccupantChanged;
+        }
+    }
+
+    private void HandleOccupantChanged(ulong oldId, ulong newId)
+    {
+        if (IsServer)
+        {
+            // Владелец сменился (кто-то сел за стол или ушел из триггера)
+            // Заставляем всех клиентов перерисовать позиции и состояния карт
+            SyncHandsClientRpc(newId, playerHandData.ToArray(), botHandData.ToArray());
+        }
+    }
 
     private void PlayerDrawCard()
     {
@@ -158,45 +189,45 @@ public class BlackGregManager : NetworkBehaviour
     [ClientRpc]
     private void SyncHandsClientRpc(ulong playerClientId, CardData[] syncedPlayerHand, CardData[] syncedBotHand)
     {
-        // 1. Принудительно обновляем локальные списки клиента данными от сервера
         playerHandData = new List<CardData>(syncedPlayerHand);
         botHandData = new List<CardData>(syncedBotHand);
 
-        // 2. Очистить старые карты
         foreach (var view in spawnedCardViews)
             if (view != null) Destroy(view.gameObject);
         spawnedCardViews.Clear();
-        placeNextCardOnLeft = true; // сброс позиционирования
+        placeNextCardOnLeft = true;
 
-        // 3. Найти родителя для карт ИГРОКА
-        Transform playerHand = FindCardHandPositionForPlayer(playerClientId);
+        bool isTableOccupied = playerClientId != ulong.MaxValue;
+
+        Transform playerHand = null;
+        if (isTableOccupied)
+        {
+            playerHand = FindCardHandPositionForPlayer(playerClientId);
+        }
+
+        // Если стол свободен ИЛИ рука не найдена - карты лежат на столе
         if (playerHand == null)
         {
-            Debug.LogError($"Не найдена рука для игрока {playerClientId}");
-            return;
+            playerHand = cardTablePosition != null ? cardTablePosition : playerHandParent;
         }
 
-        // 4. Найти родителя для карт БОТА
-        Transform botHand = FindCardHandPositionForBot();
-        if (botHand == null)
-        {
-            Debug.LogError("Не найдена рука бота");
-            return;
-        }
+        Transform botHand = FindCardHandPositionForBot() ?? botHandParent;
 
-        // 5. Создать карты игрока (используем уже синхронизированные данные!)
+        // Создаем карты. isTableOccupied определяет, лицом вверх (true) или рубашкой (false)
         for (int i = 0; i < playerHandData.Count; i++)
-            SpawnCardVisual(playerHandData[i], playerHand, i);
+            SpawnCardVisual(playerHandData[i], playerHand, i, isTableOccupied);
 
-        // 6. Создать карты бота
-        for (int i = 0; i < botHandData.Count; i++)
-            SpawnCardVisual(botHandData[i], botHand, i);
+        if (botHand != null)
+        {
+            for (int i = 0; i < botHandData.Count; i++)
+                SpawnCardVisual(botHandData[i], botHand, i, isTableOccupied);
+        }
     }
-
     private Transform FindCardHandPositionForPlayer(ulong clientId)
     {
-        // Клиенты не могут использовать ConnectedClients, поэтому ищем объект 
-        // через SpawnManager, который знает обо всех сетевых объектах на сцене.
+        // Если ID указывает на отсутствие игрока, сразу возвращаем null
+        if (clientId == ulong.MaxValue) return null;
+
         foreach (var networkObj in NetworkManager.Singleton.SpawnManager.SpawnedObjectsList)
         {
             if (networkObj.IsPlayerObject && networkObj.OwnerClientId == clientId)
@@ -205,9 +236,7 @@ public class BlackGregManager : NetworkBehaviour
                 if (hand != null) return hand;
             }
         }
-
-        Debug.LogWarning($"Не найдена точка CardHandPosition для клиента {clientId}. Используем fallback.");
-        return playerHandParent;
+        return null;
     }
 
     private Transform FindCardHandPositionForBot()
@@ -242,12 +271,13 @@ public class BlackGregManager : NetworkBehaviour
 
     #region Visual Helpers
 
-    private void SpawnCardVisual(CardData cardData, Transform parent, int cardIndex)
+    private void SpawnCardVisual(CardData cardData, Transform parent, int cardIndex, bool isFaceUp)
     {
         CardView view = Instantiate(cardViewPrefab, parent);
         view.transform.localPosition = GetNextCardPosition(cardIndex);
         view.transform.localRotation = Quaternion.Euler(startRotation);
         view.SetCardData(cardData);
+        view.SetVisible(isFaceUp); // Устанавливаем статус скрытости
         spawnedCardViews.Add(view);
     }
 

@@ -32,6 +32,9 @@ public class TableInteractable : NetworkBehaviour, IInteractable
     public int Priority => priority;
     public string InteractionPromptText => promptText;
 
+    // Свойство для подписки на изменения владельца извне
+    public NetworkVariable<ulong> OccupiedByClientIdVar => occupiedByClientId;
+
     public bool IsOccupied() => isOccupied.Value;
     public ulong GetOccupyingClientId() => occupiedByClientId.Value;
 
@@ -63,5 +66,34 @@ public class TableInteractable : NetworkBehaviour, IInteractable
         occupiedByClientId.Value = clientId;
 
         Debug.Log($"Стол занят клиентом: {clientId}");
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void LeaveTableServerRpc(ulong clientId)
+    {
+        if (!IsServer) return;
+
+        // Убеждаемся, что запрос на уход отправляет именно текущий владелец стола
+        if (occupiedByClientId.Value == clientId)
+        {
+            isOccupied.Value = false;
+            occupiedByClientId.Value = ulong.MaxValue;
+            Debug.Log($"Стол освобожден клиентом: {clientId}");
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        // Проверяем, что из триггера вышел игрок (сетевой объект)
+        NetworkObject netObj = other.GetComponent<NetworkObject>();
+
+        // Только сам локальный клиент фиксирует свой уход и сообщает серверу
+        if (netObj != null && netObj.IsLocalPlayer)
+        {
+            // Если этот клиент сейчас является владельцем стола
+            if (occupiedByClientId.Value == netObj.OwnerClientId)
+            {
+                LeaveTableServerRpc(netObj.OwnerClientId);
+            } 
+        }
     }
 }

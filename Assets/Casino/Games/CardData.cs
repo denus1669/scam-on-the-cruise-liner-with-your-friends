@@ -1,8 +1,9 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
 [System.Serializable]
-public struct CardData : INetworkSerializable
+public struct CardData : INetworkSerializable, IEquatable<CardData>
 {
     public CardSuit suit;
     public CardRank rank;
@@ -23,4 +24,23 @@ public struct CardData : INetworkSerializable
     }
 
     public override string ToString() => $"{rank} of {suit} [{type}]";
+
+    // --- Методы ниже нужны, чтобы использовать структуру как ключ в Dictionary ---
+
+    public bool Equals(CardData other)
+    {
+        return suit == other.suit && rank == other.rank && type == other.type;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is CardData other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        // Создаем уникальный хэш на основе всех трех значений
+        return HashCode.Combine((int)suit, (int)rank, (int)type);
+    }
+
 }
