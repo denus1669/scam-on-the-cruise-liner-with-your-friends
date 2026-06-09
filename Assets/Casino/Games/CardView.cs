@@ -36,6 +36,13 @@ public class CardView : MonoBehaviour
         SetFaceSprite(faceSprite);
         SetBackgroundSprite(bgSprite);
     }
+    public void SetCardData(CardData data)
+    {
+        // Здесь нужно получить спрайты для лица и рубашки на основе suit/rank/type
+        // Например, через CardSpriteProvider.LoadSprite(data);
+        // Пока заглушка:
+        Debug.Log($"CardView: {data.suit} {data.rank} {data.type}");
+    }
 
     public void SetFaceSprite(Sprite sprite)
     {

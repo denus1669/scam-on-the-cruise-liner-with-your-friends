@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Unity.Netcode;
 
 /// <summary>
-/// Управляет логикой стола. Данные (ICard) отделены от визуала (CardView).
-/// Подготовлено для переноса логики на сервер (NGO).
+/// Управляет логикой стола. Сетевая версия.
 /// </summary>
-public class BlackGregManager : MonoBehaviour
+public class BlackGregManager : NetworkBehaviour
 {
     [Header("Префаб карты")]
     [SerializeField] private CardView cardViewPrefab;
 
-    [Header("Руки (визуальные контейнеры)")]
+    [Header("Руки (визуальные контейнеры на столе)")]
     [SerializeField] private Transform playerHandParent;
     [SerializeField] private Transform botHandParent;
 
@@ -24,78 +24,241 @@ public class BlackGregManager : MonoBehaviour
     [SerializeField] private int cardLimit = 10;
     [SerializeField] private int minCardsToFinish = 2;
 
+    [Header("Ссылка на стул")]
+    [SerializeField] private TableInteractable tableInteractable;
 
-    // ЧИСТЫЕ ДАННЫЕ (Будут работать на сервере)
-    private List<ICard> playerHandData = new List<ICard>();
-    private List<ICard> botHandData = new List<ICard>();
+    // Данные рук
+    private List<CardData> playerHandData = new List<CardData>();
+    private List<CardData> botHandData = new List<CardData>();
 
-    // ВИЗУАЛ (Только для клиента: отрисовка и удаление моделей)
+    // Визуал (только на клиенте)
     private List<CardView> spawnedCardViews = new List<CardView>();
     private bool placeNextCardOnLeft = true;
 
-    // События для связи с экономикой (GameManager)
+    // События для UI (вызываются на всех клиентах)
     public UnityEvent<int> OnPlayerWon;
     public UnityEvent OnBotWon;
     public UnityEvent OnDraw;
 
 
+    #region Server-only logic
 
-
-    public void PlayerDrawCard()
+    private void PlayerDrawCard()
     {
-        DealCard(playerHandData, playerHandParent, "Игрок");
+        if (!IsServer) return;
+        if (playerHandData.Count >= cardLimit) return;
+
+        Card newCard = CardFactory.CreateRandomCard();
+        playerHandData.Add(new CardData(newCard.CardSuit, newCard.CardRank, newCard.CardType));
+
+        // Передаем обновленные списки всем клиентам в виде массивов
+        SyncHandsClientRpc(tableInteractable.GetOccupyingClientId(), playerHandData.ToArray(), botHandData.ToArray());
+
+        BotDrawCard();
     }
 
-    public void BotDrawCard()
+    private void BotDrawCard()
     {
-        DealCard(botHandData, botHandParent, "Бот");
+        if (!IsServer) return;
+        if (botHandData.Count >= cardLimit) return;
+
+        Card newCard = CardFactory.CreateRandomCard();
+        botHandData.Add(new CardData(newCard.CardSuit, newCard.CardRank, newCard.CardType));
+
+        // Передаем обновленные списки всем клиентам
+        SyncHandsClientRpc(tableInteractable.GetOccupyingClientId(), playerHandData.ToArray(), botHandData.ToArray());
     }
 
-    public void FinishGame()
+    private void FinishGame()
     {
+        if (!IsServer) return;
+
         if (playerHandData.Count < minCardsToFinish || botHandData.Count < minCardsToFinish)
         {
-            Debug.Log($"Нужно минимум {minCardsToFinish} карты для завершения!");
+            Debug.Log($"Нужно минимум {minCardsToFinish} карт для завершения!");
             return;
         }
 
-        EvaluateRound();
+        int playerScore = CalculateHandValue(playerHandData);
+        int botScore = CalculateHandValue(botHandData);
+
+        Debug.Log($"Итог: Игрок {playerScore} | Бот {botScore}");
+
+        string winner = DetermineWinner(playerScore, botScore);
+        NotifyWinnerClientRpc(winner, playerScore, botScore);
+
+        ClearHands();
     }
 
-    private void DealCard(List<ICard> handData, Transform parentTransform, string logName)
+    private string DetermineWinner(int playerScore, int botScore)
     {
-        if (handData.Count >= cardLimit) return;
+        bool playerBust = playerScore > 21;
+        bool botBust = botScore > 21;
 
-        // 1. Логика (Данные)
-        Card newCard = CardFactory.CreateRandomCard();
-        handData.Add(newCard);
-
-        // 2. Визуал (Отображение)
-        SpawnCardVisual(newCard, parentTransform, handData.Count - 1);
-
-        Debug.Log($"{logName} получил: {newCard}. Всего карт: {handData.Count}");
+        if (playerBust && botBust) return "draw";
+        if (playerBust) return "bot";
+        if (botBust) return "player";
+        if (playerScore > botScore) return "player";
+        if (botScore > playerScore) return "bot";
+        return "draw";
     }
 
-    private void SpawnCardVisual(ICard cardData, Transform parent, int cardIndex)
+    private int CalculateHandValue(List<CardData> handData)
+    {
+        int sum = 0;
+        int aceCount = 0;
+        foreach (var card in handData)
+        {
+            int value = card.rank == CardRank.Ace ? 11 :
+                        (card.rank >= CardRank.Jack ? 10 : (int)card.rank);
+            sum += value;
+            if (card.rank == CardRank.Ace) aceCount++;
+        }
+        while (sum > 21 && aceCount > 0)
+        {
+            sum -= 10;
+            aceCount--;
+        }
+        return sum;
+    }
+
+    private void ClearHands()
+    {
+        playerHandData.Clear();
+        botHandData.Clear();
+        // Отправляем пустые массивы, чтобы очистить стол у всех
+        SyncHandsClientRpc(tableInteractable.GetOccupyingClientId(), playerHandData.ToArray(), botHandData.ToArray());
+    }
+
+    #endregion
+
+    #region RPCs
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void RequestDrawCardServerRpc(ulong clientId)
+    {
+        if (!IsServer) return;
+        if (tableInteractable != null && tableInteractable.IsOccupied() && clientId == tableInteractable.GetOccupyingClientId())
+        {
+            PlayerDrawCard();
+        }
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void RequestFinishGameServerRpc(ulong clientId)
+    {
+        if (!IsServer) return;
+        if (tableInteractable != null && tableInteractable.IsOccupied() && clientId == tableInteractable.GetOccupyingClientId())
+        {
+            FinishGame();
+        }
+    }
+
+    // ТЕПЕРЬ RPC ПРИНИМАЕТ МАССИВЫ КАРТ ОТ СЕРВЕРА
+    [ClientRpc]
+    private void SyncHandsClientRpc(ulong playerClientId, CardData[] syncedPlayerHand, CardData[] syncedBotHand)
+    {
+        // 1. Принудительно обновляем локальные списки клиента данными от сервера
+        playerHandData = new List<CardData>(syncedPlayerHand);
+        botHandData = new List<CardData>(syncedBotHand);
+
+        // 2. Очистить старые карты
+        foreach (var view in spawnedCardViews)
+            if (view != null) Destroy(view.gameObject);
+        spawnedCardViews.Clear();
+        placeNextCardOnLeft = true; // сброс позиционирования
+
+        // 3. Найти родителя для карт ИГРОКА
+        Transform playerHand = FindCardHandPositionForPlayer(playerClientId);
+        if (playerHand == null)
+        {
+            Debug.LogError($"Не найдена рука для игрока {playerClientId}");
+            return;
+        }
+
+        // 4. Найти родителя для карт БОТА
+        Transform botHand = FindCardHandPositionForBot();
+        if (botHand == null)
+        {
+            Debug.LogError("Не найдена рука бота");
+            return;
+        }
+
+        // 5. Создать карты игрока (используем уже синхронизированные данные!)
+        for (int i = 0; i < playerHandData.Count; i++)
+            SpawnCardVisual(playerHandData[i], playerHand, i);
+
+        // 6. Создать карты бота
+        for (int i = 0; i < botHandData.Count; i++)
+            SpawnCardVisual(botHandData[i], botHand, i);
+    }
+
+    private Transform FindCardHandPositionForPlayer(ulong clientId)
+    {
+        // Клиенты не могут использовать ConnectedClients, поэтому ищем объект 
+        // через SpawnManager, который знает обо всех сетевых объектах на сцене.
+        foreach (var networkObj in NetworkManager.Singleton.SpawnManager.SpawnedObjectsList)
+        {
+            if (networkObj.IsPlayerObject && networkObj.OwnerClientId == clientId)
+            {
+                Transform hand = FindCardHandPosition(networkObj.transform);
+                if (hand != null) return hand;
+            }
+        }
+
+        Debug.LogWarning($"Не найдена точка CardHandPosition для клиента {clientId}. Используем fallback.");
+        return playerHandParent;
+    }
+
+    private Transform FindCardHandPositionForBot()
+    {
+        GameObject[] botObjs = GameObject.FindGameObjectsWithTag("Bot");
+        foreach (var botObj in botObjs)
+        {
+            Transform hand = FindCardHandPosition(botObj.transform);
+            if (hand != null) return hand;
+        }
+
+        if (botHandParent != null) return botHandParent;
+
+        Debug.LogWarning("Рука бота не найдена ни по тегу, ни в Инспекторе.");
+        return null;
+    }
+
+
+    [ClientRpc]
+    private void NotifyWinnerClientRpc(string winner, int playerScore, int botScore)
+    {
+        switch (winner)
+        {
+            case "player": OnPlayerWon?.Invoke(playerScore); break;
+            case "bot": OnBotWon?.Invoke(); break;
+            default: OnDraw?.Invoke(); break;
+        }
+        Debug.Log($"Результат: Player {playerScore} – Bot {botScore}. Winner: {winner}");
+    }
+
+    #endregion
+
+    #region Visual Helpers
+
+    private void SpawnCardVisual(CardData cardData, Transform parent, int cardIndex)
     {
         CardView view = Instantiate(cardViewPrefab, parent);
         view.transform.localPosition = GetNextCardPosition(cardIndex);
         view.transform.localRotation = Quaternion.Euler(startRotation);
-
-        spawnedCardViews.Add(view); // Сохраняем только чтобы потом удалить (Destroy)
+        view.SetCardData(cardData);
+        spawnedCardViews.Add(view);
     }
 
-    // Теперь зависит только от индекса (числа), а не от UI-объектов
     private Vector3 GetNextCardPosition(int currentCardIndex)
     {
         Vector3 position = startPosition;
-
         if (currentCardIndex == 0)
         {
             placeNextCardOnLeft = true;
             return position;
         }
-
         if (placeNextCardOnLeft)
         {
             int leftCount = (currentCardIndex + 1) / 2;
@@ -108,67 +271,19 @@ public class BlackGregManager : MonoBehaviour
             position.x = startPosition.x + rightCount * spreadDistance;
             placeNextCardOnLeft = true;
         }
-
         return position;
     }
 
-    // Расчет идет ИСКЛЮЧИТЕЛЬНО по чистым интерфейсам ICard
-    private int CalculateHandValue(List<ICard> handData)
+    private Transform FindCardHandPosition(Transform root)
     {
-        int sum = 0;
-        int aceCount = 0;
-
-        foreach (var card in handData)
+        if (root.name == "CardHandPosition") return root;
+        foreach (Transform child in root)
         {
-            sum += card.BlackGregValue;
-            if (card.CardRank == CardRank.Ace)
-                aceCount++;
+            var result = FindCardHandPosition(child);
+            if (result != null) return result;
         }
-
-        while (sum > 21 && aceCount > 0)
-        {
-            sum -= 10;
-            aceCount--;
-        }
-
-        return sum;
+        return null;
     }
 
-    private void EvaluateRound()
-    {
-        // Передаем списки с данными
-        int playerScore = CalculateHandValue(playerHandData);
-        int botScore = CalculateHandValue(botHandData);
-
-        Debug.Log($"Итог: Игрок {playerScore} | Бот {botScore}");
-
-        bool playerBust = playerScore > 21;
-        bool botBust = botScore > 21;
-
-        if (playerBust && botBust) OnDraw?.Invoke();
-        else if (playerBust) OnBotWon?.Invoke();
-        else if (botBust) OnPlayerWon?.Invoke(1);
-        else
-        {
-            if (playerScore > botScore) OnPlayerWon?.Invoke(1);
-            else if (botScore > playerScore) OnBotWon?.Invoke();
-            else OnDraw?.Invoke();
-        }
-
-        ClearHands();
-    }
-
-    private void ClearHands()
-    {
-        // Очищаем визуал
-        foreach (var view in spawnedCardViews)
-        {
-            if (view != null) Destroy(view.gameObject);
-        }
-        spawnedCardViews.Clear();
-
-        // Очищаем данные
-        playerHandData.Clear();
-        botHandData.Clear();
-    }
+    #endregion
 }

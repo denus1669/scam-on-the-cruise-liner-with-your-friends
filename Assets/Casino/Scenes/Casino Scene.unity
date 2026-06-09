@@ -319,7 +319,7 @@ Transform:
   m_GameObject: {fileID: 352465174}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.267, z: 0.159}
+  m_LocalPosition: {x: 21.144627, y: 2.2670002, z: -6.8898954}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -734,7 +734,7 @@ GameObject:
   - component: {fileID: 1511407165}
   m_Layer: 0
   m_Name: BOT
-  m_TagString: Untagged
+  m_TagString: Bot
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1019,6 +1019,183 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &1942737579 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+  m_PrefabInstance: {fileID: 4195486908514769342}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &1942737583
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942737579}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -7725165114033507810, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+--- !u!114 &1942737584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942737579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 4286173189
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1942737585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942737579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567e6fd6cc1a1404e9cda43e7f898029, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackGregManager
+  ShowTopMostFoldoutHeaderGroup: 1
+  cardViewPrefab: {fileID: 2023102163}
+  playerHandParent: {fileID: 0}
+  botHandParent: {fileID: 1511407168}
+  startPosition: {x: 0.11, y: 1.393, z: 1.066}
+  spreadDistance: 0.22
+  startRotation: {x: -30, y: 0, z: 0}
+  cardLimit: 10
+  minCardsToFinish: 2
+  tableInteractable: {fileID: 1942737586}
+  OnPlayerWon:
+    m_PersistentCalls:
+      m_Calls: []
+  OnBotWon:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDraw:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1942737586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942737579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adac8d41457b2454f83901888b9e23bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TableSeat
+  ShowTopMostFoldoutHeaderGroup: 1
+  triggerMode: 0
+  priority: 0
+  promptText: "\u0412\u0441\u0442\u0430\u0442\u044C \u0437\u0430 \u0441\u0442\u043E\u043B
+    (E)"
+  isOccupied:
+    m_InternalValue: 0
+  occupiedByClientId:
+    m_InternalValue: 18446744073709551615
+--- !u!114 &1942737587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942737579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9041a6e481692744f8aa1e9644dd77f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FinishGameListener
+  onFinishGameEvent: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
+  blackGregManager: {fileID: 1942737585}
+--- !u!1 &1959922905 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1940374982565924275, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+  m_PrefabInstance: {fileID: 4195486908514769342}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1959922910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959922905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a02e6606302b947ad7aec2624aa9d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  blackGregManager: {fileID: 1942737585}
+  tableInteractable: {fileID: 1942737586}
+  triggerMode: 0
+  priority: 0
+  promptText: "\u0412\u0437\u044F\u0442\u044C \u043A\u0430\u0440\u0442\u0443 (E)"
+--- !u!114 &1959922915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1959922905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1403602263
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &2023102163 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4918751741034810647, guid: 6ccbaed31eba7334ba46326910c926c0, type: 3}
+  m_PrefabInstance: {fileID: 1706493799}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ca74f14f10e2c94eab05af009538918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardView
 --- !u!1001 &4195486908514769342
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1027,6 +1204,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1940374982565924275, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 3315426991579931103, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.54023
@@ -1071,61 +1252,49 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Game_BlackGreg_Table_Prefab
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 4316391176428305460, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5120036375509804479, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7317997073826016532, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 8844790906909287138, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4195486908514769346}
+      addedObject: {fileID: 1942737584}
     - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4195486908514769345}
+      addedObject: {fileID: 1942737583}
+    - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1942737586}
+    - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1942737585}
+    - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1942737587}
+    - targetCorrespondingSourceObject: {fileID: 1940374982565924275, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1959922910}
+    - targetCorrespondingSourceObject: {fileID: 1940374982565924275, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1959922915}
   m_SourcePrefab: {fileID: 100100000, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
---- !u!4 &4195486908514769343 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8300556535322642883, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
-  m_PrefabInstance: {fileID: 4195486908514769342}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &4195486908514769344 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
-  m_PrefabInstance: {fileID: 4195486908514769342}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &4195486908514769345
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4195486908514769344}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 3.563513, y: 1.0489697, z: 1.7643533}
-  m_Center: {x: 0, y: 0.5244849, z: 0.88217664}
---- !u!114 &4195486908514769346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4195486908514769344}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adac8d41457b2454f83901888b9e23bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TableSeat
-  standPosition: {fileID: 4195486908514769343}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
