@@ -23,9 +23,15 @@ public class BlackGregManager : NetworkBehaviour
     [Header("Настройки игры")]
     [SerializeField] private int cardLimit = 10;
     [SerializeField] private int minCardsToFinish = 2;
+    [SerializeField] public NetworkVariable<bool> gameInProgress = new NetworkVariable<bool>(false);
 
     [Header("Ссылка на стул")]
     [SerializeField] private TableInteractable tableInteractable;
+
+    [Header("Бот")]
+    [SerializeField] private bool botHasStood = false;
+
+    public TableInteractable TableInteractable => tableInteractable;
 
     // Данные рук
     private List<CardData> playerHandData = new List<CardData>();
@@ -40,6 +46,12 @@ public class BlackGregManager : NetworkBehaviour
     public UnityEvent OnBotWon;
     public UnityEvent OnDraw;
 
+<<<<<<< Updated upstream:Assets/Casino/Games/BlackGregManager.cs
+=======
+    public int GetBotScore() => CalculateHandValue(botHandData);
+    public int GetBotCardCount() => botHandData.Count;
+    public List<CardData> GetBotHandCopy() => new List<CardData>(botHandData);
+>>>>>>> Stashed changes:Assets/Casino/Games/BlackGreg/BlackGregManager.cs
 
     #region Server-only logic
 
@@ -47,17 +59,22 @@ public class BlackGregManager : NetworkBehaviour
     {
         if (!IsServer) return;
         if (playerHandData.Count >= cardLimit) return;
+        if (playerHandData.Count == 1) gameInProgress.Value = true;
 
         Card newCard = CardFactory.CreateRandomCard();
         playerHandData.Add(new CardData(newCard.CardSuit, newCard.CardRank, newCard.CardType));
 
         // Передаем обновленные списки всем клиентам в виде массивов
         SyncHandsClientRpc(tableInteractable.GetOccupyingClientId(), playerHandData.ToArray(), botHandData.ToArray());
-
-        BotDrawCard();
+    }
+    public void BotStand()
+    {
+        if (!IsServer) return;
+        botHasStood = true; // флаг, что бот закончил
+                            // Не завершаем игру, только ждём, пока игрок нажмёт Finish
     }
 
-    private void BotDrawCard()
+    public void BotDrawCard()
     {
         if (!IsServer) return;
         if (botHandData.Count >= cardLimit) return;
@@ -79,6 +96,13 @@ public class BlackGregManager : NetworkBehaviour
             return;
         }
 
+        if (!botHasStood)
+        {
+            Debug.Log($"Бот еще не завершил своих ходы!");
+            return;
+
+        }
+
         int playerScore = CalculateHandValue(playerHandData);
         int botScore = CalculateHandValue(botHandData);
 
@@ -88,6 +112,7 @@ public class BlackGregManager : NetworkBehaviour
         NotifyWinnerClientRpc(winner, playerScore, botScore);
 
         ClearHands();
+        gameInProgress.Value = false;
     }
 
     private string DetermineWinner(int playerScore, int botScore)
@@ -103,7 +128,7 @@ public class BlackGregManager : NetworkBehaviour
         return "draw";
     }
 
-    private int CalculateHandValue(List<CardData> handData)
+    public int CalculateHandValue(List<CardData> handData)
     {
         int sum = 0;
         int aceCount = 0;

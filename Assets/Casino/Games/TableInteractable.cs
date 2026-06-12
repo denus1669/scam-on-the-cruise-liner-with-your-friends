@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// Интерактивный объект "Место за столом". 
-/// Логически закрепляет стол за игроком без телепортации.
+/// Логически закрепляет стол за игроком.
 /// </summary>
 public class TableInteractable : NetworkBehaviour, IInteractable
 {
@@ -64,4 +64,62 @@ public class TableInteractable : NetworkBehaviour, IInteractable
 
         Debug.Log($"Стол занят клиентом: {clientId}");
     }
+<<<<<<< Updated upstream
+=======
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void LeaveTableServerRpc(ulong clientId)
+    {
+        if (!IsServer) return;
+
+        // Убеждаемся, что запрос на уход отправляет именно текущий владелец стола
+        if (occupiedByClientId.Value == clientId)
+        {
+            isOccupied.Value = false;
+            occupiedByClientId.Value = ulong.MaxValue;
+            Debug.Log($"Стол освобожден клиентом: {clientId}");
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        // Проверяем, что из триггера вышел игрок (сетевой объект)
+        NetworkObject netObj = other.GetComponent<NetworkObject>();
+
+        // Только сам локальный клиент фиксирует свой уход и сообщает серверу
+        if (netObj != null && netObj.IsLocalPlayer)
+        {
+            // Если этот клиент сейчас является владельцем стола
+            if (occupiedByClientId.Value == netObj.OwnerClientId)
+            {
+                LeaveTableServerRpc(netObj.OwnerClientId);
+            } 
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+        }
+    }
+
+    private void OnClientDisconnect(ulong clientId)
+    {
+        if (IsServer && occupiedByClientId.Value == clientId)
+        {
+            isOccupied.Value = false;
+            occupiedByClientId.Value = ulong.MaxValue;
+        }
+    }
+
+
+>>>>>>> Stashed changes
 }
