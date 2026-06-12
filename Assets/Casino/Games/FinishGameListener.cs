@@ -5,14 +5,14 @@ using Blocks.Gameplay.Core;
 public class FinishGameListener : MonoBehaviour
 {
     [SerializeField] private GameEvent onFinishGameEvent;
-    [SerializeField] private BlackGregManager blackGregManager;
+    [SerializeField] private BlackGregTable blackjackTable; 
 
-    private void OnEnable() => onFinishGameEvent?.RegisterListener(OnFinish);
+    private void OnEnable() => onFinishGameEvent?.RegisterListener(OnFinish); 
     private void OnDisable() => onFinishGameEvent?.UnregisterListener(OnFinish);
 
     private void OnFinish()
     {
-        if (blackGregManager != null)
-            blackGregManager.RequestFinishGameServerRpc(NetworkManager.Singleton.LocalClientId);
+        if (blackjackTable != null)
+            blackjackTable.RequestFinishGameServerRpc(NetworkManager.Singleton.LocalClientId);
     }
 }

@@ -34,9 +34,6 @@ public class BlackGregTable : GameTable, ICardGameTable
     // Состояние бота
     private bool botHasStood = false;
 
-    // Кэшированные ссылки на NetworkObject игрока и бота
-    private NetworkObject playerNetworkObject;
-    private NetworkObject botNetworkObject;
 
     // ---------- Реализация ICardGameTable ----------
     public int GetBotScore() => CalculateHandValue(botHandData);
@@ -54,8 +51,11 @@ public class BlackGregTable : GameTable, ICardGameTable
 
         if (AddCardToHand(botHandData))
         {
+            CardData lastCard = botHandData[botHandData.Count - 1];
+            Debug.Log($"[BlackGregTable] Бот взял карту: {lastCard.rank} {lastCard.suit} (тип: {lastCard.type}). Текущий счёт: {CalculateHandValue(botHandData)}");
             SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
         }
+
     }
 
     public void BotStand()
@@ -88,10 +88,13 @@ public class BlackGregTable : GameTable, ICardGameTable
     // ---------- Методы для игрока (вызываются UI) ----------
     public void PlayerDrawCard()
     {
-        if (!IsServer || !IsGameStarted) return;
+        if(!IsGameStarted) StartGame();
+        if (!IsServer) return;
 
         if (AddCardToHand(playerHandData))
         {
+            CardData lastCard = playerHandData[playerHandData.Count - 1];
+            Debug.Log($"[BlackGregTable] Игрок взял карту: {lastCard.rank} {lastCard.suit} (тип: {lastCard.type}). Текущий счёт: {CalculateHandValue(playerHandData)}");
             SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
         }
     }
@@ -125,7 +128,9 @@ public class BlackGregTable : GameTable, ICardGameTable
     public void RequestDrawCardServerRpc(ulong clientId)
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
+        {
             PlayerDrawCard();
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -149,7 +154,12 @@ public class BlackGregTable : GameTable, ICardGameTable
 
         placeNextCardOnLeft = true;
 
-        Transform playerHand = GetHandTransform(playerNetworkObject);
+        // Получаем руку игрока
+        Transform playerHand = null;
+        if (NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerClientId) is { } playerObj)
+        {
+            playerHand = FindChildByName(playerObj.transform, "CardHandPosition");
+        }
         if (playerHand == null) playerHand = cardTablePosition ? cardTablePosition : playerHandParent;
 
         if (playerHand != null)
@@ -158,7 +168,12 @@ public class BlackGregTable : GameTable, ICardGameTable
                 SpawnCardVisual(playerHandData[i], playerHand, i, true);
         }
 
-        Transform botHand = GetHandTransform(botNetworkObject);
+        // Получаем руку бота
+        Transform botHand = null;
+        if (botNetworkObjectRef.Value.TryGet(out NetworkObject botObj))
+        {
+            botHand = FindChildByName(botObj.transform, "CardHandPosition");
+        }
         if (botHand == null) botHand = botHandParent;
 
         if (botHand != null)
@@ -282,5 +297,33 @@ public class BlackGregTable : GameTable, ICardGameTable
             if (found != null) return found;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Переопределённый метод освобождения стола игроком.
+    /// После базового освобождения синхронизирует руки так, чтобы карты игрока
+    /// переместились в cardTablePosition (если он задан).
+    /// </summary>
+    public override void Leave(ulong clientId)
+    {
+        base.Leave(clientId);
+
+        if (IsServer)
+        {
+            // playerClientId = ulong.MaxValue заставит клиента использовать cardTablePosition
+            SyncHandsClientRpc(ulong.MaxValue, playerHandData.ToArray(), botHandData.ToArray());
+        }
+    }
+    /// <summary>
+    /// При занятии стола игроком (возвращение) синхронизируем руки с актуальным ID,
+    /// чтобы карты игрока переместились из cardTablePosition к его руке.
+    /// </summary>
+    public override void Occupy(ulong clientId)
+    {
+        base.Occupy(clientId);
+        if (IsServer)
+        {
+            SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+        }
     }
 }

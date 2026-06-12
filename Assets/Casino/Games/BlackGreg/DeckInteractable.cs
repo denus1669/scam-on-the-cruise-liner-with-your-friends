@@ -1,4 +1,5 @@
 using Blocks.Gameplay.Core;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -22,8 +23,11 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
 
     public bool CanInteract(GameObject interactor)
     {
+
         if (blackjackTable == null || !blackjackTable.IsOccupied)
+        {
             return false;
+        }
 
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
         return clientId == blackjackTable.OccupiedByClientId;
@@ -31,10 +35,15 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
 
     public void Interact(GameObject interactor)
     {
+
         if (!IsSpawned || blackjackTable == null)
+        {
             return;
+        }
+            
 
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
         blackjackTable.RequestDrawCardServerRpc(clientId);
+
     }
 }

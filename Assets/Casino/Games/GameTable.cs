@@ -64,6 +64,11 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     /// <inheritdoc />
     public event Action OnGameEnded;
 
+    public readonly NetworkVariable<NetworkObjectReference> botNetworkObjectRef = new NetworkVariable<NetworkObjectReference>(
+    default,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
+
     // ---------- Unity / NetworkBehaviour ----------
     public override void OnNetworkSpawn()
     {
@@ -116,13 +121,18 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     /// <summary>Вызывается при взаимодействии игрока. Запускает процесс занятия стола.</summary>
     public void Interact(GameObject interactor)
     {
-        if (!IsSpawned || isOccupied.Value) return;
+        if (!IsSpawned || isOccupied.Value)
+        {
+            Debug.Log("!IsSpawned || isOccupied.Value");
+            return;
+        }
 
         NetworkObject netObj = interactor.GetComponent<NetworkObject>();
         if (netObj != null)
         {
             OccupyServerRpc(netObj.OwnerClientId);
         }
+        else Debug.Log("netObj == null");
     }
 
     // ---------- RPC для занятия/освобождения игрока ----------
@@ -142,7 +152,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
     // ---------- Управление игроком (сервер) ----------
     /// <inheritdoc />
-    public void Occupy(ulong clientId)
+    public virtual void Occupy(ulong clientId)
     {
         if (!IsServer) return;
 
@@ -158,7 +168,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     }
 
     /// <inheritdoc />
-    public void Leave(ulong clientId)
+    public virtual void Leave(ulong clientId)
     {
         if (!IsServer) return;
 
@@ -175,7 +185,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
     // ---------- Управление ботом (сервер) ----------
     /// <inheritdoc />
-    public void AssignBot(NetworkObject bot)
+    public virtual void AssignBot(NetworkObject bot)
     {
         if (!IsServer) return;
 
@@ -186,12 +196,13 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
         }
 
         currentBot = bot;
+        botNetworkObjectRef.Value = new NetworkObjectReference(bot);
         isBotOccupied.Value = true;
         Debug.Log($"[GameTable] Бот {bot.name} занял место за столом.");
     }
 
     /// <inheritdoc />
-    public void RemoveBot()
+    public virtual void RemoveBot()
     {
         if (!IsServer) return;
 
@@ -209,6 +220,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
         }
 
         currentBot = null;
+        botNetworkObjectRef.Value = default;
         isBotOccupied.Value = false;
         Debug.Log($"[GameTable] Бот убран из-за стола.");
     }
@@ -243,11 +255,11 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     /// <returns>true, если игра может быть начата.</returns>
     protected virtual bool CanStartGame()
     {
-        return IsOccupied && IsBotOccupied;
+        return true;  //IsOccupied && IsBotOccupied;
     }
 
     // ---------- Обработка триггера ----------
-    private void OnTriggerExit(Collider other)
+    public virtual void OnTriggerExit(Collider other)
     {
         if (!IsServer) return;
 
@@ -262,7 +274,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     }
 
     // ---------- Обработка дисконнекта ----------
-    private void OnClientDisconnect(ulong clientId)
+    public virtual void OnClientDisconnect(ulong clientId)
     {
         if (!IsServer) return;
 

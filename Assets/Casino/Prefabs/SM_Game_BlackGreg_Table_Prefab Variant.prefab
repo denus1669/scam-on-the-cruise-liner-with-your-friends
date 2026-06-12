@@ -107,5 +107,38 @@ PrefabInstance:
     - {fileID: 6668471405321932756, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
     - {fileID: 7317997073826016532, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4254036132242445785}
   m_SourcePrefab: {fileID: 100100000, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+--- !u!1 &5341110489298412060 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5340536441523926697, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+  m_PrefabInstance: {fileID: 574117668541621}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4254036132242445785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5341110489298412060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9041a6e481692744f8aa1e9644dd77f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FinishGameListener
+  onFinishGameEvent: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
+  blackjackTable: {fileID: 6935407033680107529}
+--- !u!114 &6935407033680107529 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6934850577202334908, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+  m_PrefabInstance: {fileID: 574117668541621}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5341110489298412060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d49335fbb71c1e4fa4570b32eb432d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackGregTable
