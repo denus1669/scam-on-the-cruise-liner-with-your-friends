@@ -31,23 +31,28 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
 
     public void InitializeGame(NetworkBehaviour tableManager)
     {
-        if (tableManager is BlackGregManager manager)
+        // Пытаемся получить BlackGregManager любым способом
+        blackGregManager = tableManager as BlackGregManager;
+        if (blackGregManager == null)
         {
-            blackGregManager = manager;
-            tableInteractable = manager.TableInteractable;
-
-            // Подписываемся на события стола, так как теперь мы знаем, за каким столом играем
-            if (IsServer && tableInteractable != null)
-            {
-                blackGregManager.gameInProgress.OnValueChanged += OnGameStatusChanged;
-            }
-
-            Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} инициализирован для стола {manager.name}");
+            blackGregManager = tableManager.GetComponent<BlackGregManager>();
         }
-        else
+
+        if (blackGregManager == null)
         {
-            Debug.LogError($"[BlackGreg ИИ] Переданный менеджер не является BlackGregManager!");
+            Debug.LogError($"[BlackGreg ИИ] На объекте {tableManager.name} нет компонента BlackGregManager!");
+            return;
         }
+
+        tableInteractable = blackGregManager.TableInteractable;
+
+        // Подписываемся на события
+        if (IsServer && tableInteractable != null)
+        {
+            blackGregManager.gameInProgress.OnValueChanged += OnGameStatusChanged;
+        }
+
+        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} инициализирован для стола {blackGregManager.name}");
     }
 
     public void StartSession()

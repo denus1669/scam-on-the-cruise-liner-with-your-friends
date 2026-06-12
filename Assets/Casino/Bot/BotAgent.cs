@@ -16,6 +16,8 @@ public class BotAgent : NetworkBehaviour
     [SerializeField] private float stoppingDistance = 1.5f;
     [SerializeField] private float pathUpdateInterval = 0.2f;
 
+    [Header("Cсылки")]
+    [SerializeField] private Transform targetObject;
     [SerializeField] private NavMeshAgent _navAgent;
     [SerializeField] private Coroutine _movementCoroutine;
     [SerializeField] private IInteractable _targetInteractable;
@@ -24,6 +26,13 @@ public class BotAgent : NetworkBehaviour
     {
         _navAgent = GetComponent<NavMeshAgent>();
         _navAgent.stoppingDistance = stoppingDistance;
+
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        BotGoToTarget(targetObject);
+
     }
 
     /// <summary>
@@ -50,6 +59,38 @@ public class BotAgent : NetworkBehaviour
         {
             Debug.LogError($"Объект {interactableObject.name} не реализует интерфейс IInteractable!");
         }
+    }
+
+    public void BotGoToTarget(Transform targetObject)
+    {
+        if (!IsServer)
+        {
+            // Клиентам NavMeshAgent не нужен – отключаем
+            if (_navAgent != null) _navAgent.enabled = false;
+            return;
+        }
+
+        if (_navAgent == null)
+        {
+            Debug.LogError("NavMeshAgent отсутствует!", this);
+            return;
+        }
+
+        // Включаем агента
+        _navAgent.enabled = true;
+
+        if (targetObject != null)
+        {
+            // Устанавливаем destination для NavMeshAgent
+            _navAgent.SetDestination(targetObject.position);
+            Debug.Log($"Бот {gameObject.name} идёт к {targetObject.name}");
+        }
+        else
+        {
+            Debug.LogWarning("Цель не найдена! Бот стоит на месте.");
+        }
+
+
     }
 
     /// <summary>
