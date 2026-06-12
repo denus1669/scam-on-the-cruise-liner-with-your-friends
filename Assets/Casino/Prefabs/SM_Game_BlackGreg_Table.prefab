@@ -48,6 +48,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 13805140b53a8e146ac94c353afab140, type: 2}
     - target: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
       propertyPath: m_Name
       value: SM_Game_BlackGreg_Table
@@ -59,6 +63,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 816669110693578948}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9022600536297322436}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4022139013240256337}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 594752037713147459}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8059695128375334090}
   m_SourcePrefab: {fileID: 100100000, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
 --- !u!1 &4320926577694989455 stripped
 GameObject:
@@ -77,6 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 567e6fd6cc1a1404e9cda43e7f898029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackGregManager
+  ShowTopMostFoldoutHeaderGroup: 1
   cardViewPrefab: {fileID: 0}
   playerHandParent: {fileID: 0}
   botHandParent: {fileID: 0}
@@ -85,6 +102,7 @@ MonoBehaviour:
   startRotation: {x: -30, y: 0, z: 0}
   cardLimit: 10
   minCardsToFinish: 2
+  tableInteractable: {fileID: 0}
   OnPlayerWon:
     m_PersistentCalls:
       m_Calls: []
@@ -94,3 +112,91 @@ MonoBehaviour:
   OnDraw:
     m_PersistentCalls:
       m_Calls: []
+--- !u!65 &9022600536297322436
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4320926577694989455}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 1, z: 2}
+  m_Center: {x: 0, y: 0, z: -1}
+--- !u!114 &4022139013240256337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4320926577694989455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1632568805
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &594752037713147459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4320926577694989455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adac8d41457b2454f83901888b9e23bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TableInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  triggerMode: 0
+  priority: 0
+  promptText: "\u0417\u0430\u043D\u044F\u0442\u044C \u0441\u0442\u043E\u043B (E)"
+  isOccupied:
+    m_InternalValue: 0
+  occupiedByClientId:
+    m_InternalValue: 18446744073709551615
+--- !u!64 &8059695128375334090
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4320926577694989455}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -7725165114033507810, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}

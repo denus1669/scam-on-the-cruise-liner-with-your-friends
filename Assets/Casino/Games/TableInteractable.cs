@@ -32,6 +32,9 @@ public class TableInteractable : NetworkBehaviour, IInteractable
     public int Priority => priority;
     public string InteractionPromptText => promptText;
 
+    // Свойство для подписки на изменения владельца извне
+    public NetworkVariable<ulong> OccupiedByClientIdVar => occupiedByClientId;
+
     public bool IsOccupied() => isOccupied.Value;
     public ulong GetOccupyingClientId() => occupiedByClientId.Value;
 
@@ -93,6 +96,7 @@ public class TableInteractable : NetworkBehaviour, IInteractable
             } 
         }
     }
+
 
     public override void OnNetworkSpawn()
     {
