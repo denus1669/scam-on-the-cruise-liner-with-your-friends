@@ -46,12 +46,10 @@ public class BlackGregManager : NetworkBehaviour
     public UnityEvent OnBotWon;
     public UnityEvent OnDraw;
 
-<<<<<<< Updated upstream:Assets/Casino/Games/BlackGregManager.cs
-=======
+
     public int GetBotScore() => CalculateHandValue(botHandData);
     public int GetBotCardCount() => botHandData.Count;
     public List<CardData> GetBotHandCopy() => new List<CardData>(botHandData);
->>>>>>> Stashed changes:Assets/Casino/Games/BlackGreg/BlackGregManager.cs
 
     #region Server-only logic
 

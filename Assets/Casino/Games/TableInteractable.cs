@@ -64,8 +64,6 @@ public class TableInteractable : NetworkBehaviour, IInteractable
 
         Debug.Log($"Стол занят клиентом: {clientId}");
     }
-<<<<<<< Updated upstream
-=======
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void LeaveTableServerRpc(ulong clientId)
@@ -121,5 +119,4 @@ public class TableInteractable : NetworkBehaviour, IInteractable
     }
 
 
->>>>>>> Stashed changes
 }

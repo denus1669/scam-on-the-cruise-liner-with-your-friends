@@ -1092,7 +1092,10 @@ MonoBehaviour:
   startRotation: {x: -30, y: 0, z: 0}
   cardLimit: 10
   minCardsToFinish: 2
+  gameInProgress:
+    m_InternalValue: 0
   tableInteractable: {fileID: 1942737586}
+  botHasStood: 0
   OnPlayerWon:
     m_PersistentCalls:
       m_Calls: []
