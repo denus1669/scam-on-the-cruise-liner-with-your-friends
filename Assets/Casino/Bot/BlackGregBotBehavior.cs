@@ -1,4 +1,3 @@
-using Blocks.Gameplay.Core;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,7 +8,6 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
 {
     [Header("Настройки личности ИИ")]
     [SerializeField] private BotPersonality personality = BotPersonality.Balanced;
-
     [Range(0f, 1f)]
     [SerializeField] private float stupidityChance = 0.08f;
 
@@ -17,115 +15,106 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
     [SerializeField] private float delayBetweenActionsMin = 1.5f;
     [SerializeField] private float delayBetweenActionsMax = 3.0f;
 
-    private BotAgent _botAgent;
-    private BlackGregManager blackGregManager;
-    private TableInteractable tableInteractable;
-    private bool _isPlaying = false;
+    private BotAgent botAgent;
+    private IGameTable gameTable;
+    private ICardGameTable cardTable;
+    private bool isPlaying = false;
 
     private void Awake()
     {
-        _botAgent = GetComponent<BotAgent>();
+        botAgent = GetComponent<BotAgent>();
     }
 
-    // === РЕАЛИЗАЦИЯ ИНТЕРФЕЙСА ===
+    // === РЕАЛИЗАЦИЯ IBotGameBehavior ===
 
-    public void InitializeGame(NetworkBehaviour tableManager)
+    public void InitializeGame(IGameTable table)
     {
-        // Пытаемся получить BlackGregManager любым способом
-        blackGregManager = tableManager as BlackGregManager;
-        if (blackGregManager == null)
-        {
-            blackGregManager = tableManager.GetComponent<BlackGregManager>();
-        }
+        gameTable = table;
+        cardTable = table as ICardGameTable;
 
-        if (blackGregManager == null)
+        if (cardTable == null)
         {
-            Debug.LogError($"[BlackGreg ИИ] На объекте {tableManager.name} нет компонента BlackGregManager!");
+            Debug.LogError($"[BlackGreg ИИ] Стол {table} не реализует ICardGameTable. Бот не может играть.");
             return;
         }
 
-        tableInteractable = blackGregManager.TableInteractable;
-
-        // Подписываемся на события
-        if (IsServer && tableInteractable != null)
+        // Подписываемся на события стола (сервер)
+        if (IsServer)
         {
-            blackGregManager.gameInProgress.OnValueChanged += OnGameStatusChanged;
+            gameTable.OnGameStarted += OnGameStarted;
+            gameTable.OnGameEnded += OnGameEnded;
         }
 
-        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} инициализирован для стола {blackGregManager.name}");
+        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} инициализирован для стола {(table as MonoBehaviour)?.name}");
     }
 
     public void StartSession()
     {
-        if (!IsServer || _isPlaying) return;
+        if (!IsServer || isPlaying) return;
         StartCoroutine(PlaySessionRoutine());
     }
 
     public void EndSession()
     {
         StopAllCoroutines();
-        _isPlaying = false;
+        isPlaying = false;
         Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} завершил сессию.");
     }
 
-    // === ЛОГИКА ПОВЕДЕНИЯ ===
+    // === РЕАКЦИЯ НА СОБЫТИЯ СТОЛА ===
 
-    /// <summary>
-    /// Реагирует на начало и конец игры.
-    /// </summary>
-    private void OnGameStatusChanged(bool oldState, bool newState)
+    private void OnGameStarted()
     {
         if (!IsServer) return;
-
-        if (newState)
-        {
-            // gameInProgress стал true (игрок взял первую карту в PlayerDrawCard)
-            Debug.Log("[BlackGreg ИИ] Игра началась, бот включается.");
-            StartSession();
-        }
-        else
-        {
-            // gameInProgress стал false (вызван FinishGame)
-            Debug.Log("[BlackGreg ИИ] Игра закончилась, бот выключается.");
-            EndSession();
-        }
+        Debug.Log("[BlackGreg ИИ] Игра началась, бот включается.");
+        StartSession();
     }
+
+    private void OnGameEnded()
+    {
+        if (!IsServer) return;
+        Debug.Log("[BlackGreg ИИ] Игра закончилась, бот выключается.");
+        EndSession();
+        // Сообщаем BotAgent, что можно уходить
+        if (botAgent != null)
+            botAgent.GoToExit();
+    }
+
+    // === ИГРОВАЯ ЛОГИКА ===
 
     private IEnumerator PlaySessionRoutine()
     {
-        _isPlaying = true;
+        isPlaying = true;
         Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} начинает игровую сессию.");
 
         yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
 
-        while (_isPlaying)
+        while (isPlaying)
         {
-            // === ПРОВЕРКА СОСТОЯНИЯ ГОНКИ (Race Condition) ===
-            if (!blackGregManager.gameInProgress.Value)
+            // Если игра уже не идёт — выходим
+            if (!gameTable.IsGameStarted)
             {
                 Debug.Log($"[BlackGreg ИИ] Игра завершена, бот прекращает сессию.");
-                _isPlaying = false;
+                isPlaying = false;
                 yield break;
             }
-            // ================================================
 
-            List<CardData> botCards = blackGregManager.GetBotHandCopy();
-            int currentScore = blackGregManager.CalculateHandValue(botCards);
-            int cardCount = botCards.Count;
+            int botScore = cardTable.GetBotScore();
+            int cardCount = cardTable.GetBotCardCount();
 
-            Debug.Log($"[BlackGreg ИИ] Бот имеет {cardCount} карт, сумма очков: {currentScore}");
+            Debug.Log($"[BlackGreg ИИ] Бот имеет {cardCount} карт, сумма очков: {botScore}");
 
-            bool shouldDraw = EvaluateNextMove(currentScore, cardCount);
+            bool shouldDraw = EvaluateNextMove(botScore, cardCount);
 
             if (shouldDraw)
             {
-                Debug.Log($"[BlackGreg ИИ] Бот решает ВЗЯТЬ карту.");
-                blackGregManager.BotDrawCard();
+                Debug.Log("[BlackGreg ИИ] Бот решает ВЗЯТЬ карту.");
+                cardTable.BotDrawCard();
             }
             else
             {
-                Debug.Log($"[BlackGreg ИИ] Бот решает ОСТАНОВИТЬСЯ.");
-                blackGregManager.BotStand();
+                Debug.Log("[BlackGreg ИИ] Бот решает ОСТАНОВИТЬСЯ.");
+                cardTable.BotStand();
                 yield break;
             }
 
@@ -152,41 +141,30 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
             }
         }
 
-        int standThreshold = 17;
-        switch (personality)
+        int standThreshold = personality switch
         {
-            case BotPersonality.Cautious: standThreshold = 15; break;
-            case BotPersonality.Risky: standThreshold = 18; break;
-            case BotPersonality.Balanced:
-            default: standThreshold = 17; break;
-        }
+            BotPersonality.Cautious => 15,
+            BotPersonality.Risky => 18,
+            _ => 17
+        };
 
         return score < standThreshold;
     }
 
     public void SetPersonality(BotPersonality newPersonality)
     {
-        this.personality = newPersonality;
+        personality = newPersonality;
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        if (IsServer && blackGregManager != null)
-        {
-            // === ГЛАВНОЕ ИЗМЕНЕНИЕ ===
-            // Подписываемся на статус игры, а не на занятость стола!
-            blackGregManager.gameInProgress.OnValueChanged += OnGameStatusChanged;
-        }
-    }
+    // === СЕТЕВЫЕ МЕТОДЫ ===
 
-    // Отписываемся от событий при уничтожении
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
-        if (tableInteractable != null)
+        if (gameTable != null)
         {
-            blackGregManager.gameInProgress.OnValueChanged -= OnGameStatusChanged;
+            gameTable.OnGameStarted -= OnGameStarted;
+            gameTable.OnGameEnded -= OnGameEnded;
         }
     }
 }

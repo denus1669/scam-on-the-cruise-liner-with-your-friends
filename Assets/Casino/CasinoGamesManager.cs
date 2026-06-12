@@ -15,6 +15,7 @@ public class CasinoGamesManager : NetworkBehaviour
 
     private Coroutine _spawnRoutine;
 
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -79,8 +80,9 @@ public class CasinoGamesManager : NetworkBehaviour
         botSpawner.DespawnAllBots();
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         if (IsServer) ForceDespawnAllBots();
+        base.OnDestroy();
     }
 }

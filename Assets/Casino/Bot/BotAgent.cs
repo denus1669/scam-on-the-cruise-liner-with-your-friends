@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
-using Blocks.Gameplay.Core;
 
 /// <summary>
-/// Универсальный агент ИИ, управляющий перемещением и взаимодействием с игровыми объектами.
-/// Подходит для любых игр (BlackGreg, рулетка и др.).
+/// Универсальный агент ИИ, управляющий перемещением и взаимодействием с игровыми столами.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 public class BotAgent : NetworkBehaviour
@@ -16,130 +15,222 @@ public class BotAgent : NetworkBehaviour
     [SerializeField] private float stoppingDistance = 1.5f;
     [SerializeField] private float pathUpdateInterval = 0.2f;
 
-    [Header("Cсылки")]
-    [SerializeField] private Transform targetObject;
-    [SerializeField] private NavMeshAgent _navAgent;
-    [SerializeField] private Coroutine _movementCoroutine;
-    [SerializeField] private IInteractable _targetInteractable;
+    [Header("Точка выхода")]
+    [SerializeField] private Transform exitPoint;   // куда уходит бот, покидая казино
+
+    private NavMeshAgent navAgent;
+    private Coroutine movementCoroutine;
+
+    private bool isWaitingForTable;
+    private List<IGameTable> subscribedTables = new List<IGameTable>();
+
+    // Текущий стол, с которым взаимодействует бот
+    private IGameTable currentTable;
 
     private void Awake()
     {
-        _navAgent = GetComponent<NavMeshAgent>();
-        _navAgent.stoppingDistance = stoppingDistance;
-
+        navAgent = GetComponent<NavMeshAgent>();
+        navAgent.stoppingDistance = stoppingDistance;
     }
 
     public override void OnNetworkSpawn()
     {
-        BotGoToTarget(targetObject);
-
+        base.OnNetworkSpawn();
+        if (IsServer)
+        {
+            // При спавне бот сам ищет стол и идёт к нему
+            FindAndGoToRandomTable();
+        }
+        else
+        {
+            // На клиентах NavMeshAgent не нужен
+            if (navAgent != null) navAgent.enabled = false;
+        }
     }
 
     /// <summary>
-    /// Приказывает боту подойти к объекту и взаимодействовать с ним.
+    /// Находит все столы на сцене, выбирает случайный свободный и отправляет бота к нему.
     /// </summary>
-    /// <param name="interactableObject">Объект для взаимодействия.</param>
-    /// <param name="onInteractionComplete">Коллбек по завершению действия.</param>
-    public void GoAndInteract(MonoBehaviour interactableObject, Action onInteractionComplete = null)
+    public void FindAndGoToRandomTable()
     {
         if (!IsServer) return;
 
-        if (interactableObject is IInteractable interactable)
-        {
-            _targetInteractable = interactable;
+        List<IGameTable> freeTables = new List<IGameTable>();
 
-            if (_movementCoroutine != null)
+        // Используем современный API, без сортировки
+        MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+
+        foreach (var behaviour in allBehaviours)
+        {
+            if (behaviour is IGameTable table && !table.IsBotOccupied)
             {
-                StopCoroutine(_movementCoroutine);
+                freeTables.Add(table);
+            }
+        }
+
+        if (freeTables.Count == 0)
+        {
+            Debug.Log($"[BotAgent] Нет свободных столов. Бот {gameObject.name} ожидает освобождения.");
+            WaitForFreeTable();
+            return;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, freeTables.Count);
+        IGameTable selectedTable = freeTables[randomIndex];
+        currentTable = selectedTable;
+
+        Debug.Log($"[BotAgent] Бот {gameObject.name} выбрал стол {((MonoBehaviour)selectedTable).name}");
+
+        MoveToTarget(((MonoBehaviour)selectedTable).transform, OnReachedTable);
+    }
+
+    /// <summary>
+    /// Отправляет бота к точке выхода из казино.
+    /// </summary>
+    public void GoToExit()
+    {
+        if (!IsServer) return;
+
+        if (currentTable != null)
+        {
+            currentTable.RemoveBot();
+            currentTable = null;
+        }
+
+        if (exitPoint != null)
+        {
+            Debug.Log($"[BotAgent] Бот {gameObject.name} уходит к выходу.");
+            MoveToTarget(exitPoint, OnReachedExit);
+        }
+        else
+        {
+            Debug.LogWarning($"[BotAgent] Точка выхода не назначена. Бот {gameObject.name} остановлен.");
+        }
+    }
+
+    /// <summary>
+    /// Универсальный метод движения к цели. После прибытия вызывает указанный колбэк.
+    /// </summary>
+    private void MoveToTarget(Transform target, Action onArrived)
+    {
+        if (movementCoroutine != null)
+            StopCoroutine(movementCoroutine);
+
+        movementCoroutine = StartCoroutine(MoveToTargetRoutine(target, onArrived));
+    }
+
+    private IEnumerator MoveToTargetRoutine(Transform target, Action onArrived)
+    {
+        if (!IsServer || target == null) yield break;
+
+        navAgent.isStopped = false;
+
+        while (Vector3.Distance(transform.position, target.position) > navAgent.stoppingDistance)
+        {
+            navAgent.SetDestination(target.position);
+            yield return new WaitForSeconds(pathUpdateInterval);
+
+            if (target == null)
+            {
+                Debug.LogWarning($"[BotAgent] Цель исчезла во время движения. Бот {gameObject.name} останавливается.");
+                navAgent.isStopped = true;
+                movementCoroutine = null;
+                yield break;
+            }
+        }
+
+        navAgent.isStopped = true;
+        movementCoroutine = null;
+
+        onArrived?.Invoke();
+    }
+
+    private void OnReachedTable()
+    {
+        if (currentTable != null)
+        {
+            NetworkObject netObj = GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                currentTable.AssignBot(netObj);
+                Debug.Log($"[BotAgent] Бот {gameObject.name} занял место за столом.");
             }
 
-            _movementCoroutine = StartCoroutine(MoveToAndInteractRoutine(interactableObject.transform, onInteractionComplete));
-        }
-        else
-        {
-            Debug.LogError($"Объект {interactableObject.name} не реализует интерфейс IInteractable!");
+            // Ищем у себя IBotGameBehavior и инициализируем его текущим столом
+            if (TryGetComponent<IBotGameBehavior>(out var behavior))
+            {
+                behavior.InitializeGame(currentTable);
+            }
         }
     }
-
-    public void BotGoToTarget(Transform targetObject)
+    private void OnReachedExit()
     {
-        if (!IsServer)
-        {
-            // Клиентам NavMeshAgent не нужен – отключаем
-            if (_navAgent != null) _navAgent.enabled = false;
-            return;
-        }
-
-        if (_navAgent == null)
-        {
-            Debug.LogError("NavMeshAgent отсутствует!", this);
-            return;
-        }
-
-        // Включаем агента
-        _navAgent.enabled = true;
-
-        if (targetObject != null)
-        {
-            // Устанавливаем destination для NavMeshAgent
-            _navAgent.SetDestination(targetObject.position);
-            Debug.Log($"Бот {gameObject.name} идёт к {targetObject.name}");
-        }
-        else
-        {
-            Debug.LogWarning("Цель не найдена! Бот стоит на месте.");
-        }
-
-
+        Debug.Log($"[BotAgent] Бот {gameObject.name} покинул казино.");
+        Destroy(gameObject);
+        // Здесь можно запустить деспавн или дальнейшее поведение
     }
 
     /// <summary>
-    /// Корутина для плавного следования к цели и последующего взаимодействия.
+    /// Прерывает текущее движение (если есть).
     /// </summary>
-    private IEnumerator MoveToAndInteractRoutine(Transform target, Action onComplete)
+    public void CancelMovement()
     {
-        if (!IsServer) yield return null;
-
-        _navAgent.isStopped = false;
-
-        // Двигаемся к цели, пока не окажемся на дистанции остановки
-        while (target != null && Vector3.Distance(transform.position, target.position) > _navAgent.stoppingDistance)
+        if (movementCoroutine != null)
         {
-            _navAgent.SetDestination(target.position);
-            yield return new WaitForSeconds(pathUpdateInterval);
+            StopCoroutine(movementCoroutine);
+            movementCoroutine = null;
         }
 
-        _navAgent.isStopped = true;
-
-        // Проверяем возможность взаимодействия
-        if (_targetInteractable != null && _targetInteractable.CanInteract(gameObject))
+        if (navAgent != null && navAgent.isOnNavMesh)
         {
-            Debug.Log($"[ИИ] {gameObject.name} начинает взаимодействие с {_targetInteractable.InteractionPromptText}");
-            _targetInteractable.Interact(gameObject);
-            onComplete?.Invoke();
+            navAgent.isStopped = true;
         }
-        else
-        {
-            Debug.LogWarning($"[ИИ] {gameObject.name} подошел, но не смог взаимодействовать.");
-        }
-
-        _movementCoroutine = null;
     }
 
-    /// <summary>
-    /// Прервать текущее действие и остановиться.
-    /// </summary>
-    public void CancelCurrentAction()
+    private void WaitForFreeTable()
     {
-        if (_movementCoroutine != null)
+        if (isWaitingForTable) return;
+        isWaitingForTable = true;
+
+        // Находим все столы на сцене
+        MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+        foreach (var behaviour in allBehaviours)
         {
-            StopCoroutine(_movementCoroutine);
-            _movementCoroutine = null;
+            if (behaviour is IGameTable table)
+            {
+                table.OnBotOccupancyChanged += OnTableBotOccupancyChanged;
+                subscribedTables.Add(table);
+            }
         }
-        if (_navAgent.isOnNavMesh)
+    }
+
+    private void OnTableBotOccupancyChanged(bool isOccupied)
+    {
+        if (!isOccupied) // Стол освободился
         {
-            _navAgent.isStopped = true;
+            // Отписываемся от всех столов
+            foreach (var table in subscribedTables)
+            {
+                table.OnBotOccupancyChanged -= OnTableBotOccupancyChanged;
+            }
+            subscribedTables.Clear();
+            isWaitingForTable = false;
+
+            // Пытаемся снова найти стол
+            FindAndGoToRandomTable();
         }
-        _targetInteractable = null;
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        if (IsServer)
+        {
+            foreach (var table in subscribedTables)
+            {
+                table.OnBotOccupancyChanged -= OnTableBotOccupancyChanged;
+            }
+            subscribedTables.Clear();
+        }
     }
 }

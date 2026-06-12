@@ -10,9 +10,6 @@ public class BotSpawner : NetworkBehaviour
     [Header("Позиции спавна")]
     [SerializeField] private Vector3[] spawnPositions;
 
-    [Header("Привязка к столам (УНИВЕРСАЛЬНО)")]
-    [SerializeField] private NetworkBehaviour[] availableTables; // Теперь любой NetworkBehaviour
-
     [Header("Настройки личностей (опционально)")]
     [SerializeField] private BotPersonality[] forcedPersonalities;
 
@@ -28,7 +25,7 @@ public class BotSpawner : NetworkBehaviour
 
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
         {
-            Debug.LogError("Сетевая сессия не активна");
+            Debug.LogError("[BotSpawner] Сетевая сессия не активна");
             return null;
         }
 
@@ -54,8 +51,10 @@ public class BotSpawner : NetworkBehaviour
         }
 
         netObj.Spawn();
-        ConfigureBot(bot, index);
         spawnedBots.Add(bot);
+
+        // Настройка личности, если применимо
+        ApplyPersonality(bot, index);
 
         Debug.Log($"[BotSpawner] Бот {index} заспавнен.");
         return bot;
@@ -84,44 +83,17 @@ public class BotSpawner : NetworkBehaviour
         spawnedBots.Clear();
     }
 
-    private void ConfigureBot(GameObject bot, int index)
+    /// <summary>
+    /// Применяет личность к компоненту BlackGregBotBehavior, если он есть.
+    /// Остальную инициализацию бот выполнит сам после выбора стола.
+    /// </summary>
+    private void ApplyPersonality(GameObject bot, int index)
     {
-        // Ищем интерфейс, а не конкретный класс!
-        IBotGameBehavior behavior = bot.GetComponent<IBotGameBehavior>();
-        if (behavior != null)
+        if (bot.TryGetComponent<BlackGregBotBehavior>(out var blackGregBehavior))
         {
-            NetworkBehaviour targetTable = GetTableForIndex(index);
-            if (targetTable != null)
-            {
-                // Универсальная инициализация
-                behavior.InitializeGame(targetTable);
-
-                // Дополнительно настраиваем личность, если это BlackGreg бот
-                // Это компромисс: спавнер знает о существовании BlackGregBotBehavior,
-                // но только для дополнительной настройки. Вся основная логика — через интерфейс.
-                if (behavior is BlackGregBotBehavior blackGregBehavior)
-                {
-                    BotPersonality personality = GetPersonalityForIndex(index);
-                    blackGregBehavior.SetPersonality(personality);
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"[BotSpawner] Для бота {index} не найден стол.");
-            }
+            BotPersonality personality = GetPersonalityForIndex(index);
+            blackGregBehavior.SetPersonality(personality);
         }
-        else
-        {
-            Debug.LogWarning($"[BotSpawner] У бота {index} отсутствует IBotGameBehavior.");
-        }
-    }
-
-    private NetworkBehaviour GetTableForIndex(int index)
-    {
-        if (availableTables == null || availableTables.Length == 0)
-            return null;
-        int tableIndex = index % availableTables.Length;
-        return availableTables[tableIndex];
     }
 
     private BotPersonality GetPersonalityForIndex(int index)

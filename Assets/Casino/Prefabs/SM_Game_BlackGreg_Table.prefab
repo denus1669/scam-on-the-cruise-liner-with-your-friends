@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &340619900670737565
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5521564553646393563}
+  m_Layer: 8
+  m_Name: CardTablePosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5521564553646393563
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340619900670737565}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3511914325528643125}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3978483893220205022
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58,81 +89,40 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5766632333971788320}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2005819894365205493}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5521564553646393563}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 816669110693578948}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 9022600536297322436}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4022139013240256337}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 594752037713147459}
+      addedObject: {fileID: 9022600536297322436}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8059695128375334090}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1285759650180687514}
   m_SourcePrefab: {fileID: 100100000, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+--- !u!4 &3511914325528643125 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+  m_PrefabInstance: {fileID: 3978483893220205022}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4320926577694989455 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
   m_PrefabInstance: {fileID: 3978483893220205022}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &816669110693578948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4320926577694989455}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 567e6fd6cc1a1404e9cda43e7f898029, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlackGregManager
-  ShowTopMostFoldoutHeaderGroup: 1
-  cardViewPrefab: {fileID: 0}
-  playerHandParent: {fileID: 0}
-  botHandParent: {fileID: 0}
-  startPosition: {x: 0.11, y: 1.393, z: 1.066}
-  spreadDistance: 0.22
-  startRotation: {x: -30, y: 0, z: 0}
-  cardLimit: 10
-  minCardsToFinish: 2
-  tableInteractable: {fileID: 0}
-  OnPlayerWon:
-    m_PersistentCalls:
-      m_Calls: []
-  OnBotWon:
-    m_PersistentCalls:
-      m_Calls: []
-  OnDraw:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!65 &9022600536297322436
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4320926577694989455}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4, y: 1, z: 2}
-  m_Center: {x: 0, y: 0, z: -1}
 --- !u!114 &4022139013240256337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,26 +148,27 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &594752037713147459
-MonoBehaviour:
+--- !u!65 &9022600536297322436
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4320926577694989455}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adac8d41457b2454f83901888b9e23bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TableInteractable
-  ShowTopMostFoldoutHeaderGroup: 1
-  triggerMode: 0
-  priority: 0
-  promptText: "\u0417\u0430\u043D\u044F\u0442\u044C \u0441\u0442\u043E\u043B (E)"
-  isOccupied:
-    m_InternalValue: 0
-  occupiedByClientId:
-    m_InternalValue: 18446744073709551615
+  serializedVersion: 3
+  m_Size: {x: 4, y: 1, z: 2}
+  m_Center: {x: 0, y: 0, z: -1}
 --- !u!64 &8059695128375334090
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -197,6 +188,215 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -7725165114033507810, guid: 7090606c23d2dff4ea41a22b0330cdd5, type: 3}
+--- !u!114 &1285759650180687514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4320926577694989455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d49335fbb71c1e4fa4570b32eb432d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackGregTable
+  ShowTopMostFoldoutHeaderGroup: 1
+  promptText: "\u0417\u0430\u043D\u044F\u0442\u044C \u0441\u0442\u043E\u043B (E)"
+  triggerMode: 0
+  priority: 0
+  cardViewPrefab: {fileID: 1135299673769060613}
+  playerHandParent: {fileID: 0}
+  botHandParent: {fileID: 0}
+  cardTablePosition: {fileID: 5521564553646393563}
+  startPosition: {x: 0.11, y: 1.393, z: 1.066}
+  spreadDistance: 0.22
+  startRotation: {x: 30, y: 180, z: 0}
+  cardLimit: 10
+  minCardsToFinish: 2
+--- !u!1001 &4227240579447099461
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3511914325528643125}
+    m_Modifications:
+    - target: {fileID: 2427662859468267744, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2757366946826789240, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: blackjackTable
+      value: 
+      objectReference: {fileID: 1285759650180687514}
+    - target: {fileID: 4228940463440937269, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 633457d60ae1b5e4cbe438876a61cf8e, type: 2}
+    - target: {fileID: 6833066566508675143, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_Name
+      value: 'SM_Game_BlackGreg_Deck_Prefab '
+      objectReference: {fileID: 0}
+    - target: {fileID: 6833066566508675143, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.94
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.921
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2427662859468267744, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6568711942904836184}
+  m_SourcePrefab: {fileID: 100100000, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+--- !u!1 &1953126735034478757 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2427662859468267744, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+  m_PrefabInstance: {fileID: 4227240579447099461}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6568711942904836184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953126735034478757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3391657527
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!4 &5766632333971788320 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7686832467053118053, guid: a96d93cf1a99b4d469e3e8c1c8860b7b, type: 3}
+  m_PrefabInstance: {fileID: 4227240579447099461}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4625086176526686195
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3511914325528643125}
+    m_Modifications:
+    - target: {fileID: 4488919066980452685, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_Name
+      value: 'SM_Game_BlackGreg_Card '
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.2022295
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.018
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.46309
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+--- !u!114 &1135299673769060613 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5759820621591510774, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+  m_PrefabInstance: {fileID: 4625086176526686195}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ca74f14f10e2c94eab05af009538918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardView
+--- !u!4 &2005819894365205493 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6627471050034504710, guid: 23131ebb887a16a4f9b68fffa06a7c2f, type: 3}
+  m_PrefabInstance: {fileID: 4625086176526686195}
+  m_PrefabAsset: {fileID: 0}

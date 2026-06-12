@@ -4,13 +4,12 @@ using UnityEngine;
 
 /// <summary>
 /// Интерактивный объект "Колода карт".
-/// При взаимодействии дает команду столу выдать карту игроку.
+/// При взаимодействии даёт команду столу выдать карту игроку.
 /// </summary>
 public class DeckInteractable : NetworkBehaviour, IInteractable
 {
-    [Header("Связи")]
-    [SerializeField] private BlackGregManager blackGregManager;
-    [SerializeField] private TableInteractable tableInteractable;
+    [Header("Стол")]
+    [SerializeField] private BlackGregTable blackjackTable;
 
     [Header("Настройки взаимодействия")]
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
@@ -23,26 +22,19 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
 
     public bool CanInteract(GameObject interactor)
     {
-        if (tableInteractable == null) return false;
-        if (!tableInteractable.IsOccupied()) return false;
+        if (blackjackTable == null || !blackjackTable.IsOccupied)
+            return false;
 
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        return clientId == tableInteractable.GetOccupyingClientId();
+        return clientId == blackjackTable.OccupiedByClientId;
     }
 
     public void Interact(GameObject interactor)
     {
-        if (!IsSpawned) return;
+        if (!IsSpawned || blackjackTable == null)
+            return;
 
-        if (blackGregManager != null)
-        {
-            // Передаём clientId через аргумент RPC
-            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-            blackGregManager.RequestDrawCardServerRpc(clientId);
-        }
-        else
-        {
-            Debug.LogError("DeckInteractable: tableManager is null");
-        }
+        ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+        blackjackTable.RequestDrawCardServerRpc(clientId);
     }
 }
