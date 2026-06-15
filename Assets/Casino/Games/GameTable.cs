@@ -1,5 +1,6 @@
 using Blocks.Gameplay.Core;
 using System;
+using System.ComponentModel.Design.Serialization;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -80,6 +81,8 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+
+        Debug.Log($"isOccupied {isOccupied.Value}  isBotOccupied {isBotOccupied.Value}");
     }
 
     public override void OnNetworkDespawn()
@@ -255,7 +258,9 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     /// <returns>true, если игра может быть начата.</returns>
     protected virtual bool CanStartGame()
     {
-        return true;  //IsOccupied && IsBotOccupied;
+        Debug.Log($"isOccupied {isOccupied.Value}  isBotOccupied {isBotOccupied.Value}");
+
+        return IsOccupied && IsBotOccupied;
     }
 
     // ---------- Обработка триггера ----------

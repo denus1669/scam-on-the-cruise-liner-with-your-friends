@@ -64,6 +64,19 @@ public class BlackGregTable : GameTable, ICardGameTable
         botHasStood = true;
     }
 
+    /// <summary>
+    /// Полностью перезаписывает руку бота (вызывается из системы мухлежа).
+    /// </summary>
+    public void OverwriteBotHand(List<CardData> newHand)
+    {
+        if (!IsServer) return;
+
+        botHandData = new List<CardData>(newHand);
+
+        // Синхронизируем изменения с клиентами (визуал обновится автоматически благодаря ClientRpc)
+        SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+    }
+
     // ---------- Переопределение жизненного цикла ----------
     public override void StartGame()
     {
@@ -74,6 +87,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         botHandData.Clear();
         botHasStood = false;
 
+        Debug.Log("CanStartGame " + CanStartGame());
         base.StartGame(); // устанавливает gameInProgress.Value = true
     }
 
@@ -154,6 +168,9 @@ public class BlackGregTable : GameTable, ICardGameTable
 
         placeNextCardOnLeft = true;
 
+        // Определяем, должны ли карты игрока быть открытыми
+        bool isPlayerFaceUp = (playerClientId == NetworkManager.Singleton.LocalClientId);
+
         // Получаем руку игрока
         Transform playerHand = null;
         if (NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerClientId) is { } playerObj)
@@ -165,8 +182,10 @@ public class BlackGregTable : GameTable, ICardGameTable
         if (playerHand != null)
         {
             for (int i = 0; i < playerHandData.Count; i++)
-                SpawnCardVisual(playerHandData[i], playerHand, i, true);
+                SpawnCardVisual(playerHandData[i], playerHand, i, isPlayerFaceUp);
         }
+
+        bool isBotFaceUp = false;
 
         // Получаем руку бота
         Transform botHand = null;
@@ -179,7 +198,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         if (botHand != null)
         {
             for (int i = 0; i < botHandData.Count; i++)
-                SpawnCardVisual(botHandData[i], botHand, i, true);
+                SpawnCardVisual(botHandData[i], botHand, i, isBotFaceUp);
         }
     }
 
@@ -249,6 +268,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         if (cardViewPrefab == null) return;
 
         CardView view = Instantiate(cardViewPrefab, parent);
+        
         view.transform.localPosition = GetNextCardPosition(cardIndex);
         view.transform.localRotation = Quaternion.Euler(startRotation);
         view.SetCardData(cardData);
@@ -277,15 +297,6 @@ public class BlackGregTable : GameTable, ICardGameTable
             placeNextCardOnLeft = true;
         }
         return position;
-    }
-
-    /// <summary>
-    /// Ищет дочерний Transform с именем "CardHandPosition" внутри указанного сетевого объекта.
-    /// </summary>
-    private Transform GetHandTransform(NetworkObject netObj)
-    {
-        if (netObj == null) return null;
-        return FindChildByName(netObj.transform, "CardHandPosition");
     }
 
     private Transform FindChildByName(Transform parent, string name)

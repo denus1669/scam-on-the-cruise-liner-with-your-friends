@@ -6,6 +6,7 @@ TagManager:
   tags:
   - CinemachineTarget
   - Bot
+  - ExitPoint
   layers:
   - Default
   - TransparentFX

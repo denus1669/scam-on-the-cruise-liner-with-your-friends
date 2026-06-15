@@ -89,6 +89,9 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
 
         yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
 
+        // Получаем контроллер мухлежа с бота
+        CheatController cheatController = GetComponent<CheatController>();
+
         while (isPlaying)
         {
             // Если игра уже не идёт — выходим
@@ -98,6 +101,25 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
                 isPlaying = false;
                 yield break;
             }
+
+            // --- ИНТЕГРАЦИЯ МУХЛЕЖА ---
+            if (cheatController != null)
+            {
+                // Пытаемся инициировать мухлеж (контроллер сам проверит шансы и условия)
+                bool isCheatingStarted = cheatController.TryInitiateCheat(gameTable);
+
+                if (isCheatingStarted)
+                {
+                    // Бот "замирает" (приостанавливает цикл принятия решений) 
+                    // и ждёт, пока проиграется анимация мухлежа.
+                    while (cheatController.IsCheating)
+                    {
+                        yield return null;
+                    }
+                }
+            }
+            // --------------------------
+
 
             int botScore = cardTable.GetBotScore();
             int cardCount = cardTable.GetBotCardCount();

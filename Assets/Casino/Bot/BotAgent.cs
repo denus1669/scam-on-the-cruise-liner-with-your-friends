@@ -40,6 +40,7 @@ public class BotAgent : NetworkBehaviour
         {
             // При спавне бот сам ищет стол и идёт к нему
             FindAndGoToRandomTable();
+            exitPoint = FindExitPoint();
         }
         else
         {
@@ -232,5 +233,28 @@ public class BotAgent : NetworkBehaviour
             }
             subscribedTables.Clear();
         }
+    }
+
+    /// <summary>
+    /// Находит объект ExitPoint: сначала по тэгу, затем по имени.
+    /// Возвращает первый найденный активный объект или null.
+    /// </summary>
+    public Transform FindExitPoint()
+    {
+        // 1. Быстрый поиск по тэгу
+        GameObject exitPoint = GameObject.FindWithTag("ExitPoint");
+        if (exitPoint != null)
+            return exitPoint.transform;
+
+        // 2. Медленный поиск по имени (fallback)
+        exitPoint = GameObject.Find("ExitPoint");
+        if (exitPoint != null)
+        {
+            Debug.LogWarning("[ExitPointFinder] Объект найден по имени, рекомендуется назначить тэг 'ExitPoint' для повышения производительности.");
+            return exitPoint.transform;
+        }
+
+        Debug.LogError("[ExitPointFinder] Объект с тэгом или именем 'ExitPoint' не найден на сцене!");
+        return null;
     }
 }
