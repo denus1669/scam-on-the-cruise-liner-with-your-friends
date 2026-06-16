@@ -80,6 +80,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 633457d60ae1b5e4cbe438876a61cf8e, type: 2}
     - target: {fileID: 919132149155446097, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
       propertyPath: m_Name
       value: SM_Game_BlackGreg_Deck
@@ -91,6 +95,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
       insertIndex: -1
       addedObject: {fileID: 675116529651837949}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2757366946826789240}
   m_SourcePrefab: {fileID: 100100000, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
 --- !u!1 &2427662859468267744 stripped
 GameObject:
@@ -116,8 +123,25 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: -0.78, y: -0.66, z: -0.65}
-  m_Center: {x: 0.0000000037252903, y: 0.032214254, z: 0.0007084608}
+  m_Size: {x: 1, y: 0.55, z: 1}
+  m_Center: {x: 0, y: 0.26, z: 0}
+--- !u!114 &2757366946826789240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2427662859468267744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7a02e6606302b947ad7aec2624aa9d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeckInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  blackjackTable: {fileID: 0}
+  triggerMode: 0
+  priority: 0
+  promptText: "\u0412\u0437\u044F\u0442\u044C \u043A\u0430\u0440\u0442\u0443 (E)"
 --- !u!4 &3097097956834392666 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e7aeb813e676b2f4a8fddd8228ed2029, type: 3}
