@@ -102,8 +102,14 @@ public class BlackGregTable : GameTable, ICardGameTable
     // ---------- Методы для игрока (вызываются UI) ----------
     public void PlayerDrawCard()
     {
-        if(!IsGameStarted) StartGame();
         if (!IsServer) return;
+
+        if (!IsGameStarted)
+        {
+            if (!CanStartGame())    // нет обоих участников – выходим
+                return;
+            StartGame();
+        }
 
         if (AddCardToHand(playerHandData))
         {
@@ -336,5 +342,38 @@ public class BlackGregTable : GameTable, ICardGameTable
         {
             SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
         }
+    }
+
+    /// <summary>
+    /// Экстренно завершает карточную игру при поимке за руку.
+    /// </summary>
+    public override void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason)
+    {
+        // Вызываем базовый метод для сброса флага gameInProgress
+        base.ForceStopGame(winnerClientId, isCheaterBot, reason);
+
+        Debug.Log($"[BlackGregTable] Обработка экстренного завершения. Читер бот? {isCheaterBot}. Победитель: {winnerClientId}");
+
+        // 1. Логика распределения фишек/токенов
+        if (isCheaterBot)
+        {
+            // Бот жульничал и был пойман игроком. Игрок гарантированно забирает весь банк.
+            Debug.Log($"[BlackGregTable] Игрок {winnerClientId} ловит бота на мухлеже и забирает весь банк стола!");
+            // TODO: Выдать фишки игроку (например, Bank.Reward(winnerClientId, tableStake * 2))
+        }
+        else
+        {
+            // Реальный игрок жульничал и его поймали (бот или система). Игрок теряет ставку.
+            Debug.Log($"[BlackGregTable] Игрок {OccupiedByClientId} оштрафован за жульничество! Банк уходит казино.");
+            // TODO: Списать штраф у игрока (например, Bank.Deduct(OccupiedByClientId, penaltyAmount))
+        }
+
+        // 2. Оповещаем клиентов о причине и результатах для отображения в UI
+        // Передаем специальный маркер победы вместо обычного счета
+        string uiWinnerMarker = isCheaterBot ? "player_caught_bot" : "bot_caught_player";
+        NotifyWinnerClientRpc(uiWinnerMarker, 0, 0);
+
+        // 3. Очищаем столы от карт читера и честного игрока
+        ClearHands();
     }
 }

@@ -31,6 +31,8 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
     private ICardGameTable cardTable;
     private CheatController cheatController;
     private Animator botAnimator;
+    private BotDispleasureController displeasureController;
+
 
     private bool isPlaying = false;
 
@@ -39,6 +41,7 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
         botAgent = GetComponent<BotAgent>();
         cheatController = GetComponent<CheatController>();
         botAnimator = GetComponentInChildren<Animator>();
+        displeasureController = GetComponent<BotDispleasureController>();
     }
 
     // === РЕАЛИЗАЦИЯ IBotGameBehavior ===
@@ -186,6 +189,12 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
             if (bluffAnimationTriggers.Length > 0)
             {
                 string randomBluff = bluffAnimationTriggers[Random.Range(0, bluffAnimationTriggers.Length)];
+                // Уведомление контроллера о том, что бот нервничает
+                if (displeasureController != null)
+                {
+                    displeasureController.NotifySuspiciousActionStarted();
+                    Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} начинает нервничать)");
+                }
                 PlayBluffAnimationClientRpc(randomBluff);
 
                 // Ждем пару секунд, пока пройдет анимация блефа, 

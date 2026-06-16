@@ -1,5 +1,6 @@
 using System;
 using Unity.Netcode;
+using UnityEngine;
 
 /// <summary>
 /// Базовый интерфейс игрового стола.
@@ -18,6 +19,7 @@ public interface IGameTable
 
     /// <summary>Идёт ли сейчас игра за этим столом.</summary>
     bool IsGameStarted { get; }
+    Transform BotWaitPoint { get; }
 
     /// <summary>Срабатывает при смене владельца стола. Передаётся новый OccupiedByClientId или ulong.MaxValue при освобождении.</summary>
     event Action<ulong> OnOccupantChanged;
@@ -49,6 +51,14 @@ public interface IGameTable
     /// <summary>Начать игру. Вызывается только на сервере.</summary>
     void StartGame();
 
-    /// <summary>Принудительно завершить игру. Вызывается только на сервере.</summary>
+    /// <summary>Завершить игру. Вызывается только на сервере.</summary>
     void EndGame();
+
+    /// <summary>
+    /// Экстренно останавливает игру (например, при поимке читера за руку).
+    /// </summary>
+    /// <param name="winnerClientId">ID клиента победителя (или ulong.MaxValue, если победил банк/бот).</param>
+    /// <param name="isCheaterBot">Указывает, был ли пойманный читер ботом.</param>
+    /// <param name="reason">Причина остановки (для логов и UI).</param>
+    void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason);
 }

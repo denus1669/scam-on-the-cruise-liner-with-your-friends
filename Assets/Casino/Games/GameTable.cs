@@ -15,6 +15,9 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     [SerializeField] private string promptText = "Занять стол (E)";
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
     [SerializeField] private int priority = 0;
+    [SerializeField] private Transform botWaitPoint; 
+
+    public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
     // ---------- Сетевые переменные ----------
     private readonly NetworkVariable<bool> isOccupied = new NetworkVariable<bool>(
@@ -248,6 +251,17 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     {
         if (!IsServer || !gameInProgress.Value) return;
 
+        gameInProgress.Value = false;
+    }
+
+    /// <inheritdoc />
+    public virtual void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason)
+    {
+        if (!IsServer || !gameInProgress.Value) return;
+
+        Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}. Победитель: {winnerClientId}. Читер бот? {isCheaterBot}");
+
+        // Переводим состояние игры в "не активна"
         gameInProgress.Value = false;
     }
 

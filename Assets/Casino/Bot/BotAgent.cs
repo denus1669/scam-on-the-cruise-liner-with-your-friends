@@ -82,7 +82,24 @@ public class BotAgent : NetworkBehaviour
 
         Debug.Log($"[BotAgent] Бот {gameObject.name} выбрал стол {((MonoBehaviour)selectedTable).name}");
 
-        MoveToTarget(((MonoBehaviour)selectedTable).transform, OnReachedTable);
+        Transform targetTransform = selectedTable.BotWaitPoint ?? ((MonoBehaviour)selectedTable).transform;
+
+        MoveToTarget(targetTransform, OnReachedTable);
+    }
+
+    /// <summary>
+    /// Поворачивает бота лицом к текущему столу (игнорируя наклон по вертикали).
+    /// </summary>
+    private void FaceCurrentTable()
+    {
+        if (currentTable == null) return;
+
+        Transform tableTransform = ((MonoBehaviour)currentTable).transform;
+        Vector3 direction = tableTransform.position - transform.position;
+        direction.y = 0f; // чтобы бот не задирал голову
+
+        if (direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(direction);
     }
 
     /// <summary>
@@ -150,6 +167,9 @@ public class BotAgent : NetworkBehaviour
     {
         if (currentTable != null)
         {
+            // Поворачиваемся к столу
+            FaceCurrentTable();
+
             NetworkObject netObj = GetComponent<NetworkObject>();
             if (netObj != null)
             {
@@ -257,4 +277,6 @@ public class BotAgent : NetworkBehaviour
         Debug.LogError("[ExitPointFinder] Объект с тэгом или именем 'ExitPoint' не найден на сцене!");
         return null;
     }
+
+
 }

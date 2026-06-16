@@ -25,9 +25,13 @@ public class CheatController : NetworkBehaviour
     // Ссылки на компоненты
     private Animator characterAnimator;
     private BotAgent botAgent;
+    private BotDispleasureController displeasureController;
 
     // Флаг, определяющий, кто владелец этого скрипта
     private bool isBot;
+
+    // Сохраняем текущий контекст мухлежа, чтобы иметь доступ к столу при обвинении
+    private CheatContext activeContext;
 
     public bool IsCheating => isCheating.Value;
 
@@ -38,6 +42,7 @@ public class CheatController : NetworkBehaviour
         // Если на этом же объекте есть BotAgent, значит этот контроллер принадлежит боту.
         // Иначе - это контроллер реального игрока.
         isBot = TryGetComponent<BotAgent>(out botAgent);
+        displeasureController = GetComponent<BotDispleasureController>();
     }
 
     /// <summary>
@@ -48,6 +53,12 @@ public class CheatController : NetworkBehaviour
     public bool TryInitiateCheat(IGameTable table, CheatAction specificCheat = null)
     {
         if (!IsServer || isCheating.Value) return false;
+
+        // Оповещаем компонент недовольства о том, что бот делает подозрительное движение
+        if (isBot && displeasureController != null)
+        {
+            displeasureController.NotifySuspiciousActionStarted();
+        }
 
         // 1. Формируем правильный контекст
         CheatContext context = isBot
@@ -60,12 +71,18 @@ public class CheatController : NetworkBehaviour
         if (cheatToExecute == null)
         {
             cheatToExecute = GetRandomValidCheat(context);
-            if (cheatToExecute == null) return false; // Нет доступных вариантов
+            if (cheatToExecute == null)
+            {
+                Debug.Log("Нет доступных вариантов мухлежа для текущей ситуации.");
+                return false; // Нет доступных вариантов
+            }
         }
         else
         {
             if (!cheatToExecute.CanExecute(context)) return false;
         }
+
+        activeContext = context;
 
         // 3. Запускаем процесс
         cheatCoroutine = StartCoroutine(CheatRoutine(cheatToExecute, context));
@@ -104,6 +121,7 @@ public class CheatController : NetworkBehaviour
 
         isCheating.Value = false;
         currentCheatAction = null;
+        activeContext = null;
     }
 
     private void CancelCheat()
@@ -111,6 +129,7 @@ public class CheatController : NetworkBehaviour
         if (cheatCoroutine != null) StopCoroutine(cheatCoroutine);
         isCheating.Value = false;
         currentCheatAction = null;
+        activeContext = null;
         StopCheatAnimationClientRpc();
     }
 
@@ -127,6 +146,50 @@ public class CheatController : NetworkBehaviour
     }
 
     /// <summary>
+    /// Обработка последствий успешной поимки за руку.
+    /// </summary>
+    private void HandleCheatCaught(ulong accuserClientId)
+    {
+        if (activeContext == null || activeContext.Table == null) return;
+
+        string cheaterName = isBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
+        Debug.Log($"[CheatSystem] {cheaterName} ПОЙМАН ЗА РУКУ! Остановка игры...");
+
+        // 1. Оповещаем всех клиентов (для UI и визуальных эффектов)
+        GameInterruptedClientRpc(accuserClientId, isBot);
+
+        // 2. Останавливаем игру на столе
+        // Если жульничал бот -> побеждает игрок (accuserClientId).
+        // Если жульничал игрок -> побеждает казино/бот (указываем ulong.MaxValue).
+        ulong winnerId = isBot ? accuserClientId : ulong.MaxValue;
+        activeContext.Table.ForceStopGame(winnerId, isCheaterBot: isBot, reason: "Cheating");
+
+        // 3. Логика штрафов (списание токенов, анимации реакции)
+        if (isBot)
+        {
+            if (botAgent != null)
+            {
+                // Заставляем бота обиженно уйти из-за стола к выходу
+                botAgent.GoToExit();
+            }
+        }
+        else
+        {
+            // Логика штрафа для реального игрока (списание денег, понижение репутации и т.д.)
+        }
+    }
+
+    [ClientRpc]
+    private void GameInterruptedClientRpc(ulong accuserClientId, bool cheaterIsBot)
+    {
+        string cheaterName = cheaterIsBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
+        Debug.Log($"[UI/FX] ИГРА ПРЕРВАНА! Игрок {accuserClientId} поймал за руку: {cheaterName}!");
+
+        // TODO: Вызвать событие для UI, чтобы показать большую надпись "ПОЙМАН ЗА РУКУ!"
+        // Например: UIManager.Instance.ShowCheatCaughtMessage(cheaterName, accuserClientId);
+    }
+
+    /// <summary>
     /// Вызывается, когда кто-то пытается поймать персонажа за руку (через нажатие E).
     /// </summary>
     [Rpc(SendTo.Server)]
@@ -139,13 +202,16 @@ public class CheatController : NetworkBehaviour
         if (isCheating.Value)
         {
             Debug.Log($"[CheatSystem] Игрок {accuserClientId} поймал за руку: {actorName}!");
+
+            // Вызываем последствия ДО CancelCheat, чтобы activeContext еще был доступен
+            HandleCheatCaught(accuserClientId);
+
             CancelCheat();
-            // TODO: Наказание (штраф, анимация)
         }
         else
         {
             Debug.Log($"[CheatSystem] Игрок {accuserClientId} ложно обвинил: {actorName}.");
-            // TODO: Ложное обвинение (рост подозрительности)
+            // TODO: Ложное обвинение (рост подозрительности, штраф обвинителю)
         }
     }
 
