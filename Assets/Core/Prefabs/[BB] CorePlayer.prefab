@@ -72,6 +72,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1766402528312261525, guid: bb849e118fe165e439e95eaa49b5248f, type: 3}
+      propertyPath: onBinocularsActionPressed
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1766402528312261525, guid: bb849e118fe165e439e95eaa49b5248f, type: 3}
+      propertyPath: onFinishGameActionPressed
+      value: 
+      objectReference: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
     - target: {fileID: 3878622245546933837, guid: bb849e118fe165e439e95eaa49b5248f, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3365733114
@@ -89,7 +97,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8248298605758579015, guid: bb849e118fe165e439e95eaa49b5248f, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bb849e118fe165e439e95eaa49b5248f, type: 3}

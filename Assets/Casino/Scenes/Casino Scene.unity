@@ -330,7 +330,7 @@ Transform:
   m_GameObject: {fileID: 352465174}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.144627, y: 2.2670002, z: -6.8898954}
+  m_LocalPosition: {x: 0, y: 2.232, z: 2.068}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1015,6 +1015,10 @@ PrefabInstance:
       propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4554578114382903827, guid: 832db79509af6674f88da5942179344a, type: 3}
+      propertyPath: onFinishGameEvent
+      value: 
+      objectReference: {fileID: 11400000, guid: 7980b19c34cba49e0ab89edafbc46cce, type: 2}
     - target: {fileID: 6667248287144915161, guid: 832db79509af6674f88da5942179344a, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -1369,12 +1373,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f69d4983bbf2aed42af9a29fa2b77766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractionUIManager
-  maxDistance: 10
-  interactableLayerMask:
-    m_Bits: 4294967295
-  promptText: {fileID: 0}
-  playerObject: {fileID: 0}
-  currentTarget: {fileID: 0}
 --- !u!1001 &5044286983995885401
 PrefabInstance:
   m_ObjectHideFlags: 0

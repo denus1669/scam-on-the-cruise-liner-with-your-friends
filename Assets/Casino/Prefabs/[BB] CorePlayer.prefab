@@ -24,6 +24,9 @@ GameObject:
   - component: {fileID: 1215727129354141176}
   - component: {fileID: 3955545337037980288}
   - component: {fileID: 5504684131113090883}
+  - component: {fileID: 5545334187674898279}
+  - component: {fileID: 978001976898572625}
+  - component: {fileID: 2882626443250368846}
   m_Layer: 3
   m_Name: '[BB] CorePlayer'
   m_TagString: Player
@@ -46,6 +49,7 @@ Transform:
   m_Children:
   - {fileID: 5532120002174217942}
   - {fileID: 6096185776597279434}
+  - {fileID: 9063590150941009184}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &157646745396352896
@@ -85,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3011846507
+  GlobalObjectIdHash: 2295974813
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -165,7 +169,8 @@ MonoBehaviour:
   onPrimaryActionPressed: {fileID: 11400000, guid: f48adbe17161042ef8cf65a5a455594a, type: 2}
   onPrimaryActionReleased: {fileID: 11400000, guid: a670f0da4a4d64cea91ff13081e68da8, type: 2}
   onMenuPressed: {fileID: 11400000, guid: 5f76e3427057c467fa2f4de049753b9e, type: 2}
-  onFinishGamePressed: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
+  onFinishGameActionPressed: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
+  onAttentionActionPressed: {fileID: 11400000, guid: 7e196841bb206b64db4f416a09370057, type: 2}
 --- !u!114 &5924146909096204431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,6 +409,62 @@ MonoBehaviour:
   soundDefPlayerEliminated: {fileID: 11400000, guid: f94375e27624be640bcec5f9f675346c, type: 2}
   useRagdollOnElimination: 0
   ragdollRoot: {fileID: 0}
+--- !u!114 &5545334187674898279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2e8ab59e6577a64e81e7d7925fdd4c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttentionGameListener
+  onAttentionEvent: {fileID: 11400000, guid: 7e196841bb206b64db4f416a09370057, type: 2}
+  playerAttentionController: {fileID: 978001976898572625}
+--- !u!114 &978001976898572625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01ff64f3b684df4e991d4eebc7e1dab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttentionController
+  ShowTopMostFoldoutHeaderGroup: 1
+  cameraController: {fileID: 7534759582818954730}
+  defaultFOV: 60
+  attentionFOV: 25
+  zoomSpeed: 8
+  maxAttentionDistance: 4.5
+  attentionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  lookAtBotDispleasureRate: 8
+  lookAtCardsDispleasureRate: 22
+--- !u!114 &2882626443250368846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a2603e89c1086409bb968b647b7c35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.AttentionRaycaster
+  ShowTopMostFoldoutHeaderGroup: 1
+  attentionController: {fileID: 978001976898572625}
+  mainCamera: {fileID: 0}
+  attentionLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
+  maxRayDistance: 100
 --- !u!1 &336827370212964026
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,6 +495,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6096185776597279434}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3051921987606255967
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9063590150941009184}
+  m_Layer: 0
+  m_Name: BinocularsCameraRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9063590150941009184
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3051921987606255967}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.232, z: 2.068}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 683353407295638832}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5532120002174217937
 GameObject:

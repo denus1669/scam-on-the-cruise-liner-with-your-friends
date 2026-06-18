@@ -104,6 +104,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Attention",
+                    "type": "Button",
+                    "id": "b04a9b74-957c-47d0-a4ed-a9fb7560c2cb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -434,6 +443,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "FinishGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b80b31ab-221b-4ccd-a7a1-12ce469c0958",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attention",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

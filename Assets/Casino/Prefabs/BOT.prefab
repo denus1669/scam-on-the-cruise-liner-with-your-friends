@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 703854091639277208}
-  m_Layer: 0
+  - component: {fileID: 7162283054248481240}
+  - component: {fileID: 1576767025933033157}
+  m_Layer: 9
   m_Name: CardHandPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,6 +33,40 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4376745090154585811}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7162283054248481240
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 1, z: 1}
+  m_Center: {x: 0, y: 1.5, z: 1}
+--- !u!114 &1576767025933033157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 196a2c7988bbedb48b1ec0f7f61a6413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardContainerAttentionTarget
+  debugLog: 1
 --- !u!1 &5497669901684611537
 GameObject:
   m_ObjectHideFlags: 0
@@ -46,6 +82,7 @@ GameObject:
   - component: {fileID: 7170024236539094336}
   - component: {fileID: 6536261547867500992}
   - component: {fileID: 7379306246688572654}
+  - component: {fileID: 4877028851096292619}
   m_Layer: 0
   m_Name: BOT
   m_TagString: Bot
@@ -104,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 754189858
+  GlobalObjectIdHash: 2817393631
   InScenePlacedSourceGlobalObjectIdHash: 3992984230
   DeferredDespawnTick: 0
   Ownership: 0
@@ -222,6 +259,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
   - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
   - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
+--- !u!114 &4877028851096292619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4897cb9abe1155b4a8b5aafa81c13129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotDispleasureController
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxDispleasure: 100
+  suspiciousTimeWindow: 3.5
+  watchedMultiplier: 3
 --- !u!1001 &6995647616031633779
 PrefabInstance:
   m_ObjectHideFlags: 0

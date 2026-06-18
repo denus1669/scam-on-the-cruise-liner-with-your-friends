@@ -32,7 +32,8 @@ namespace Blocks.Gameplay.Core
 
 
         [Header("Game Events")]
-        [SerializeField] private GameEvent onFinishGamePressed;  
+        [SerializeField] private GameEvent onFinishGameActionPressed;
+        [SerializeField] private GameEvent onAttentionActionPressed;
 
 
         private GameplayInputSystem_Actions m_InputActions;
@@ -87,7 +88,8 @@ namespace Blocks.Gameplay.Core
 
             m_InputActions.Player.Menu.performed += HandleMenuPressed;
 
-            m_InputActions.Player.FinishGame.performed += HandleFinishGame;
+            m_InputActions.Player.FinishGame.performed += HandleFinishGameActionPressed;
+            m_InputActions.Player.Attention.performed += HandleAttentionActionActionPressed;
         }
 
         private void UnregisterInputActions()
@@ -109,7 +111,8 @@ namespace Blocks.Gameplay.Core
 
             m_InputActions.Player.Menu.performed -= HandleMenuPressed;
 
-            m_InputActions.Player.FinishGame.performed -= HandleFinishGame;
+            m_InputActions.Player.FinishGame.performed -= HandleFinishGameActionPressed;
+            m_InputActions.Player.Attention.performed -= HandleAttentionActionActionPressed;
 
         }
 
@@ -125,7 +128,8 @@ namespace Blocks.Gameplay.Core
         private void HandlePrimaryActionPressed(InputAction.CallbackContext context) => onPrimaryActionPressed?.Raise();
         private void HandlePrimaryActionReleased(InputAction.CallbackContext context) => onPrimaryActionReleased?.Raise();
         private void HandleMenuPressed(InputAction.CallbackContext context) => onMenuPressed?.Raise();
-        private void HandleFinishGame(InputAction.CallbackContext context) => onFinishGamePressed?.Raise();
+        private void HandleFinishGameActionPressed(InputAction.CallbackContext context) => onFinishGameActionPressed?.Raise();
+        private void HandleAttentionActionActionPressed(InputAction.CallbackContext context) => onAttentionActionPressed?.Raise();
 
 
         #endregion

@@ -192,6 +192,15 @@ namespace Blocks.Gameplay.Core
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Attention"",
+                    ""type"": ""Button"",
+                    ""id"": ""b04a9b74-957c-47d0-a4ed-a9fb7560c2cb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -522,6 +531,17 @@ namespace Blocks.Gameplay.Core
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FinishGame"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b80b31ab-221b-4ccd-a7a1-12ce469c0958"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attention"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1120,6 +1140,7 @@ namespace Blocks.Gameplay.Core
             m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
             m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
             m_Player_FinishGame = m_Player.FindAction("FinishGame", throwIfNotFound: true);
+            m_Player_Attention = m_Player.FindAction("Attention", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1224,6 +1245,7 @@ namespace Blocks.Gameplay.Core
         private readonly InputAction m_Player_Reload;
         private readonly InputAction m_Player_Menu;
         private readonly InputAction m_Player_FinishGame;
+        private readonly InputAction m_Player_Attention;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -1279,6 +1301,10 @@ namespace Blocks.Gameplay.Core
             /// Provides access to the underlying input action "Player/FinishGame".
             /// </summary>
             public InputAction @FinishGame => m_Wrapper.m_Player_FinishGame;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Attention".
+            /// </summary>
+            public InputAction @Attention => m_Wrapper.m_Player_Attention;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -1338,6 +1364,9 @@ namespace Blocks.Gameplay.Core
                 @FinishGame.started += instance.OnFinishGame;
                 @FinishGame.performed += instance.OnFinishGame;
                 @FinishGame.canceled += instance.OnFinishGame;
+                @Attention.started += instance.OnAttention;
+                @Attention.performed += instance.OnAttention;
+                @Attention.canceled += instance.OnAttention;
             }
 
             /// <summary>
@@ -1382,6 +1411,9 @@ namespace Blocks.Gameplay.Core
                 @FinishGame.started -= instance.OnFinishGame;
                 @FinishGame.performed -= instance.OnFinishGame;
                 @FinishGame.canceled -= instance.OnFinishGame;
+                @Attention.started -= instance.OnAttention;
+                @Attention.performed -= instance.OnAttention;
+                @Attention.canceled -= instance.OnAttention;
             }
 
             /// <summary>
@@ -1759,6 +1791,13 @@ namespace Blocks.Gameplay.Core
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnFinishGame(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Attention" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnAttention(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

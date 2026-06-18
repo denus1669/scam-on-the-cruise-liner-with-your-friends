@@ -16,6 +16,10 @@ public class BotDispleasureController : NetworkBehaviour
     [SerializeField] private float suspiciousTimeWindow = 3.5f;
     [Tooltip("Множитель роста раздражения, когда игрок пялится прямо во время/после анимации бота.")]
     [SerializeField] private float watchedMultiplier = 3.0f;
+    [Tooltip("Базовое количество раздражения, которое накапливается за один тик.")]
+    [SerializeField] private float baseDispleasureAmount = 0.5f;
+    [Tooltip("Базовое количество раздражения, которое снижается за один тик.")]
+    [SerializeField] private float baseDispleasureDecay = 20f;
 
     // Синхронизируемый уровень недовольства бота
     private readonly NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(
@@ -27,6 +31,11 @@ public class BotDispleasureController : NetworkBehaviour
     private BotAgent botAgent;
 
     public float CurrentDispleasure => currentDispleasure.Value;
+
+    public void Update()
+    {
+       // Debug.LogWarning($"[Displeasure] Текущий уровень недовольства бота {gameObject.name}: {currentDispleasure.Value}");
+    }
 
     private void Awake()
     {
@@ -46,9 +55,10 @@ public class BotDispleasureController : NetworkBehaviour
     /// Накапливает раздражение бота на сервере, когда игрок использует на него Внимание.
     /// </summary>
     [Rpc(SendTo.Server)]
-    public void TickDispleasureServerRpc(float amount, ulong playerClientId)
+    public void TickDispleasureServerRpc()
     {
         if (!IsServer) return;
+        Debug.LogWarning($"[Displeasure] TickDispleasureServerRpc Бот {gameObject.name} !");
 
         // Если у бота сейчас нет активного стола или игра не запущена, раздражение не копится
         IGameTable currentTable = GetCurrentTable();
@@ -63,7 +73,7 @@ public class BotDispleasureController : NetworkBehaviour
         }
 
         // Плавный рост раздражения
-        currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + (amount * multiplier), 0f, maxDispleasure);
+        currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + (baseDispleasureAmount * multiplier), 0f, maxDispleasure);
 
         // Если бот вышел из себя из-за слишком наглого разглядывания
         if (currentDispleasure.Value >= maxDispleasure)
@@ -74,19 +84,20 @@ public class BotDispleasureController : NetworkBehaviour
             currentTable.ForceStopGame(ulong.MaxValue, isCheaterBot: true, reason: "Harassment");
 
             // Сбрасываем недовольство после завершения
-            ResetDispleasure();
+            ResetDispleasureServerRpc();
         }
     }
 
     /// <summary>
     /// Сбрасывает уровень раздражения бота.
     /// </summary>
-    public void ResetDispleasure()
+    [Rpc(SendTo.Server)]
+    public void ResetDispleasureServerRpc()
     {
-        if (IsServer)
-        {
-            currentDispleasure.Value = 0f;
-        }
+        if (!IsServer) return;
+            currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value - baseDispleasureDecay, 0f, maxDispleasure);
+
+
     }
 
     private IGameTable GetCurrentTable()

@@ -1,209 +1,128 @@
-using System.Collections;
+using Blocks.Gameplay.Core;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-#if USING_CINEMACHINE
-using Cinemachine;
-#endif
 
-/// <summary>
-/// Компонент управления Вниманием (приближением) для игрока.
-/// Добавляется на префаб игрока. Управляет энергией, камерой, рейкастом и локальным раскрытием карт.
-/// </summary>
 public class PlayerAttentionController : NetworkBehaviour
 {
-    [Header("Настройки управления")]
-    [Tooltip("Клавиша для активации режима внимания (удерживать)")]
-    [SerializeField] private KeyCode attentionKey = KeyCode.Q;
-    [Tooltip("Клавиша для обвинения во время прицеливания")]
-    [SerializeField] private KeyCode accuseKey = KeyCode.E;
+    [Header("Режим внимания")]
+    public NetworkVariable<bool> IsAttention { get; private set; } = new NetworkVariable<bool>(false);
 
     [Header("Настройки камеры и зума")]
-    [SerializeField] private Camera playerCamera;
-#if USING_CINEMACHINE
-    [Tooltip("Специфичная виртуальная камера Cinemachine для зума")]
-    [SerializeField] private CinemachineVirtualCamera zoomVirtualCamera;
-#endif
+    [SerializeField] private CoreCameraController cameraController;
     [SerializeField] private float defaultFOV = 60f;
-    [SerializeField] private float zoomedFOV = 25f;
+    [SerializeField] private float attentionFOV = 25f;
     [SerializeField] private float zoomSpeed = 8f;
-
-    [Header("Параметры энергии и баланса")]
-    [SerializeField] private float maxEnergy = 100f;
-    [SerializeField] private float energyDrainRate = 3f;   // тратится за секунду зума 
-    [SerializeField] private float energyRegenRate = 5f;   // регенерация в секунду вне зума
-    [SerializeField] private float cooldownDuration = 3f;   // штрафная перезарядка при полной разрядке
 
     [Header("Параметры Рэйкаста")]
     [SerializeField] private float maxAttentionDistance = 4.5f;
-    [SerializeField] private LayerMask attentionLayerMask = ~0; // все слои по умолчанию
-    [SerializeField] private float lookAtBotDispleasureRate = 8f;   // базовый прирост раздражения бота в сек
-    [SerializeField] private float lookAtCardsDispleasureRate = 22f; // боты ОЧЕНЬ злятся, когда смотрят на их карты (22 в сек)
+    [SerializeField] private LayerMask attentionLayerMask = ~0;
+    [SerializeField] private float lookAtBotDispleasureRate = 8f;
+    [SerializeField] private float lookAtCardsDispleasureRate = 22f;
 
     // Текущее состояние
-    private float currentEnergy;
     private bool isAttentionActive;
     private bool isCooldownActive;
     private float cooldownTimer;
 
-    // Ссылки на локально раскрытые карты для последующего скрытия
+    // Ссылки на локально раскрытые карты
     private List<CardVisualController> revealedCardsThisFrame = new List<CardVisualController>();
     private List<CardVisualController> previouslyHiddenCards = new List<CardVisualController>();
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
-        currentEnergy = maxEnergy;
-        if (playerCamera == null)
+        base.OnNetworkSpawn();
+
+        if (IsOwner)
         {
-            playerCamera = Camera.main;
+            IsAttention.OnValueChanged += OnAttentionStateChanged;
+            // Принудительно синхронизируем начальное состояние
+            OnAttentionStateChanged(IsAttention.Value, IsAttention.Value);
         }
     }
 
-    private void Update()
+    public override void OnNetworkDespawn()
     {
-        // Логику ввода и визуализацию обрабатывает только владелец этого персонажа
-        if (!IsOwner) return;
-
-        HandleFocusEnergy();
-        HandleInput();
-        ApplyCameraZoom();
-
-        if (isAttentionActive)
+        if (IsOwner)
         {
-            PerformAttentionRaycast();
+            IsAttention.OnValueChanged -= OnAttentionStateChanged;
+            ResetRevealedCards();
+        }
+        base.OnNetworkDespawn();
+    }
+
+    public override void OnDestroy()
+    {
+        // Дополнительная страховка, если деспавн не вызвался
+        if (IsOwner)
+        {
+            IsAttention.OnValueChanged -= OnAttentionStateChanged;
+        }
+        base.OnDestroy();
+    }
+
+    /// <summary>
+    /// Единственный метод, который дёргает AttentionGameListener.
+    /// </summary>
+    public void ToggleAttention()
+    {
+        if (IsServer)
+        {
+            SetAttentionState(!IsAttention.Value);
         }
         else
+        {
+            ToggleAttentionServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void ToggleAttentionServerRpc()
+    {
+        SetAttentionState(!IsAttention.Value);
+    }
+
+    private void SetAttentionState(bool newState)
+    {
+        if (IsAttention.Value == newState) return;
+        IsAttention.Value = newState;
+    }
+
+    private void OnAttentionStateChanged(bool previous, bool current)
+    {
+        isAttentionActive = current;
+
+        // Применяем зум камеры
+        float targetFOV = current ? attentionFOV : defaultFOV;
+        ApplyCameraZoom(targetFOV);
+
+        // При выходе из режима – сбрасываем все раскрытые карты
+        if (!current)
         {
             ResetRevealedCards();
         }
+
+        // Здесь можно добавить звук, UI, блокировку ввода и т.д.
     }
 
     /// <summary>
-    /// Управляет шкалой фокуса (энергией внимания) и штрафным кулдауном.
+    /// Изменяет FOV камеры.
     /// </summary>
-    private void HandleFocusEnergy()
+    public void ApplyCameraZoom(float FOV)
     {
-        if (isCooldownActive)
+        if (cameraController != null && cameraController.ActiveCameraMode?.CinemachineCamera != null)
         {
-            cooldownTimer -= Time.deltaTime;
-            currentEnergy += energyRegenRate * Time.deltaTime;
-            if (cooldownTimer <= 0 && currentEnergy >= maxEnergy * 0.3f) // выходит из кд при накоплении 30%
-            {
-                isCooldownActive = false;
-                Debug.Log("[Attention] Способность снова готова к использованию!");
-            }
-            return;
-        }
-
-        if (isAttentionActive)
-        {
-            currentEnergy = Mathf.Max(0f, currentEnergy - energyDrainRate * Time.deltaTime);
-            if (currentEnergy <= 0f)
-            {
-                isAttentionActive = false;
-                isCooldownActive = true;
-                cooldownTimer = cooldownDuration;
-                Debug.Log("[Attention] Внимание перегрето! Активирован кулдаун.");
-            }
-        }
-        else
-        {
-            currentEnergy = Mathf.Min(maxEnergy, currentEnergy + energyRegenRate * Time.deltaTime);
-        }
-    }
-
-    private void HandleInput()
-    {
-        if (isCooldownActive) return;
-
-        // Активация внимания по удержанию клавиши
-        if (Input.GetKeyDown(attentionKey))
-        {
-            isAttentionActive = true;
-        }
-        if (Input.GetKeyUp(attentionKey))
-        {
-            isAttentionActive = false;
+            cameraController.ActiveCameraMode.CinemachineCamera.Lens.FieldOfView = FOV;
         }
     }
 
     /// <summary>
-    /// Изменяет FOV или переключает виртуальные камеры Cinemachine.
+    /// Локально раскрывает карту при наведении луча.
     /// </summary>
-    private void ApplyCameraZoom()
+    public void HandleCardFocus(CardVisualController cardVisual)
     {
-        bool zoomState = isAttentionActive && !isCooldownActive;
+        if (cardVisual == null) return;
 
-#if USING_CINEMACHINE
-        if (zoomVirtualCamera != null)
-        {
-            zoomVirtualCamera.Priority = zoomState ? 20 : 5;
-            return;
-        }
-#endif
-
-        // Плавный резервный FOV-зум на обычной камере
-        if (playerCamera != null)
-        {
-            float targetFOV = zoomState ? zoomedFOV : defaultFOV;
-            playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFOV, Time.deltaTime * zoomSpeed);
-        }
-    }
-
-    /// <summary>
-    /// Пускает луч из центра экрана для обнаружения карт или ботов.
-    /// </summary>
-    private void PerformAttentionRaycast()
-    {
-        if (playerCamera == null) return;
-
-        revealedCardsThisFrame.Clear();
-
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-        if (Physics.Raycast(ray, out RaycastHit hit, maxAttentionDistance, attentionLayerMask))
-        {
-            // 1. Проверяем попадание по картам
-            CardVisualController cardVisual = hit.collider.GetComponentInParent<CardVisualController>();
-            if (cardVisual != null)
-            {
-                HandleCardFocus(cardVisual);
-
-                // Начисляем недовольство владельцу карт (боту) через BotDispleasureController
-                BotDispleasureController targetDispleasure = hit.collider.GetComponentInParent<BotDispleasureController>();
-                if (targetDispleasure != null)
-                {
-                    targetDispleasure.TickDispleasureServerRpc(lookAtCardsDispleasureRate * Time.deltaTime, OwnerClientId);
-                }
-            }
-            else
-            {
-                // 2. Проверяем попадание просто по боту (телу, голове)
-                BotDispleasureController targetDispleasure = hit.collider.GetComponentInParent<BotDispleasureController>();
-                if (targetDispleasure != null)
-                {
-                    HandleBotFocus(targetDispleasure);
-                }
-            }
-        }
-
-        // Ппрячем карты, на которые мы перестали смотреть в этом кадре
-        for (int i = previouslyHiddenCards.Count - 1; i >= 0; i--)
-        {
-            CardVisualController oldCard = previouslyHiddenCards[i];
-            if (!revealedCardsThisFrame.Contains(oldCard))
-            {
-                oldCard.isVisible = false;
-                oldCard.UpdateCardVisuals();
-                previouslyHiddenCards.RemoveAt(i);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Локально раскрывает карты при наведении луча.
-    /// </summary>
-    private void HandleCardFocus(CardVisualController cardVisual)
-    {
         revealedCardsThisFrame.Add(cardVisual);
 
         if (!cardVisual.isVisible)
@@ -211,36 +130,31 @@ public class PlayerAttentionController : NetworkBehaviour
             cardVisual.isVisible = true;
             cardVisual.UpdateCardVisuals();
             previouslyHiddenCards.Add(cardVisual);
-
-            // Проигрываем локальный тихий звук подглядывания (опционально)
-            // AudioSource.PlayClipAtPoint(peekSound, transform.position);
         }
     }
 
     /// <summary>
-    /// Обработка фокусировки взгляда на самом боте.
+    /// Скрывает конкретную карту, когда луч уходит с неё.
     /// </summary>
-    private void HandleBotFocus(BotDispleasureController targetDispleasure)
+    public void ReleaseCard(CardVisualController cardVisual)
     {
-        // Начисляем базовое раздражение боту на сервере через выделенный контроллер
-        targetDispleasure.TickDispleasureServerRpc(lookAtBotDispleasureRate * Time.deltaTime, OwnerClientId);
+        if (cardVisual == null) return;
 
-        // Если бот сейчас реально мухлюет, подсвечиваем его и позволяем обвинить (запрос идет к CheatController)
-        CheatController targetCheat = targetDispleasure.GetComponent<CheatController>();
-        if (targetCheat != null && targetCheat.IsCheating)
+        if (cardVisual.isVisible)
         {
-            // Здесь можно вызвать UI-подсказку: "НАЖМИТЕ Е, ЧТОБЫ ПОЙМАТЬ!"
-            if (Input.GetKeyDown(accuseKey))
-            {
-                targetCheat.AccuseServerRpc(OwnerClientId);
-            }
+            cardVisual.isVisible = false;
+            cardVisual.UpdateCardVisuals();
         }
+
+        previouslyHiddenCards.Remove(cardVisual);
+        revealedCardsThisFrame.Remove(cardVisual);
     }
+
 
     /// <summary>
     /// Возвращает все раскрытые карты к закрытому состоянию при выходе из Внимания.
     /// </summary>
-    private void ResetRevealedCards()
+    public void ResetRevealedCards()
     {
         if (previouslyHiddenCards.Count > 0)
         {
@@ -254,5 +168,6 @@ public class PlayerAttentionController : NetworkBehaviour
             }
             previouslyHiddenCards.Clear();
         }
+        revealedCardsThisFrame.Clear();
     }
 }
