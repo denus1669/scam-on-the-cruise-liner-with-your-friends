@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -57,7 +58,6 @@ public class CheatController : NetworkBehaviour
         // Оповещаем компонент недовольства о том, что бот делает подозрительное движение
         if (isBot && displeasureController != null)
         {
-            displeasureController.NotifySuspiciousActionStarted();
         }
 
         // 1. Формируем правильный контекст

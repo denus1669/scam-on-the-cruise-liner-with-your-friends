@@ -15,7 +15,8 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     [SerializeField] private string promptText = "Занять стол (E)";
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
     [SerializeField] private int priority = 0;
-    [SerializeField] private Transform botWaitPoint; 
+
+    [SerializeField] private Transform botWaitPoint;
 
     public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
@@ -67,6 +68,8 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     public event Action OnGameStarted;
     /// <inheritdoc />
     public event Action OnGameEnded;
+    /// <inheritdoc />
+    public event Action<bool> OnTriggerZonePlayerChanged;
 
     public readonly NetworkVariable<NetworkObjectReference> botNetworkObjectRef = new NetworkVariable<NetworkObjectReference>(
     default,
@@ -119,6 +122,8 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
         else
             OnGameEnded?.Invoke();
     }
+
+   
 
     // ---------- IInteractable методы ----------
     /// <summary>Определяет, может ли игрок взаимодействовать со столом (только если стол не занят другим игроком).</summary>
@@ -288,8 +293,22 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
             if (occupiedByClientId.Value == netObj.OwnerClientId)
             {
                 Leave(netObj.OwnerClientId);
-            }
+            }   
         }
+    }
+
+    public virtual void OnTriggerEnter(Collider other)
+    {
+        if (!IsServer) return;
+
+        NetworkObject netObj = other.GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsPlayerObject)
+        {
+
+            OccupyServerRpc(netObj.OwnerClientId);
+        }
+        else Debug.Log("netObj == null");
+
     }
 
     // ---------- Обработка дисконнекта ----------
@@ -299,7 +318,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
         if (occupiedByClientId.Value == clientId)
         {
-            Leave(clientId);
+            
         }
     }
 }

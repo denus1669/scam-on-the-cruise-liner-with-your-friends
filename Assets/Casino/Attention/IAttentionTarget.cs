@@ -1,25 +1,16 @@
-using UnityEngine;
-
-namespace Blocks.Gameplay.Core
-{
     /// <summary>
-    /// Implement on objects that can be targeted by the Attention Raycaster.
+    /// Интерфейс для объектов, на которые можно смотреть в режиме внимания.
     /// </summary>
     public interface IAttentionTarget
     {
         /// <summary>
-        /// Called when the attention reticle enters this target.
+        /// Вызывается, когда луч внимания попадает на объект.
+        /// Передает ID игрока, который смотрит.
         /// </summary>
-        void OnAttentionEnter(GameObject instigator);
+        void OnAttentionEnter(ulong watcherClientId);
 
         /// <summary>
-        /// Called when the attention reticle exits this target.
+        /// Вызывается, когда луч внимания покидает объект.
         /// </summary>
-        void OnAttentionExit(GameObject instigator);
-
-        /// <summary>
-        /// Called when the player presses the Accuse key while targeting this object.
-        /// </summary>
-        void OnAccuse(GameObject instigator);
+        void OnAttentionExit(ulong watcherClientId);
     }
-}

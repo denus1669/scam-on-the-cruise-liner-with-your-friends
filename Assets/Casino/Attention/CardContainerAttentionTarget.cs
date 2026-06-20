@@ -1,3 +1,4 @@
+/*
 using Blocks.Gameplay.Core;
 using System.Collections;
 using UnityEngine;
@@ -138,3 +139,4 @@ public class CardContainerAttentionTarget : MonoBehaviour, IAttentionTarget
         // Будет реализовано позже, когда дойдём до обвинения
     }
 }
+*/

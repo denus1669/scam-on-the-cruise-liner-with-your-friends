@@ -1018,7 +1018,7 @@ PrefabInstance:
     - target: {fileID: 4554578114382903827, guid: 832db79509af6674f88da5942179344a, type: 3}
       propertyPath: onFinishGameEvent
       value: 
-      objectReference: {fileID: 11400000, guid: 7980b19c34cba49e0ab89edafbc46cce, type: 2}
+      objectReference: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
     - target: {fileID: 6667248287144915161, guid: 832db79509af6674f88da5942179344a, type: 3}
       propertyPath: m_Layer
       value: 8

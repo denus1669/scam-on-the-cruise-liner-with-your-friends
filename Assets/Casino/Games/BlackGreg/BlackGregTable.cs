@@ -327,7 +327,6 @@ public class BlackGregTable : GameTable, ICardGameTable
 
         if (IsServer)
         {
-            // playerClientId = ulong.MaxValue заставит клиента использовать cardTablePosition
             SyncHandsClientRpc(ulong.MaxValue, playerHandData.ToArray(), botHandData.ToArray());
         }
     }

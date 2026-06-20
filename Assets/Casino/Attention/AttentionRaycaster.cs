@@ -1,133 +1,76 @@
+
+using Blocks.Gameplay.Core;
 using System.Collections;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 
-namespace Blocks.Gameplay.Core
-{
     /// <summary>
-    /// Выполняет рейкаст из камеры игрока, когда активен режим внимания.
-    /// Работает только для локального владельца.
-    /// При попадании в объект с компонентом IAttentionTarget и коллайдером-триггером
-    /// вызывает методы интерфейса, а также выводит информацию в консоль.
+    /// Выполняет рейкаст. Знает только об интерфейсах IAttentionTarget и IAccusable.
+    /// Передает команды от игрока к объекту.
     /// </summary>
-    public class AttentionRaycaster : NetworkBehaviour
+    public class AttentionRaycaster : NetworkBehaviour, IInteractable
     {
-        [Header("Ссылки на компоненты")]
-        [Tooltip("Контроллер внимания игрока, откуда берётся флаг активности.")]
-        [SerializeField] private PlayerAttentionController attentionController;
-
-        [Header("Настройки камеры")]
-        [Tooltip("Камера, из которой будет выпускаться луч. Если не назначена, используется Camera.main.")]
-        [SerializeField] private Camera mainCamera;
-
         [Header("Настройки луча")]
-        [Tooltip("Слои, с которыми взаимодействует луч (только для объектов с IAttentionTarget и триггерами).")]
+        [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask attentionLayerMask = ~0;
-        [Tooltip("Максимальная дистанция луча.")]
-        [SerializeField] private float maxRayDistance = 100f;
+        [SerializeField] private float maxRayDistance = 10f;
 
-        // Текущая цель, на которую указывает луч
+        [Header("Ввод (Для Обвинения)")]
+        [SerializeField] private CoreInputHandler inputHandler;
+
         private IAttentionTarget currentTarget;
-        // Флаг активности режима внимания (нужен для управления корутиной)
-        private bool isAttentionActive;
+        private Coroutine raycastCoroutine;
 
-        #region Жизненный цикл Unity и Network
+    public InteractionTriggerMode TriggerMode => throw new System.NotImplementedException();
 
-        public override void OnNetworkSpawn()
+    public int Priority => throw new System.NotImplementedException();
+
+    public string InteractionPromptText => throw new System.NotImplementedException();
+
+    public override void OnNetworkSpawn()
         {
-            base.OnNetworkSpawn();
+            if (!IsOwner) return;
 
-            // Этот компонент активен только у локального игрока
-            if (!IsOwner)
-                return;
-
-            // Получаем главную камеру, если не назначена вручную
-            if (mainCamera == null)
-                mainCamera = Camera.main;
-
-            if (mainCamera == null)
-            {
-                Debug.LogError("[AttentionRaycaster] Главная камера не найдена.", this);
-                return;
-            }
-
-            // Находим контроллер внимания, если ссылка не проставлена в инспекторе
-            if (attentionController == null)
-            {
-                attentionController = GetComponent<PlayerAttentionController>();
-                if (attentionController == null)
-                {
-                    Debug.LogError("[AttentionRaycaster] PlayerAttentionController не найден на объекте.", this);
-                    return;
-                }
-            }
-
-            // Подписываемся на изменение флага IsAttention
-            attentionController.IsAttention.OnValueChanged += OnAttentionStateChanged;
-
-            // Принудительно синхронизируем начальное состояние
-            OnAttentionStateChanged(attentionController.IsAttention.Value, attentionController.IsAttention.Value);
+            if (mainCamera == null) mainCamera = Camera.main;
         }
 
         public override void OnNetworkDespawn()
         {
-            if (IsOwner)
-            {
-                // Отписываемся от события
-                if (attentionController != null && attentionController.IsAttention != null)
-                    attentionController.IsAttention.OnValueChanged -= OnAttentionStateChanged;
+            if (!IsOwner) return;
 
-                // Останавливаем корутину и сбрасываем текущую цель
-                StopAllCoroutines();
-                ClearCurrentTarget();
-            }
-            base.OnNetworkDespawn();
+            SetRaycasterActive(false);
         }
 
-        #endregion
-
-        #region Реакция на изменение режима внимания
-
         /// <summary>
-        /// Вызывается при изменении значения NetworkVariable IsAttention.
-        /// Запускает или останавливает цикл рейкаста.
+        /// Включает или выключает цикл пускания луча.
         /// </summary>
-        private void OnAttentionStateChanged(bool previousValue, bool newValue)
+        public void SetRaycasterActive(bool isActive)
         {
-            isAttentionActive = newValue;
-            if (isAttentionActive)
+            if (isActive)
             {
-                StartCoroutine(RaycastLoop());
+                if (raycastCoroutine == null)
+                    raycastCoroutine = StartCoroutine(RaycastLoop());
             }
             else
             {
-                StopAllCoroutines();
-                ClearCurrentTarget(); // При выходе из режима сбрасываем цель
+                if (raycastCoroutine != null)
+                {
+                    StopCoroutine(raycastCoroutine);
+                    raycastCoroutine = null;
+                }
+                ClearCurrentTarget();
             }
         }
 
-        #endregion
-
-        #region Основной цикл рейкаста
-
-        /// <summary>
-        /// Бесконечный цикл, работающий пока isAttentionActive == true.
-        /// Каждый кадр выпускает луч и обрабатывает смену цели.
-        /// </summary>
         private IEnumerator RaycastLoop()
         {
-            while (isAttentionActive)
+            while (true)
             {
                 PerformRaycast();
-                yield return null; // ждём следующий кадр
+                yield return null;
             }
         }
 
-        /// <summary>
-        /// Выпускает луч из mainCamera в направлении её взгляда.
-        /// Если луч попадает в коллайдер-триггер на объекте с IAttentionTarget,
-        /// обновляет текущую цель и вызывает соответствующие методы интерфейса.
-        /// </summary>
         private void PerformRaycast()
         {
             if (mainCamera == null) return;
@@ -135,28 +78,24 @@ namespace Blocks.Gameplay.Core
             Vector3 origin = mainCamera.transform.position;
             Vector3 direction = mainCamera.transform.forward;
 
-            // Отрисовка для отладки (в Scene View)
-            Debug.DrawRay(origin, direction * maxRayDistance, currentTarget != null ? Color.green : Color.red, 0.1f);
-
             if (Physics.Raycast(origin, direction, out RaycastHit hit, maxRayDistance, attentionLayerMask))
             {
-                // Игнорируем коллайдеры, которые не являются триггерами
                 if (!hit.collider.isTrigger)
                 {
                     ClearCurrentTarget();
                     return;
                 }
 
-                // Пытаемся получить IAttentionTarget на объекте попадания (или его родителе)
                 IAttentionTarget newTarget = hit.collider.GetComponentInParent<IAttentionTarget>();
+
                 if (newTarget != currentTarget)
                 {
                     ClearCurrentTarget();
                     currentTarget = newTarget;
+
                     if (currentTarget != null)
                     {
-                        currentTarget.OnAttentionEnter(gameObject);
-                        Debug.Log($"[Внимание] Луч попал в объект: {((Component)currentTarget).gameObject.name}");
+                        currentTarget.OnAttentionEnter(NetworkManager.Singleton.LocalClientId);
                     }
                 }
             }
@@ -166,19 +105,59 @@ namespace Blocks.Gameplay.Core
             }
         }
 
-        /// <summary>
-        /// Вызывает OnAttentionExit у текущей цели (если есть), сбрасывает её и логирует выход.
-        /// </summary>
         private void ClearCurrentTarget()
         {
             if (currentTarget != null)
             {
-                currentTarget.OnAttentionExit(gameObject);
-                Debug.Log($"[Внимание] Луч покинул объект: {((Component)currentTarget).gameObject.name}");
+                currentTarget.OnAttentionExit(NetworkManager.Singleton.LocalClientId);
                 currentTarget = null;
             }
         }
+    
 
-        #endregion
+    /// <summary>
+    /// Попытка обвинить цель, на которую сейчас смотрим (по нажатию 'E').
+    /// </summary>
+    private void TryAccuseTarget()
+    {
+        // Если объект поддерживает интерфейс обвинения, вызываем его
+        if (currentTarget is IAccusable accusableTarget)
+        {
+            accusableTarget.OnAccuse(NetworkManager.Singleton.LocalClientId);
+        }
+    }
+
+    private void TryInteract()
+    {
+        // Мы всё еще используем IAttentionTarget для визуальной подсветки, 
+        // но для действия E используем IInteractable
+        if (currentTarget is IInteractable interactable)
+        {
+            if (interactable.CanInteract(gameObject))
+            {
+                interactable.Interact(gameObject);
+            }
+        }
+    }
+
+    public bool CanInteract(GameObject interactor)
+    {
+        // Можно добавить логику, например, проверяем, находится ли бот в состоянии мухлежа
+        return true;
+    }
+
+    public void Interact(GameObject interactor)
+    {
+        if (interactor.TryGetComponent<NetworkObject>(out var networkObject))
+        {
+            AccuseServerRpc(networkObject.OwnerClientId);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void AccuseServerRpc(ulong accuserClientId)
+    {
+        Debug.Log($"[Обвинение] Игрок {accuserClientId} обвинил бота {gameObject.name} в мухлеже!");
+        // Здесь логика проверки мухлежа
     }
 }

@@ -439,13 +439,8 @@ MonoBehaviour:
   cameraController: {fileID: 7534759582818954730}
   defaultFOV: 60
   attentionFOV: 25
-  zoomSpeed: 8
-  maxAttentionDistance: 4.5
-  attentionLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  lookAtBotDispleasureRate: 8
-  lookAtCardsDispleasureRate: 22
+  inputHandler: {fileID: 1766402528312261525}
+  raycaster: {fileID: 2882626443250368846}
 --- !u!114 &2882626443250368846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459,12 +454,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.AttentionRaycaster
   ShowTopMostFoldoutHeaderGroup: 1
-  attentionController: {fileID: 978001976898572625}
   mainCamera: {fileID: 0}
   attentionLayerMask:
     serializedVersion: 2
     m_Bits: 512
   maxRayDistance: 100
+  inputHandler: {fileID: 1766402528312261525}
 --- !u!1 &336827370212964026
 GameObject:
   m_ObjectHideFlags: 0

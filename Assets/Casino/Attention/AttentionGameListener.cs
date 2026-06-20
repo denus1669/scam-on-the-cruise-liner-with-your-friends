@@ -14,6 +14,6 @@ public class AttentionGameListener : MonoBehaviour
 
     private void OnAttentionActivated()
     {
-        playerAttentionController?.ToggleAttention();
+        playerAttentionController?.ToggleAttentionLocal();
     }
 }

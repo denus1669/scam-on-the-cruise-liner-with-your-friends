@@ -192,7 +192,6 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
                 // Уведомление контроллера о том, что бот нервничает
                 if (displeasureController != null)
                 {
-                    displeasureController.NotifySuspiciousActionStarted();
                     Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} начинает нервничать)");
                 }
                 PlayBluffAnimationClientRpc(randomBluff);
