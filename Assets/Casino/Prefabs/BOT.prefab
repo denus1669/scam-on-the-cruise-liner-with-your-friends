@@ -10,7 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 703854091639277208}
   - component: {fileID: 7162283054248481240}
-  - component: {fileID: 1576767025933033157}
+  - component: {fileID: 4782374077190005773}
+  - component: {fileID: 386570628561090758}
+  - component: {fileID: 8262880651204589176}
   m_Layer: 9
   m_Name: CardHandPosition
   m_TagString: Untagged
@@ -54,7 +56,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 1, z: 1}
   m_Center: {x: 0, y: 1.5, z: 1}
---- !u!114 &1576767025933033157
+--- !u!114 &4782374077190005773
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -63,10 +65,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 3214826041473833782}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 196a2c7988bbedb48b1ec0f7f61a6413, type: 3}
+  m_Script: {fileID: 11500000, guid: ab921843ec8254740b46dd1c2eb86860, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CardContainerAttentionTarget
-  debugLog: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.AttentionTargetReceiver
+--- !u!114 &386570628561090758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e025cd6b3dcffe446b42e2ae811d44fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.BotDispleasureAttentionHandler
+  botDispleasure: {fileID: 4877028851096292619}
+--- !u!114 &8262880651204589176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8fb9f80192ece24b8100a94d1fbaf5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CardHandInspector
+  _currentCards: []
 --- !u!1 &5497669901684611537
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2817393631
+  GlobalObjectIdHash: 754189858
   InScenePlacedSourceGlobalObjectIdHash: 3992984230
   DeferredDespawnTick: 0
   Ownership: 0
@@ -273,8 +300,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BotDispleasureController
   ShowTopMostFoldoutHeaderGroup: 1
   maxDispleasure: 100
-  suspiciousTimeWindow: 3.5
-  watchedMultiplier: 3
+  baseDispleasureRate: 1
+  decayRate: 2
 --- !u!1001 &6995647616031633779
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -346,8 +373,39 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5546783388853183378, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1236161822435938470}
   m_SourcePrefab: {fileID: 100100000, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+--- !u!1 &5913320406659493149 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5546783388853183378, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+  m_PrefabInstance: {fileID: 6995647616031633779}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &1236161822435938470
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5913320406659493149}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.53
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0.000000074505806, y: 1, z: -0.000000059604645}
 --- !u!4 &7394683042014615192 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}

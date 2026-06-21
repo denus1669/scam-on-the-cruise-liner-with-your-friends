@@ -1,45 +1,40 @@
-using Blocks.Gameplay.Core;
+using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace Blocks.Gameplay.Core
 {
     /// <summary>
-    /// Отвечает ТОЛЬКО за состояние режима внимания (бинокль) и параметры камеры.
-    /// Не знает ничего о картах или ботах (Соблюдение SRP).
+    /// Отвечает ТОЛЬКО за сетевое состояние режима внимания.
+    /// Является "Издателем" событий для других компонентов.
     /// </summary>
     public class PlayerAttentionController : NetworkBehaviour
     {
-        [Header("Режим внимания")]
-        // Синхронизируем состояние бинокля для анимаций у других игроков
-        public NetworkVariable<bool> IsAttention { get; private set; } = new NetworkVariable<bool>(false);
+        // Делаем переменную приватной, чтобы никто снаружи не мог её случайно сломать
+        private readonly NetworkVariable<bool> _isAttention = new NetworkVariable<bool>(false);
 
-        [Header("Настройки камеры")]
-        [SerializeField] private CoreCameraController cameraController;
-        [SerializeField] private float defaultFOV = 60f;
-        [SerializeField] private float attentionFOV = 25f;
+        // Событие для локального игрока (Камера, UI, Звуки в ушах игрока)
+        public event Action<bool> OnLocalAttentionChanged;
 
-        [Header("Ссылки")]
-        [SerializeField] private CoreInputHandler inputHandler;
-        [SerializeField] private AttentionRaycaster raycaster;
+        // Событие для всех (Анимации персонажа, которые должны видеть другие игроки)
+        public event Action<bool> OnGlobalAttentionChanged;
+
+        public bool IsAttentionActive => _isAttention.Value;
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
 
-            if (IsOwner)
-            {
-                IsAttention.OnValueChanged += OnAttentionStateChanged;
-                OnAttentionStateChanged(false, IsAttention.Value);
-            }
+            _isAttention.OnValueChanged += HandleAttentionStateChanged;
+
+            // Принудительно вызываем обновление при спавне, чтобы инициализировать локальные компоненты
+            HandleAttentionStateChanged(false, _isAttention.Value);
         }
 
         public override void OnNetworkDespawn()
         {
-            if (IsOwner)
-            {
-                IsAttention.OnValueChanged -= OnAttentionStateChanged;
-            }
+            _isAttention.OnValueChanged -= HandleAttentionStateChanged;
             base.OnNetworkDespawn();
         }
 
@@ -48,38 +43,29 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         public void ToggleAttentionLocal()
         {
-            ToggleAttentionServerRpc(!IsAttention.Value);
+            Debug.Log($"1");
+            if (!IsOwner) return;
+            Debug.Log($"2");
+
+            ToggleAttentionServerRpc(!_isAttention.Value);
         }
 
         [Rpc(SendTo.Server)]
         private void ToggleAttentionServerRpc(bool newState)
         {
-            IsAttention.Value = newState;
+            _isAttention.Value = newState;
+            Debug.Log($"[Server] Player {OwnerClientId} toggled attention to: {newState}");
         }
 
-        private void OnAttentionStateChanged(bool previous, bool current)
+        private void HandleAttentionStateChanged(bool previous, bool current)
         {
-            // Здесь можно вызвать триггер аниматора: animator.SetBool("IsUsingBinoculars", current);
+            // 1. Оповещаем глобальные системы (например, скрипт анимаций)
+            OnGlobalAttentionChanged?.Invoke(current);
 
+            // 2. Оповещаем только локальные системы (камера, локальный сканер)
             if (IsOwner)
             {
-                // Применяем зум камеры только для владельца
-                float targetFOV = current ? attentionFOV : defaultFOV;
-                ApplyCameraZoom(targetFOV);
-
-                // Включаем/выключаем сканер (луч)
-                if (raycaster != null)
-                {
-                    raycaster.SetRaycasterActive(current);
-                }
-            }
-        }
-
-        private void ApplyCameraZoom(float fov)
-        {
-            if (cameraController != null && cameraController.ActiveCameraMode?.CinemachineCamera != null)
-            {
-                cameraController.ActiveCameraMode.CinemachineCamera.Lens.FieldOfView = fov;
+                OnLocalAttentionChanged?.Invoke(current);
             }
         }
     }

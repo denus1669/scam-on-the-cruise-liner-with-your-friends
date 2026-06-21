@@ -1,33 +1,35 @@
 
 using Blocks.Gameplay.Core;
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
     /// <summary>
-    /// Выполняет рейкаст. Знает только об интерфейсах IAttentionTarget и IAccusable.
+    /// Выполняет рейкаст. Знает только об интерфейсах IAttentionTarget.
     /// Передает команды от игрока к объекту.
     /// </summary>
-    public class AttentionRaycaster : NetworkBehaviour, IInteractable
+    public class AttentionRaycaster : NetworkBehaviour
     {
         [Header("Настройки луча")]
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask attentionLayerMask = ~0;
         [SerializeField] private float maxRayDistance = 10f;
 
-        [Header("Ввод (Для Обвинения)")]
-        [SerializeField] private CoreInputHandler inputHandler;
-
         private IAttentionTarget currentTarget;
         private Coroutine raycastCoroutine;
 
-    public InteractionTriggerMode TriggerMode => throw new System.NotImplementedException();
+        // Событие: Луч попал на валидную цель (передаем саму цель, если подписчикам нужны ее данные)
+        public event Action<IAttentionTarget> OnTargetEnterLocal;
 
-    public int Priority => throw new System.NotImplementedException();
+        // Событие: Луч сошел с цели или сканер был выключен
+        public event Action OnTargetExitLocal;
 
-    public string InteractionPromptText => throw new System.NotImplementedException();
+        // Публичное свойство для доступа к текущей цели в любой момент, если кому-то нужно проверить состояние без подписки
+        public IAttentionTarget CurrentTarget => currentTarget;
+        public bool HasTarget => currentTarget != null;
 
-    public override void OnNetworkSpawn()
+        public override void OnNetworkSpawn()
         {
             if (!IsOwner) return;
 
@@ -46,7 +48,8 @@ using UnityEngine;
         /// </summary>
         public void SetRaycasterActive(bool isActive)
         {
-            if (isActive)
+
+        if (isActive)
             {
                 if (raycastCoroutine == null)
                     raycastCoroutine = StartCoroutine(RaycastLoop());
@@ -67,7 +70,7 @@ using UnityEngine;
             while (true)
             {
                 PerformRaycast();
-                yield return null;
+                yield return new WaitForSeconds(0.5f);
             }
         }
 
@@ -80,13 +83,15 @@ using UnityEngine;
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, maxRayDistance, attentionLayerMask))
             {
+                Debug.DrawLine(origin, hit.point, Color.green, 0.1f);
+
                 if (!hit.collider.isTrigger)
                 {
                     ClearCurrentTarget();
                     return;
                 }
 
-                IAttentionTarget newTarget = hit.collider.GetComponentInParent<IAttentionTarget>();
+                IAttentionTarget newTarget = hit.collider.GetComponent<IAttentionTarget>();     
 
                 if (newTarget != currentTarget)
                 {
@@ -95,13 +100,17 @@ using UnityEngine;
 
                     if (currentTarget != null)
                     {
+                        // 1. Вызываем метод самого интерфейса (возможно, там RPC логика самой цели)
                         currentTarget.OnAttentionEnter(NetworkManager.Singleton.LocalClientId);
+
+                        // 2. Оповещаем все наши локальные скрипты (UI, Анализаторы, Звуки), что мы смотрим на цель
+                        OnTargetEnterLocal?.Invoke(currentTarget);
                     }
                 }
             }
             else
             {
-                ClearCurrentTarget();
+            ClearCurrentTarget();
             }
         }
 
@@ -113,51 +122,4 @@ using UnityEngine;
                 currentTarget = null;
             }
         }
-    
-
-    /// <summary>
-    /// Попытка обвинить цель, на которую сейчас смотрим (по нажатию 'E').
-    /// </summary>
-    private void TryAccuseTarget()
-    {
-        // Если объект поддерживает интерфейс обвинения, вызываем его
-        if (currentTarget is IAccusable accusableTarget)
-        {
-            accusableTarget.OnAccuse(NetworkManager.Singleton.LocalClientId);
-        }
-    }
-
-    private void TryInteract()
-    {
-        // Мы всё еще используем IAttentionTarget для визуальной подсветки, 
-        // но для действия E используем IInteractable
-        if (currentTarget is IInteractable interactable)
-        {
-            if (interactable.CanInteract(gameObject))
-            {
-                interactable.Interact(gameObject);
-            }
-        }
-    }
-
-    public bool CanInteract(GameObject interactor)
-    {
-        // Можно добавить логику, например, проверяем, находится ли бот в состоянии мухлежа
-        return true;
-    }
-
-    public void Interact(GameObject interactor)
-    {
-        if (interactor.TryGetComponent<NetworkObject>(out var networkObject))
-        {
-            AccuseServerRpc(networkObject.OwnerClientId);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void AccuseServerRpc(ulong accuserClientId)
-    {
-        Debug.Log($"[Обвинение] Игрок {accuserClientId} обвинил бота {gameObject.name} в мухлеже!");
-        // Здесь логика проверки мухлежа
-    }
 }

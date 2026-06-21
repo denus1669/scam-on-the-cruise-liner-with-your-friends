@@ -1,63 +1,72 @@
 using Blocks.Gameplay.Core;
-using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Компонент вешается на коллайдер руки бота (там где спавнятся карты).
 /// Отвечает ТОЛЬКО за локальное отображение карт при просмотре.
+/// Ничего не знает о боте, его недовольстве или сети.
 /// </summary>
-public class CardHandInspector : MonoBehaviour, IAttentionTarget
+
+[RequireComponent(typeof(AttentionTargetReceiver))]
+public class CardHandInspector : MonoBehaviour
 {
-    [Header("Настройки")]
-    [Tooltip("Ссылка на контроллер недовольства бота (если есть)")]
-    [SerializeField] private BotDispleasureController botDispleasure;
+    private AttentionTargetReceiver _attentionReceiver;
+    [SerializeField] private CardView[] _currentCards;
 
-    private CardView[] currentCards;
+    // Добавляем флаг состояния и счетчик детей
+    private bool _isFocused;
+    private int _lastChildCount;
 
-    private void Reset()
+    private void Awake()
     {
-        // Автоматически пытаемся найти контроллер на родителе при добавлении скрипта
-        botDispleasure = GetComponentInParent<BotDispleasureController>();
+        _attentionReceiver = GetComponent<AttentionTargetReceiver>();
     }
 
-    public void OnAttentionEnter(ulong watcherClientId)
+    private void OnEnable()
     {
-        // 1. Сообщаем боту, что на него начали смотреть
-        if (botDispleasure != null)
-        {
-            botDispleasure.AddWatcherServerRpc(watcherClientId);
-        }
+        _attentionReceiver.OnAttentionEntered += HandleAttentionEnter;
+        _attentionReceiver.OnAttentionExited += HandleAttentionExit;
+    }
 
-        // 2. Ищем все актуальные карты в руке в данный момент (решает проблему с добавлением новых карт)
-        currentCards = GetComponentsInChildren<CardView>(true);
-
-        // 3. Локально показываем их игроку
-        foreach (var card in currentCards)
+    private void OnDisable()
+    {
+        _attentionReceiver.OnAttentionEntered -= HandleAttentionEnter;
+        _attentionReceiver.OnAttentionExited -= HandleAttentionExit;
+    }
+    private void Update()
+    {
+        // Если игрок прямо сейчас смотрит на руку бота, следим за изменениями
+        if (_isFocused && transform.childCount != _lastChildCount)
         {
-            if (card != null)
-            {
-                card.SetVisible(true);
-            }
+            // Количество дочерних объектов изменилось (бот взял или сбросил карту)
+            // Заново собираем массив и применяем видимость
+            RefreshCards(true);
         }
     }
 
-    public void OnAttentionExit(ulong watcherClientId)
+    private void HandleAttentionEnter(ulong watcherClientId)
     {
-        // 1. Сообщаем боту, что мы перестали смотреть
-        if (botDispleasure != null)
-        {
-            botDispleasure.RemoveWatcherServerRpc(watcherClientId);
-        }
+        _isFocused = true;
+        RefreshCards(true);
+    }
 
-        // 2. Скрываем карты обратно
-        if (currentCards != null)
+    private void HandleAttentionExit(ulong watcherClientId)
+    {
+        _isFocused = false;
+        RefreshCards(false);
+    }
+    private void RefreshCards(bool isVisible)
+    {
+        // Обновляем массив текущих карт
+        _currentCards = GetComponentsInChildren<CardView>(true);
+        // Запоминаем текущее количество объектов (чтобы отловить изменения в Update)
+        _lastChildCount = transform.childCount;
+
+        // Применяем видимость (показываем или скрываем)
+        if (_currentCards != null)
         {
-            foreach (var card in currentCards)
+            foreach (var card in _currentCards)
             {
-                if (card != null)
-                {
-                    card.SetVisible(false);
-                }
+                if (card != null) card.SetVisible(isVisible);
             }
         }
     }

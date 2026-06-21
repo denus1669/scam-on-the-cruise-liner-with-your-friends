@@ -9,7 +9,7 @@ using UnityEngine;
 /// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
 /// Конкретные игры наследуют этот класс и добавляют свою механику.
 /// </summary>
-public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
+public abstract class GameTable : NetworkBehaviour, IGameTable
 {
     [Header("Interaction Settings")]
     [SerializeField] private string promptText = "Занять стол (E)";
@@ -68,8 +68,6 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
     public event Action OnGameStarted;
     /// <inheritdoc />
     public event Action OnGameEnded;
-    /// <inheritdoc />
-    public event Action<bool> OnTriggerZonePlayerChanged;
 
     public readonly NetworkVariable<NetworkObjectReference> botNetworkObjectRef = new NetworkVariable<NetworkObjectReference>(
     default,
@@ -127,6 +125,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
     // ---------- IInteractable методы ----------
     /// <summary>Определяет, может ли игрок взаимодействовать со столом (только если стол не занят другим игроком).</summary>
+    /*
     public bool CanInteract(GameObject interactor) => !isOccupied.Value;
 
     /// <summary>Вызывается при взаимодействии игрока. Запускает процесс занятия стола.</summary>
@@ -145,6 +144,7 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
         }
         else Debug.Log("netObj == null");
     }
+    */
 
     // ---------- RPC для занятия/освобождения игрока ----------
     [Rpc(SendTo.Server)]
@@ -318,7 +318,8 @@ public abstract class GameTable : NetworkBehaviour, IInteractable, IGameTable
 
         if (occupiedByClientId.Value == clientId)
         {
-            
+            Leave(clientId);
         }
     }
+    
 }

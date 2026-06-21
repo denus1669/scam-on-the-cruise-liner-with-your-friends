@@ -8,7 +8,7 @@ using UnityEngine;
 /// Поддерживает интерфейс IAccusable для обработки обвинений в мухлеже.
 /// </summary>
 [RequireComponent(typeof(BotAgent))]
-public class BotDispleasureController : NetworkBehaviour, IAccusable
+public class BotDispleasureController : NetworkBehaviour
 {
     [Header("Настройки недовольства")]
     [SerializeField] private float maxDispleasure = 100f;
@@ -85,32 +85,7 @@ public class BotDispleasureController : NetworkBehaviour, IAccusable
         currentDispleasure.Value = 0f;
         watchers.Clear();
     }
-
-    /// <summary>
-    /// Вызывается, когда игрок нажимает "E" (PrimaryAction) глядя на этого бота.
-    /// </summary>
-    public void OnAccuse(ulong accuserClientId)
-    {
-        AccuseServerRpc(accuserClientId);
-    }
-
-    [Rpc(SendTo.Server)]
-    private void AccuseServerRpc(ulong accuserClientId)
-    {
-        // Здесь будет логика проверки: мухлюет ли сейчас бот?
-        // Если да -> игрок выиграл (ForceStopGame).
-        // Если нет -> игрок ошибся, возможно штраф.
-
-        Debug.Log($"[Обвинение] Игрок {accuserClientId} обвинил бота {gameObject.name} в мухлеже!");
-
-        IGameTable table = GetCurrentTable();
-        if (table != null)
-        {
-            // Временная заглушка для теста
-            // table.ForceStopGame(accuserClientId, isCheaterBot: true, reason: "Caught Cheating");
-        }
-    }
-
+    
     private IGameTable GetCurrentTable()
     {
         if (botAgent != null && TryGetComponent<IBotGameBehavior>(out var behavior))

@@ -27,6 +27,9 @@ GameObject:
   - component: {fileID: 5545334187674898279}
   - component: {fileID: 978001976898572625}
   - component: {fileID: 2882626443250368846}
+  - component: {fileID: 4535699252747466436}
+  - component: {fileID: 1073906307148899363}
+  - component: {fileID: 1039719676754950626}
   m_Layer: 3
   m_Name: '[BB] CorePlayer'
   m_TagString: Player
@@ -89,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2295974813
+  GlobalObjectIdHash: 3011846507
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -436,11 +439,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttentionController
   ShowTopMostFoldoutHeaderGroup: 1
-  cameraController: {fileID: 7534759582818954730}
-  defaultFOV: 60
-  attentionFOV: 25
-  inputHandler: {fileID: 1766402528312261525}
-  raycaster: {fileID: 2882626443250368846}
 --- !u!114 &2882626443250368846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,8 +456,49 @@ MonoBehaviour:
   attentionLayerMask:
     serializedVersion: 2
     m_Bits: 512
-  maxRayDistance: 100
-  inputHandler: {fileID: 1766402528312261525}
+  maxRayDistance: 10
+--- !u!114 &4535699252747466436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b0cb91e195e3bc4bbdef5376f211219, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerAttentionCamera
+  cameraController: {fileID: 7534759582818954730}
+  defaultFOV: 60
+  attentionFOV: 25
+--- !u!114 &1073906307148899363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5d4b90e127298b45a9dc880b96040da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttentionRaycasterHandler
+  attentionRaycaster: {fileID: 2882626443250368846}
+--- !u!114 &1039719676754950626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 678fa2dd099c7004a8c6ad0acb37b016, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerAttentionVisualSpawner
+  visualPrefab: {fileID: 799209674182917441, guid: a1879f410042fa3459eff2cb0b2cddfc, type: 3}
+  spawnPoint: {fileID: 9063590150941009184}
 --- !u!1 &336827370212964026
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,7 +555,7 @@ Transform:
   m_GameObject: {fileID: 3051921987606255967}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.232, z: 2.068}
+  m_LocalPosition: {x: 0, y: 2.04, z: 1.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
