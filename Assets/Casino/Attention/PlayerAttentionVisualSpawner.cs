@@ -21,12 +21,7 @@ namespace Blocks.Gameplay.Core
         private void Awake()
         {
             _attentionController = GetComponent<PlayerAttentionController>();
-        }
 
-        private void Start()
-        {
-            // Оптимизация: создаем объект один раз при загрузке персонажа и сразу выключаем.
-            // Это избавляет от просадок кадров из-за Instantiate/Destroy при быстром переключении бинокля.
             if (visualPrefab != null)
             {
                 meshRenderer = visualPrefab.GetComponent<MeshRenderer>();
@@ -52,7 +47,7 @@ namespace Blocks.Gameplay.Core
             if (_attentionController.IsOwner) return;
 
             // Для всех остальных наблюдателей по сети — включаем или выключаем модель бинокля
-            if (visualPrefab != null)
+            if (meshRenderer != null)
             {
                 meshRenderer.enabled = isAttentionActive;
             }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System.ComponentModel.Design;
 
 /// <summary>
 /// Компонент стола для игры в блэкджек.
@@ -175,7 +176,9 @@ public class BlackGregTable : GameTable, ICardGameTable
         placeNextCardOnLeft = true;
 
         // Определяем, должны ли карты игрока быть открытыми
-        bool isPlayerFaceUp = true;
+
+        bool isPlayerFaceUp = (playerClientId != ulong.MaxValue);
+        Debug.Log($"Client {playerClientId}, isPlayerFaceUp  {isPlayerFaceUp}");
 
         // Получаем руку игрока
         Transform playerHand = null;
@@ -337,6 +340,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     public override void Occupy(ulong clientId)
     {
         base.Occupy(clientId);
+
         if (IsServer)
         {
             SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());

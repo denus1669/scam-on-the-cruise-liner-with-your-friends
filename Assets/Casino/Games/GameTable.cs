@@ -11,11 +11,6 @@ using UnityEngine;
 /// </summary>
 public abstract class GameTable : NetworkBehaviour, IGameTable
 {
-    [Header("Interaction Settings")]
-    [SerializeField] private string promptText = "Занять стол (E)";
-    [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
-    [SerializeField] private int priority = 0;
-
     [SerializeField] private Transform botWaitPoint;
 
     public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
@@ -41,14 +36,6 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
     private NetworkObject currentBot;
-
-    // ---------- Реализация IInteractable ----------
-    /// <inheritdoc />
-    public InteractionTriggerMode TriggerMode => triggerMode;
-    /// <inheritdoc />
-    public int Priority => priority;
-    /// <inheritdoc />
-    public string InteractionPromptText => promptText;
 
     // ---------- Реализация IGameTable ----------
     /// <inheritdoc />
@@ -262,29 +249,39 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     // ---------- Обработка триггера ----------
     public virtual void OnTriggerExit(Collider other)
     {
-        if (!IsServer) return;
 
         NetworkObject netObj = other.GetComponent<NetworkObject>();
-        if (netObj != null && netObj.IsPlayerObject)
+        if (netObj == null || !netObj.IsPlayerObject) return;
+
+        if (IsServer)
         {
             if (occupiedByClientId.Value == netObj.OwnerClientId)
             {
                 Leave(netObj.OwnerClientId);
-            }   
+            }
+        }
+        else if (netObj.IsLocalPlayer)
+        {
+            LeaveServerRpc(netObj.OwnerClientId);
         }
     }
 
     public virtual void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
 
         NetworkObject netObj = other.GetComponent<NetworkObject>();
-        if (netObj != null && netObj.IsPlayerObject)
-        {
+        if (netObj == null || !netObj.IsPlayerObject) return;
 
+        if (IsServer)
+        {
+            // Если физика на сервере - занимаем сразу
+            Occupy(netObj.OwnerClientId);
+        }
+        else if (netObj.IsLocalPlayer)
+        {
+            // Если физика на клиенте (DA) - шлем RPC
             OccupyServerRpc(netObj.OwnerClientId);
         }
-        else Debug.Log("netObj == null");
 
     }
 
