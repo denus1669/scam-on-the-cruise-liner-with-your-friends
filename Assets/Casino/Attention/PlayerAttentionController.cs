@@ -12,8 +12,11 @@ namespace Blocks.Gameplay.Core
     public class PlayerAttentionController : NetworkBehaviour
     {
         // Делаем переменную приватной, чтобы никто снаружи не мог её случайно сломать
-        private readonly NetworkVariable<bool> _isAttention = new NetworkVariable<bool>(false);
-
+        private readonly NetworkVariable<bool> _isAttention = new NetworkVariable<bool>(
+            value: false,
+            writePerm: NetworkVariableWritePermission.Server,
+            readPerm: NetworkVariableReadPermission.Everyone
+        );
         // Событие для локального игрока (Камера, UI, Звуки в ушах игрока)
         public event Action<bool> OnLocalAttentionChanged;
 
@@ -43,18 +46,16 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         public void ToggleAttentionLocal()
         {
-            Debug.Log($"1");
             if (!IsOwner) return;
-            Debug.Log($"2");
 
-            ToggleAttentionServerRpc(!_isAttention.Value);
+            ToggleAttention(!_isAttention.Value);
         }
 
-        [Rpc(SendTo.Server)]
-        private void ToggleAttentionServerRpc(bool newState)
+        //[Rpc(SendTo.Server)]
+        public void ToggleAttention(bool newState)
         {
-            _isAttention.Value = newState;
-            Debug.Log($"[Server] Player {OwnerClientId} toggled attention to: {newState}");
+
+                _isAttention.Value = newState;
         }
 
         private void HandleAttentionStateChanged(bool previous, bool current)

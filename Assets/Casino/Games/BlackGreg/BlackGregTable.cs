@@ -175,7 +175,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         placeNextCardOnLeft = true;
 
         // Определяем, должны ли карты игрока быть открытыми
-        bool isPlayerFaceUp = (playerClientId == NetworkManager.Singleton.LocalClientId);
+        bool isPlayerFaceUp = true;
 
         // Получаем руку игрока
         Transform playerHand = null;

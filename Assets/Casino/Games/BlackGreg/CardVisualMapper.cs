@@ -23,6 +23,14 @@ public static class CardVisualMapper
         CardRank[] ranks = (CardRank[])Enum.GetValues(typeof(CardRank));
         CardType[] types = (CardType[])Enum.GetValues(typeof(CardType));
 
+        Dictionary<CardSuit, int> suitToRow = new Dictionary<CardSuit, int>
+        {
+            { CardSuit.Diamonds, 3 }, // Буба - верхняя строка
+            { CardSuit.Spades, 2 },   // Пика
+            { CardSuit.Clubs, 1 },    // Крести
+            { CardSuit.Hearts, 0 }    // Черва - нижняя строка
+        };
+
         foreach (var type in types)
         {
             foreach (var suit in suits)
@@ -37,11 +45,11 @@ public static class CardVisualMapper
                     // Y - зависит от масти и типа карты.
 
                     // Ранги идут от 2 до 14. Вычитаем 2, чтобы получить индекс от 0 до 12.
-                    float xIndex = (int)rank - 2;
+                    float xIndex = rank == CardRank.Ace ? 11 : (int)rank - 2;
 
                     // Масти идут от 0 до 3 (Черви, Буби, Крести, Пики).
                     // Тип карты смещает строку вниз (например, каждые 4 строки - новый тип).
-                    float yIndex = (int)suit + ((int)type * 4);
+                    float yIndex = suitToRow[suit];
 
                     Vector2 faceIndex = new Vector2(xIndex, yIndex);
 
@@ -54,7 +62,11 @@ public static class CardVisualMapper
         // ПРИМЕЧАНИЕ: Если какая-то конкретная карта лежит в атласе не по правилам сетки, 
         // вы можете переопределить её здесь вручную. Например:
         // VisualMap[new CardData(CardSuit.Spades, CardRank.Ace, CardType.Strikethrough)] = new Vector2(10, 15);
-        VisualMap[new CardData(CardSuit.Spades, CardRank.Ace, CardType.Strikethrough)] = new Vector2(10, 15);
+        VisualMap[new CardData(CardSuit.Diamonds, CardRank.Ace, CardType.Standard)] = new Vector2(0, 4);
+        VisualMap[new CardData(CardSuit.Spades, CardRank.Ace, CardType.Standard)] = new Vector2(1, 4);
+        VisualMap[new CardData(CardSuit.Clubs, CardRank.Ace, CardType.Standard)] = new Vector2(2, 4);
+        VisualMap[new CardData(CardSuit.Hearts, CardRank.Ace, CardType.Standard)] = new Vector2(3, 4);
+
     }
 
     /// <summary>

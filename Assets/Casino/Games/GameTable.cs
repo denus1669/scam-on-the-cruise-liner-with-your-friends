@@ -123,29 +123,6 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
    
 
-    // ---------- IInteractable методы ----------
-    /// <summary>Определяет, может ли игрок взаимодействовать со столом (только если стол не занят другим игроком).</summary>
-    /*
-    public bool CanInteract(GameObject interactor) => !isOccupied.Value;
-
-    /// <summary>Вызывается при взаимодействии игрока. Запускает процесс занятия стола.</summary>
-    public void Interact(GameObject interactor)
-    {
-        if (!IsSpawned || isOccupied.Value)
-        {
-            Debug.Log("!IsSpawned || isOccupied.Value");
-            return;
-        }
-
-        NetworkObject netObj = interactor.GetComponent<NetworkObject>();
-        if (netObj != null)
-        {
-            OccupyServerRpc(netObj.OwnerClientId);
-        }
-        else Debug.Log("netObj == null");
-    }
-    */
-
     // ---------- RPC для занятия/освобождения игрока ----------
     [Rpc(SendTo.Server)]
     private void OccupyServerRpc(ulong clientId)

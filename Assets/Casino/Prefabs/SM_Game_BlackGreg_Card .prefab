@@ -118,4 +118,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardVisualController
   faceIndex: {x: 0, y: 0}
   isVisible: 1
-  placeholderIndex: {x: 0, y: 4}
+  placeholderIndex: {x: 0, y: 6}

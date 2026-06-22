@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 
 namespace Blocks.Gameplay.Core
@@ -13,12 +14,9 @@ namespace Blocks.Gameplay.Core
         [Header("Настройки визуала")]
         [Tooltip("Префаб визуального объекта (без NetworkObject!).")]
         [SerializeField] private GameObject visualPrefab;
-
-        [Tooltip("Где должен появиться объект (например, кость руки или головы в риге персонажа).")]
-        [SerializeField] private Transform spawnPoint;
+        private MeshRenderer meshRenderer;
 
         private PlayerAttentionController _attentionController;
-        private GameObject _spawnedInstance;
 
         private void Awake()
         {
@@ -29,10 +27,10 @@ namespace Blocks.Gameplay.Core
         {
             // Оптимизация: создаем объект один раз при загрузке персонажа и сразу выключаем.
             // Это избавляет от просадок кадров из-за Instantiate/Destroy при быстром переключении бинокля.
-            if (visualPrefab != null && spawnPoint != null && _spawnedInstance == null)
+            if (visualPrefab != null)
             {
-                _spawnedInstance = Instantiate(visualPrefab, spawnPoint.position, spawnPoint.rotation, spawnPoint);
-                _spawnedInstance.SetActive(false);
+                meshRenderer = visualPrefab.GetComponent<MeshRenderer>();
+                meshRenderer.enabled = false;
             }
         }
 
@@ -54,9 +52,9 @@ namespace Blocks.Gameplay.Core
             if (_attentionController.IsOwner) return;
 
             // Для всех остальных наблюдателей по сети — включаем или выключаем модель бинокля
-            if (_spawnedInstance != null)
+            if (visualPrefab != null)
             {
-                _spawnedInstance.SetActive(isAttentionActive);
+                meshRenderer.enabled = isAttentionActive;
             }
         }
     }
