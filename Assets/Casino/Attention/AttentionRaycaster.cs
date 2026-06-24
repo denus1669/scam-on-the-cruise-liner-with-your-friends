@@ -22,9 +22,6 @@ using UnityEngine;
         // Событие: Луч попал на валидную цель (передаем саму цель, если подписчикам нужны ее данные)
         public event Action<IAttentionTarget> OnTargetEnterLocal;
 
-        // Событие: Луч сошел с цели или сканер был выключен
-        public event Action OnTargetExitLocal;
-
         // Публичное свойство для доступа к текущей цели в любой момент, если кому-то нужно проверить состояние без подписки
         public IAttentionTarget CurrentTarget => currentTarget;
         public bool HasTarget => currentTarget != null;

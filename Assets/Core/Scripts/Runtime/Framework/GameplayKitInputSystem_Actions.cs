@@ -201,6 +201,15 @@ namespace Blocks.Gameplay.Core
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Slap"",
+                    ""type"": ""Button"",
+                    ""id"": ""65ba3014-296b-4d1d-b3f4-330f66975ffb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -542,6 +551,17 @@ namespace Blocks.Gameplay.Core
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Attention"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""576fd0cd-00f0-4c7a-b5ec-29d2ff527dbe"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Slap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1141,6 +1161,7 @@ namespace Blocks.Gameplay.Core
             m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
             m_Player_FinishGame = m_Player.FindAction("FinishGame", throwIfNotFound: true);
             m_Player_Attention = m_Player.FindAction("Attention", throwIfNotFound: true);
+            m_Player_Slap = m_Player.FindAction("Slap", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1246,6 +1267,7 @@ namespace Blocks.Gameplay.Core
         private readonly InputAction m_Player_Menu;
         private readonly InputAction m_Player_FinishGame;
         private readonly InputAction m_Player_Attention;
+        private readonly InputAction m_Player_Slap;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -1305,6 +1327,10 @@ namespace Blocks.Gameplay.Core
             /// Provides access to the underlying input action "Player/Attention".
             /// </summary>
             public InputAction @Attention => m_Wrapper.m_Player_Attention;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Slap".
+            /// </summary>
+            public InputAction @Slap => m_Wrapper.m_Player_Slap;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -1367,6 +1393,9 @@ namespace Blocks.Gameplay.Core
                 @Attention.started += instance.OnAttention;
                 @Attention.performed += instance.OnAttention;
                 @Attention.canceled += instance.OnAttention;
+                @Slap.started += instance.OnSlap;
+                @Slap.performed += instance.OnSlap;
+                @Slap.canceled += instance.OnSlap;
             }
 
             /// <summary>
@@ -1414,6 +1443,9 @@ namespace Blocks.Gameplay.Core
                 @Attention.started -= instance.OnAttention;
                 @Attention.performed -= instance.OnAttention;
                 @Attention.canceled -= instance.OnAttention;
+                @Slap.started -= instance.OnSlap;
+                @Slap.performed -= instance.OnSlap;
+                @Slap.canceled -= instance.OnSlap;
             }
 
             /// <summary>
@@ -1798,6 +1830,13 @@ namespace Blocks.Gameplay.Core
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnAttention(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Slap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSlap(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CheatPocketSwap
   CheatName: "\u041A\u0430\u0440\u043C\u0430\u043D\u043D\u044B\u0439 \u043E\u0431\u043C\u0435\u043D"
   AnimationTriggerName: Cheat_Generic
-  AnimationDuration: 2
+  AnimationDuration: 10
   SelectionWeight: 10

@@ -34,6 +34,8 @@ namespace Blocks.Gameplay.Core
         [Header("Game Events")]
         [SerializeField] private GameEvent onFinishGameActionPressed;
         [SerializeField] private GameEvent onAttentionActionPressed;
+        [SerializeField] private GameEvent onSlapActionPressed;
+
 
 
         private GameplayInputSystem_Actions m_InputActions;
@@ -89,7 +91,8 @@ namespace Blocks.Gameplay.Core
             m_InputActions.Player.Menu.performed += HandleMenuPressed;
 
             m_InputActions.Player.FinishGame.performed += HandleFinishGameActionPressed;
-            m_InputActions.Player.Attention.performed += HandleAttentionActionActionPressed;
+            m_InputActions.Player.Attention.performed += HandleAttentionActionPressed;
+            m_InputActions.Player.Slap.performed += HandleSlapActionPressed;
         }
 
         private void UnregisterInputActions()
@@ -112,7 +115,8 @@ namespace Blocks.Gameplay.Core
             m_InputActions.Player.Menu.performed -= HandleMenuPressed;
 
             m_InputActions.Player.FinishGame.performed -= HandleFinishGameActionPressed;
-            m_InputActions.Player.Attention.performed -= HandleAttentionActionActionPressed;
+            m_InputActions.Player.Attention.performed -= HandleAttentionActionPressed;
+            m_InputActions.Player.Slap.performed -= HandleSlapActionPressed;
 
         }
 
@@ -129,8 +133,8 @@ namespace Blocks.Gameplay.Core
         private void HandlePrimaryActionReleased(InputAction.CallbackContext context) => onPrimaryActionReleased?.Raise();
         private void HandleMenuPressed(InputAction.CallbackContext context) => onMenuPressed?.Raise();
         private void HandleFinishGameActionPressed(InputAction.CallbackContext context) => onFinishGameActionPressed?.Raise();
-        private void HandleAttentionActionActionPressed(InputAction.CallbackContext context) => onAttentionActionPressed?.Raise();
-
+        private void HandleAttentionActionPressed(InputAction.CallbackContext context) => onAttentionActionPressed?.Raise();
+        private void HandleSlapActionPressed(InputAction.CallbackContext context) => onSlapActionPressed?.Raise();
 
         #endregion
     }

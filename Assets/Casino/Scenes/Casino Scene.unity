@@ -543,8 +543,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   botSpawner: {fileID: 441953926}
   maxBotsInCasino: 1
-  spawnDelayMin: 3
-  spawnDelayMax: 3
+  spawnDelayMin: 5
+  spawnDelayMax: 5
 --- !u!4 &441953928
 Transform:
   m_ObjectHideFlags: 0

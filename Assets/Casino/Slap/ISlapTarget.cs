@@ -3,12 +3,12 @@
     /// (например, ударить по рукам).
     /// Реализуется компонентами на ботах и игроках.
     /// </summary>
-    public interface IHandInteractable
-    {
+    public interface ISlapTarget
+{
         /// <summary>
         /// Точка входа для взаимодействия. Вызывается локальным инпутом игрока.
         /// Внутри себя маршрутизирует вызов на сервер для применения правил.
         /// </summary>
         /// <param name="interactorClientId">ID клиента, который совершает взаимодействие</param>
-        void ExecuteHandInteraction(ulong interactorClientId);
+        void ExecuteSlap(ulong interactorClientId);
     }

@@ -178,7 +178,6 @@ public class BlackGregTable : GameTable, ICardGameTable
         // Определяем, должны ли карты игрока быть открытыми
 
         bool isPlayerFaceUp = (playerClientId != ulong.MaxValue);
-        Debug.Log($"Client {playerClientId}, isPlayerFaceUp  {isPlayerFaceUp}");
 
         // Получаем руку игрока
         Transform playerHand = null;
@@ -367,7 +366,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         else
         {
             // Реальный игрок жульничал и его поймали (бот или система). Игрок теряет ставку.
-            Debug.Log($"[BlackGregTable] Игрок {OccupiedByClientId} оштрафован за жульничество! Банк уходит казино.");
+            Debug.Log($"[BlackGregTable] Игрок {OccupiedByClientId} оштрафован за неоправданный удар бота! Банк уходит боту.");
             // TODO: Списать штраф у игрока (например, Bank.Deduct(OccupiedByClientId, penaltyAmount))
         }
 

@@ -1,4 +1,4 @@
-
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -24,7 +24,6 @@ public class CheatController : NetworkBehaviour
     private Coroutine cheatCoroutine;
 
     // Ссылки на компоненты
-    private Animator characterAnimator;
     private BotAgent botAgent;
     private BotDispleasureController displeasureController;
 
@@ -36,21 +35,18 @@ public class CheatController : NetworkBehaviour
 
     public bool IsCheating => isCheating.Value;
 
+    // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА (срабатывают на всех клиентах) ---
+    public event Action<string> OnCheatStarted;
+    public event Action OnCheatCanceled;
+
     private void Awake()
     {
-        characterAnimator = GetComponentInChildren<Animator>();
+        // Убрали привязку к Animator! Теперь код чистый.
 
-        // Если на этом же объекте есть BotAgent, значит этот контроллер принадлежит боту.
-        // Иначе - это контроллер реального игрока.
         isBot = TryGetComponent<BotAgent>(out botAgent);
         displeasureController = GetComponent<BotDispleasureController>();
     }
 
-    /// <summary>
-    /// Пытается начать мухлеж. 
-    /// Бот будет передавать specificCheat = null, чтобы выбрать случайный мухлеж.
-    /// Игрок может передавать конкретный specificCheat, выбранный через UI.
-    /// </summary>
     public bool TryInitiateCheat(IGameTable table, CheatAction specificCheat = null)
     {
         if (!IsServer || isCheating.Value) return false;
@@ -58,6 +54,7 @@ public class CheatController : NetworkBehaviour
         // Оповещаем компонент недовольства о том, что бот делает подозрительное движение
         if (isBot && displeasureController != null)
         {
+            // Здесь может быть вызов displeasureController
         }
 
         // 1. Формируем правильный контекст
@@ -74,7 +71,7 @@ public class CheatController : NetworkBehaviour
             if (cheatToExecute == null)
             {
                 Debug.Log("Нет доступных вариантов мухлежа для текущей ситуации.");
-                return false; // Нет доступных вариантов
+                return false;
             }
         }
         else
@@ -97,16 +94,14 @@ public class CheatController : NetworkBehaviour
         string actorName = isBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
         Debug.Log($"[CheatController] {actorName} начинает мухлевать: {cheat.CheatName}");
 
-        // Проигрываем анимацию у всех клиентов
-        PlayCheatAnimationClientRpc(cheat.AnimationTriggerName);
+        // Вместо прямого вызова аниматора, рассылаем событие всем клиентам
+        NotifyCheatStartedClientRpc(cheat.AnimationTriggerName);
 
-        // Ждем окно времени, за которое мухлевщика можно "поймать за руку"
         float timer = cheat.AnimationDuration;
         while (timer > 0)
         {
             timer -= Time.deltaTime;
 
-            // Защита: если игра внезапно закончилась, прерываем мухлеж
             if (context.Table == null || !context.Table.IsGameStarted)
             {
                 CancelCheat();
@@ -115,7 +110,6 @@ public class CheatController : NetworkBehaviour
             yield return null;
         }
 
-        // Если никто не нажал "Обвинить", мухлеж удался!
         Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для {actorName}!");
         cheat.ApplyCheatResult(context);
 
@@ -130,52 +124,40 @@ public class CheatController : NetworkBehaviour
         isCheating.Value = false;
         currentCheatAction = null;
         activeContext = null;
-        StopCheatAnimationClientRpc();
+
+        NotifyCheatCanceledClientRpc();
+    }
+
+    // --- ОБНОВЛЕННЫЕ СЕТЕВЫЕ МЕТОДЫ (Только рассылка событий) ---
+
+    [ClientRpc]
+    private void NotifyCheatStartedClientRpc(string animationTrigger)
+    {
+        // Вызываем событие на клиенте. Подписчики (например, аудио или аниматор) отреагируют сами.
+        OnCheatStarted?.Invoke(animationTrigger);
     }
 
     [ClientRpc]
-    private void PlayCheatAnimationClientRpc(string animationTrigger)
+    private void NotifyCheatCanceledClientRpc()
     {
-        if (characterAnimator != null) characterAnimator.SetTrigger(animationTrigger);
+        OnCheatCanceled?.Invoke();
     }
 
-    [ClientRpc]
-    private void StopCheatAnimationClientRpc()
-    {
-        if (characterAnimator != null) characterAnimator.SetTrigger("CancelAction");
-    }
-
-    /// <summary>
-    /// Обработка последствий успешной поимки за руку.
-    /// </summary>
-    private void HandleCheatCaught(ulong accuserClientId)
+    public void HandleCheatCaught(ulong accuserClientId)
     {
         if (activeContext == null || activeContext.Table == null) return;
 
         string cheaterName = isBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
         Debug.Log($"[CheatSystem] {cheaterName} ПОЙМАН ЗА РУКУ! Остановка игры...");
 
-        // 1. Оповещаем всех клиентов (для UI и визуальных эффектов)
         GameInterruptedClientRpc(accuserClientId, isBot);
 
-        // 2. Останавливаем игру на столе
-        // Если жульничал бот -> побеждает игрок (accuserClientId).
-        // Если жульничал игрок -> побеждает казино/бот (указываем ulong.MaxValue).
         ulong winnerId = isBot ? accuserClientId : ulong.MaxValue;
         activeContext.Table.ForceStopGame(winnerId, isCheaterBot: isBot, reason: "Cheating");
 
-        // 3. Логика штрафов (списание токенов, анимации реакции)
         if (isBot)
         {
-            if (botAgent != null)
-            {
-                // Заставляем бота обиженно уйти из-за стола к выходу
-                botAgent.GoToExit();
-            }
-        }
-        else
-        {
-            // Логика штрафа для реального игрока (списание денег, понижение репутации и т.д.)
+            if (botAgent != null) botAgent.GoToExit();
         }
     }
 
@@ -184,14 +166,8 @@ public class CheatController : NetworkBehaviour
     {
         string cheaterName = cheaterIsBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
         Debug.Log($"[UI/FX] ИГРА ПРЕРВАНА! Игрок {accuserClientId} поймал за руку: {cheaterName}!");
-
-        // TODO: Вызвать событие для UI, чтобы показать большую надпись "ПОЙМАН ЗА РУКУ!"
-        // Например: UIManager.Instance.ShowCheatCaughtMessage(cheaterName, accuserClientId);
     }
 
-    /// <summary>
-    /// Вызывается, когда кто-то пытается поймать персонажа за руку (через нажатие E).
-    /// </summary>
     [Rpc(SendTo.Server)]
     public void AccuseServerRpc(ulong accuserClientId)
     {
@@ -202,16 +178,12 @@ public class CheatController : NetworkBehaviour
         if (isCheating.Value)
         {
             Debug.Log($"[CheatSystem] Игрок {accuserClientId} поймал за руку: {actorName}!");
-
-            // Вызываем последствия ДО CancelCheat, чтобы activeContext еще был доступен
             HandleCheatCaught(accuserClientId);
-
             CancelCheat();
         }
         else
         {
             Debug.Log($"[CheatSystem] Игрок {accuserClientId} ложно обвинил: {actorName}.");
-            // TODO: Ложное обвинение (рост подозрительности, штраф обвинителю)
         }
     }
 
@@ -231,7 +203,7 @@ public class CheatController : NetworkBehaviour
 
         if (validCheats.Count == 0) return null;
 
-        int randomValue = Random.Range(0, totalWeight);
+        int randomValue = UnityEngine.Random.Range(0, totalWeight);
         foreach (var cheat in validCheats)
         {
             randomValue -= cheat.SelectionWeight;

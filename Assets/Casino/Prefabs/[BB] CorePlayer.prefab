@@ -30,6 +30,10 @@ GameObject:
   - component: {fileID: 4535699252747466436}
   - component: {fileID: 1073906307148899363}
   - component: {fileID: 1039719676754950626}
+  - component: {fileID: 4524092038596717801}
+  - component: {fileID: 8512502306078909582}
+  - component: {fileID: 2972306058060669691}
+  - component: {fileID: 7814610562723482993}
   m_Layer: 3
   m_Name: '[BB] CorePlayer'
   m_TagString: Player
@@ -92,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3011846507
+  GlobalObjectIdHash: 2295974813
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -174,6 +178,7 @@ MonoBehaviour:
   onMenuPressed: {fileID: 11400000, guid: 5f76e3427057c467fa2f4de049753b9e, type: 2}
   onFinishGameActionPressed: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
   onAttentionActionPressed: {fileID: 11400000, guid: 7e196841bb206b64db4f416a09370057, type: 2}
+  onSlapActionPressed: {fileID: 11400000, guid: e673191adce1c554b9d13f048795e0a0, type: 2}
 --- !u!114 &5924146909096204431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,6 +503,65 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerAttentionVisualSpawner
   visualPrefab: {fileID: 3084038740837860458}
+--- !u!114 &4524092038596717801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081fb9313d4aa6e41b2a6a05191fa774, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlapGameListner
+  onSlapEvent: {fileID: 11400000, guid: e673191adce1c554b9d13f048795e0a0, type: 2}
+  playerSlapController: {fileID: 8512502306078909582}
+--- !u!114 &8512502306078909582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5d56a325f801cd4e83887c57dd48110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSlapController
+  ShowTopMostFoldoutHeaderGroup: 1
+  targetDetector: {fileID: 2972306058060669691}
+--- !u!114 &2972306058060669691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7be7745d64830fc44a76aca6eade07c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlapTargetDetector
+  slapRange: 2.5
+  slapLayerMask:
+    serializedVersion: 2
+    m_Bits: 1032
+  raycastInterval: 0.1
+  raycastOrigin: {fileID: 0}
+--- !u!114 &7814610562723482993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51d345d944174204eb1405cb6d24eb1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerSlapReceiver
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &336827370212964026
 GameObject:
   m_ObjectHideFlags: 0

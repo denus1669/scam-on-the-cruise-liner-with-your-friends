@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class SlapGameListner : MonoBehaviour
 {
-    [SerializeField] private GameEvent onAttentionEvent;
+    [SerializeField] private GameEvent onSlapEvent;
     [SerializeField] private PlayerSlapController playerSlapController;
 
-    private void OnEnable() => onAttentionEvent?.RegisterListener(OnSlapActivated);
+    private void OnEnable() => onSlapEvent?.RegisterListener(OnSlapPressed);
 
-    private void OnDisable() => onAttentionEvent?.UnregisterListener(OnSlapActivated);
+    private void OnDisable() => onSlapEvent?.UnregisterListener(OnSlapPressed);
 
 
-    private void OnSlapActivated()
+    private void OnSlapPressed()
     {
-        playerSlapController?.ToggleSlap();
+        playerSlapController?.ExecuteSlap();
     }
 }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -31,17 +32,20 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
     protected BotAgent botAgent;
     protected IGameTable gameTable;
     protected CheatController cheatController;
-    protected Animator botAnimator;
     protected BotDispleasureController displeasureController;
 
     protected bool isPlaying = false;
+
+    // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА ---
+    public event Action<string> OnBluffStarted;
 
     protected virtual void Awake()
     {
         botAgent = GetComponent<BotAgent>();
         cheatController = GetComponent<CheatController>();
-        botAnimator = GetComponentInChildren<Animator>();
         displeasureController = GetComponent<BotDispleasureController>();
+
+        // Убрали botAnimator!
     }
 
     public virtual void InitializeGame(IGameTable table)
@@ -76,19 +80,14 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         if (botAgent != null) botAgent.GoToExit();
     }
 
-    /// <summary>
-    /// Главный цикл игры. Чередуется между фазой подозрительных действий и фазой игрового решения.
-    /// </summary>
     protected virtual IEnumerator PlaySessionRoutine()
     {
-        yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
+        yield return new WaitForSeconds(UnityEngine.Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
 
         while (isPlaying && gameTable.IsGameStarted)
         {
-            // 1. Универсальная фаза (Мухлеж / Блеф / Ожидание)
             yield return StartCoroutine(SuspiciousActionPhase());
 
-            // 2. Специфичная для игры фаза (Взять карту / Бросить кости / Сделать ставку)
             bool shouldContinueSession = EvaluateAndPerformGameAction();
 
             if (!shouldContinueSession)
@@ -97,13 +96,10 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
                 yield break;
             }
 
-            yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
+            yield return new WaitForSeconds(UnityEngine.Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
         }
     }
 
-    /// <summary>
-    /// Фаза, в которой бот решает: сидеть спокойно, блефовать или попытаться смухлевать.
-    /// </summary>
     protected virtual IEnumerator SuspiciousActionPhase()
     {
         if (cheatController == null) yield break;
@@ -111,15 +107,13 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         float currentCheatChance = baseCheatChance * GetPersonalityCheatModifier();
         float currentBluffChance = baseBluffChance * GetPersonalityBluffModifier();
 
-        // В будущем здесь будет запрос к BotDispleasureController
         bool isBeingWatched = CheckIfPlayerIsWatching();
         if (isBeingWatched) currentCheatChance *= watchedCheatMultiplier;
 
-        float randomRoll = Random.value;
+        float randomRoll = UnityEngine.Random.value;
 
         if (randomRoll < currentCheatChance)
         {
-            // ПЫТАЕМСЯ СМУХЛЕВАТЬ
             if (cheatController.TryInitiateCheat(gameTable))
             {
                 while (cheatController.IsCheating) yield return null;
@@ -127,7 +121,6 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         }
         else if (randomRoll < currentCheatChance + currentBluffChance)
         {
-            // БЛЕФУЕМ
             yield return StartCoroutine(PlayBluffRoutine());
         }
 
@@ -139,17 +132,19 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         if (bluffAnimationTriggers.Length == 0) yield break;
 
         _isBluffing.Value = true;
-        string randomBluff = bluffAnimationTriggers[Random.Range(0, bluffAnimationTriggers.Length)];
-        PlayBluffAnimationClientRpc(randomBluff);
+        string randomBluff = bluffAnimationTriggers[UnityEngine.Random.Range(0, bluffAnimationTriggers.Length)];
+
+        // Вместо аниматора - шлем сигнал всем клиентам
+        NotifyBluffStartedClientRpc(randomBluff);
 
         yield return new WaitForSeconds(2.0f);
         _isBluffing.Value = false;
     }
 
     [ClientRpc]
-    private void PlayBluffAnimationClientRpc(string triggerName)
+    private void NotifyBluffStartedClientRpc(string triggerName)
     {
-        if (botAnimator != null) botAnimator.SetTrigger(triggerName);
+        OnBluffStarted?.Invoke(triggerName);
     }
 
     public override void OnNetworkDespawn()
@@ -164,24 +159,12 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
     #region Abstract & Virtual Methods (Для наследников)
 
-    /// <summary>
-    /// Главный метод для наследников. Здесь бот принимает решение по правилам конкретной игры.
-    /// </summary>
-    /// <returns>true, если бот продолжает игру (например, взял карту). false, если закончил ход (например, сказал "Стенд").</returns>
     protected abstract bool EvaluateAndPerformGameAction();
-
-    /// <summary>
-    /// Вызывается, когда бот принял решение завершить свое участие в текущей сессии (например, встал из-за стола).
-    /// </summary>
     protected abstract void OnBotFinishedSession();
-
     protected virtual float GetPersonalityCheatModifier() => personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);
     protected virtual float GetPersonalityBluffModifier() => personality == BotPersonality.Risky ? 0.8f : (personality == BotPersonality.Cautious ? 1.2f : 1f);
-
-    // Временная заглушка, пока не интегрируем BotDispleasureController
     protected virtual bool CheckIfPlayerIsWatching() => false;
     public void SetPersonality(BotPersonality newPersonality) => personality = newPersonality;
-
 
     #endregion
 }

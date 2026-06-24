@@ -72,10 +72,31 @@ public class BotDispleasureController : NetworkBehaviour
         watchers.Remove(clientId);
     }
 
+    /// <summary>
+    /// Добавляет мгновенное количество раздражения (например, при ложном шлепке).
+    /// Вызывается только на сервере.
+    /// </summary>
+    public void AddInstantDispleasure(float amount)
+    {
+        if (!IsServer) return;
+
+        currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);
+        Debug.Log($"[Displeasure] Бот {gameObject.name} получил мгновенное раздражение: +{amount}. Текущее: {currentDispleasure.Value}");
+
+        if (currentDispleasure.Value >= maxDispleasure)
+        {
+            HandleMaxDispleasure(GetCurrentTable());
+        }
+    }
+
     private void HandleMaxDispleasure(IGameTable table)
     {
         Debug.LogWarning($"[Displeasure] Бот {gameObject.name} вышел из себя!");
-        table.ForceStopGame(ulong.MaxValue, isCheaterBot: false, reason: "Harassment");
+        if(table != null)
+        {
+            table.ForceStopGame(ulong.MaxValue, isCheaterBot: false, reason: "Harassment");
+        }
+        botAgent.GoToExit();
         ResetDispleasure();
     }
 
