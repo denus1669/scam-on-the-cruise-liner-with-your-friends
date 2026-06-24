@@ -14,7 +14,7 @@ using UnityEngine;
         [Header("Настройки луча")]
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask attentionLayerMask = ~0;
-        [SerializeField] private float maxRayDistance = 10f;
+        [SerializeField] private float maxRayDistance = 10f; 
 
         private IAttentionTarget currentTarget;
         private Coroutine raycastCoroutine;

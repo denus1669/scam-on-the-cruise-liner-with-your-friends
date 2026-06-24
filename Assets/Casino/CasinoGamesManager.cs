@@ -39,13 +39,6 @@ public class CasinoGamesManager : NetworkBehaviour
                 yield break;
             }
 
-            int positionsCount = botSpawner.GetSpawnPositionsCount();
-            if (currentBotIndex >= positionsCount)
-            {
-                Debug.LogWarning($"[Casino] Достигнут лимит позиций: {positionsCount}");
-                yield break;
-            }
-
             botSpawner.SpawnBot(currentBotIndex);
             currentBotIndex++;
 

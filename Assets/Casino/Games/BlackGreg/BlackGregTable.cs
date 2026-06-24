@@ -16,7 +16,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private Transform cardTablePosition; // точка для сброшенных/нераспределённых карт
 
     [Header("Positioning")]
-    [SerializeField] private Vector3 startPosition = new Vector3(0.11f, 1.393f, 1.066f);
+    [SerializeField] private Vector3 startPosition = new Vector3(0f, 0f, 0f);
     [SerializeField] private float spreadDistance = 0.22f;
     [SerializeField] private Vector3 startRotation = new Vector3(30, 180, 0);
 

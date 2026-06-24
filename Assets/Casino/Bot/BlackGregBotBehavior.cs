@@ -1,240 +1,63 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
-[RequireComponent(typeof(BotAgent))]
-public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
+/// <summary>
+/// Специфичное поведение бота для игры BlackGreg (Блэкджек).
+/// Наследует универсальную логику от BaseBotBehavior.
+/// </summary>
+public class BlackGregBotBehavior : BaseBotBehavior
 {
-    [Header("Настройки личности ИИ")]
-    [SerializeField] private BotPersonality personality = BotPersonality.Balanced;
+    [Header("Специфичные настройки BlackGreg")]
     [Range(0f, 1f)]
     [SerializeField] private float stupidityChance = 0.08f;
 
-    [Header("Тайминги")]
-    [SerializeField] private float delayBetweenActionsMin = 1.5f;
-    [SerializeField] private float delayBetweenActionsMax = 3.0f;
-
-    [Header("Настройки поведения (Мухлеж и Блеф)")]
-    [Tooltip("Базовый шанс смухлевать перед взятием карты")]
-    [SerializeField] private float baseCheatChance = 0.15f;
-    [Tooltip("Базовый шанс проиграть фейковую анимацию (блеф), чтобы запутать игрока")]
-    [SerializeField] private float baseBluffChance = 0.25f;
-    [Tooltip("Насколько сильно падает шанс мухлежа, если игрок смотрит на бота")]
-    [SerializeField] private float watchedCheatMultiplier = 0.1f;
-
-    // Список фейковых анимаций (триггеров), которые просто пугают игрока
-    [SerializeField] private string[] bluffAnimationTriggers = { "Bluff_NoseScratch", "Bluff_FixCards", "Bluff_Cough" };
-
-    private BotAgent botAgent;
-    private IGameTable gameTable;
     private ICardGameTable cardTable;
-    private CheatController cheatController;
-    private Animator botAnimator;
-    private BotDispleasureController displeasureController;
 
-
-    private bool isPlaying = false;
-
-    private void Awake()
+    protected override void Awake()
     {
-        botAgent = GetComponent<BotAgent>();
-        cheatController = GetComponent<CheatController>();
-        botAnimator = GetComponentInChildren<Animator>();
-        displeasureController = GetComponent<BotDispleasureController>();
+        base.Awake();
+        // Можно добавить специфичные компоненты для блэкджека, если нужны
     }
 
-    // === РЕАЛИЗАЦИЯ IBotGameBehavior ===
-
-    public void InitializeGame(IGameTable table)
+    public override void InitializeGame(IGameTable table)
     {
-        gameTable = table;
-        cardTable = table as ICardGameTable;
+        base.InitializeGame(table);
 
+        cardTable = table as ICardGameTable;
         if (cardTable == null)
         {
             Debug.LogError($"[BlackGreg ИИ] Стол {table} не реализует ICardGameTable. Бот не может играть.");
-            return;
-        }
-
-        // Подписываемся на события стола (сервер)
-        if (IsServer)
-        {
-            gameTable.OnGameStarted += OnGameStarted;
-            gameTable.OnGameEnded += OnGameEnded;
-        }
-
-        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} инициализирован для стола {(table as MonoBehaviour)?.name}");
-    }
-
-    public void StartSession()
-    {
-        if (!IsServer || isPlaying) return;
-        StartCoroutine(PlaySessionRoutine());
-    }
-
-    public void EndSession()
-    {
-        StopAllCoroutines();
-        isPlaying = false;
-        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} завершил сессию.");
-    }
-
-    // === РЕАКЦИЯ НА СОБЫТИЯ СТОЛА ===
-
-    private void OnGameStarted()
-    {
-        if (!IsServer) return;
-        Debug.Log("[BlackGreg ИИ] Игра началась, бот включается.");
-        StartSession();
-    }
-
-    private void OnGameEnded()
-    {
-        if (!IsServer) return;
-        Debug.Log("[BlackGreg ИИ] Игра закончилась, бот выключается.");
-        EndSession();
-        // Сообщаем BotAgent, что можно уходить
-        if (botAgent != null) botAgent.GoToExit();
-    }
-
-    // === ИГРОВАЯ ЛОГИКА ===
-
-    private IEnumerator PlaySessionRoutine()
-    {
-        isPlaying = true;
-        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} начинает игровую сессию.");
-
-        yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
-
-        // Получаем контроллер мухлежа с бота
-        CheatController cheatController = GetComponent<CheatController>();
-
-        while (isPlaying)
-        {
-            // Если игра уже не идёт — выходим
-            if (!gameTable.IsGameStarted)
-            {
-                Debug.Log($"[BlackGreg ИИ] Игра завершена, бот прекращает сессию.");
-                isPlaying = false;
-                yield break;
-            }
-
-            // 1. ФАЗА ПОДОЗРИТЕЛЬНЫХ ДЕЙСТВИЙ (Блеф или Мухлеж)
-            yield return StartCoroutine(SuspiciousActionPhase());
-
-            // 2. ФАЗА ПРИНЯТИЯ ИГРОВОГО РЕШЕНИЯ
-            int botScore = cardTable.GetBotScore();
-            int cardCount = cardTable.GetBotCardCount();
-
-            Debug.Log($"[BlackGreg ИИ] Бот имеет {cardCount} карт, сумма очков: {botScore}");
-
-            bool shouldDraw = EvaluateNextMove(botScore, cardCount);
-
-            if (shouldDraw)
-            {
-                Debug.Log("[BlackGreg ИИ] Бот решает ВЗЯТЬ карту.");
-                cardTable.BotDrawCard();
-            }
-            else
-            {
-                Debug.Log("[BlackGreg ИИ] Бот решает ОСТАНОВИТЬСЯ.");
-                cardTable.BotStand();
-                yield break;
-            }
-
-            yield return new WaitForSeconds(Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
         }
     }
 
     /// <summary>
-    /// Фаза, в которой бот решает: сидеть спокойно, пустить пыль в глаза (блеф) или попытаться смухлевать.
+    /// Логика принятия решения в Блэкджеке.
     /// </summary>
-    private IEnumerator SuspiciousActionPhase()
+    protected override bool EvaluateAndPerformGameAction()
     {
-        if (cheatController == null) yield break;
+        if (cardTable == null) return false;
 
-        // Модифицируем шансы от личности
-        float persCheatModifier = personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);
-        float persBluffModifier = personality == BotPersonality.Risky ? 0.8f : (personality == BotPersonality.Cautious ? 1.2f : 1f);
+        int botScore = cardTable.GetBotScore();
+        int cardCount = cardTable.GetBotCardCount();
 
-        float currentCheatChance = baseCheatChance * persCheatModifier;
-        float currentBluffChance = baseBluffChance * persBluffModifier;
+        bool shouldDraw = EvaluateNextMove(botScore, cardCount);
 
-        // Если на нас смотрят — сильно режем шанс РЕАЛЬНОГО мухлежа
-        bool isBeingWatched = CheckIfPlayerIsWatching();
-        if (isBeingWatched)
+        if (shouldDraw)
         {
-            currentCheatChance *= watchedCheatMultiplier;
+            cardTable.BotDrawCard();
+            return true; // Продолжаем сессию, будем думать еще раз
         }
-
-        float randomRoll = Random.value; // от 0.0 до 1.0
-
-        if (randomRoll < currentCheatChance)
+        else
         {
-            // ПЫТАЕМСЯ СМУХЛЕВАТЬ
-            bool isCheatingStarted = cheatController.TryInitiateCheat(gameTable);
-            if (isCheatingStarted)
-            {
-                // Ждем окончания процесса мухлежа
-                while (cheatController.IsCheating)
-                {
-                    yield return null;
-                }
-            }
+            cardTable.BotStand();
+            return false; // Бот закончил ход, выходим из цикла
         }
-        else if (randomRoll < currentCheatChance + currentBluffChance)
-        {
-            // БЛЕФУЕМ (Проигрываем случайную пустую анимацию)
-            if (bluffAnimationTriggers.Length > 0)
-            {
-                string randomBluff = bluffAnimationTriggers[Random.Range(0, bluffAnimationTriggers.Length)];
-                // Уведомление контроллера о том, что бот нервничает
-                if (displeasureController != null)
-                {
-                    Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} начинает нервничать)");
-                }
-                PlayBluffAnimationClientRpc(randomBluff);
-
-                // Ждем пару секунд, пока пройдет анимация блефа, 
-                // давая игроку возможность ошибиться и нажать "E".
-                yield return new WaitForSeconds(2.0f);
-            }
-        }
-        // Иначе ничего не делаем, идем дальше.
     }
 
-    /// <summary>
-    /// Серверная проверка: смотрит ли игрок на бота.
-    /// </summary>
-    private bool CheckIfPlayerIsWatching()
+    protected override void OnBotFinishedSession()
     {
-        // Проходим по всем подключенным клиентам
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            var playerObject = client.PlayerObject;
-            if (playerObject != null)
-            {
-                // Дистанция до игрока
-                float distance = Vector3.Distance(transform.position, playerObject.transform.position);
-
-                // Если игрок ближе 5 метров (настраиваемо)
-                if (distance < 5.0f)
-                {
-                    // Проверяем, направлен ли взгляд игрока (его transform.forward) на бота
-                    Vector3 directionToBot = (transform.position - playerObject.transform.position).normalized;
-                    float dotProduct = Vector3.Dot(playerObject.transform.forward, directionToBot);
-
-                    // Если dotProduct близок к 1, значит игрок смотрит прямо на нас.
-                    // 0.7f - это примерно угол конуса зрения в 45 градусов в обе стороны.
-                    if (dotProduct > 0.7f)
-                    {
-                        return true; // Нас спалили, игрок смотрит!
-                    }
-                }
-            }
-        }
-        return false;
+        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} завершил ход (Stand).");
+        // Здесь можно вызвать логику сравнения счетов на столе, если это не делает сам стол
     }
 
     private bool EvaluateNextMove(int score, int cardCount)
@@ -244,16 +67,8 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
 
         if (Random.value < stupidityChance)
         {
-            if (score >= 19)
-            {
-                Debug.LogWarning("[BlackGreg ИИ] Бот совершает безумную глупость!");
-                return true;
-            }
-            if (score <= 11)
-            {
-                Debug.LogWarning("[BlackGreg ИИ] Бот испугался и спасовал!");
-                return false;
-            }
+            if (score >= 19) return true;  // Безумная глупость
+            if (score <= 11) return false; // Испугался
         }
 
         int standThreshold = personality switch
@@ -264,33 +79,5 @@ public class BlackGregBotBehavior : NetworkBehaviour, IBotGameBehavior
         };
 
         return score < standThreshold;
-    }
-
-    public void SetPersonality(BotPersonality newPersonality)
-    {
-        personality = newPersonality;
-    }
-
-    // === RPC ДЛЯ БЛЕФА ===
-    [ClientRpc]
-    private void PlayBluffAnimationClientRpc(string triggerName)
-    {
-        Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} БЛЕФУЕТ (Анимация: {triggerName})");
-        if (botAnimator != null)
-        {
-            botAnimator.SetTrigger(triggerName);
-        }
-    }
-
-    // === СЕТЕВЫЕ МЕТОДЫ ===
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        if (gameTable != null)
-        {
-            gameTable.OnGameStarted -= OnGameStarted;
-            gameTable.OnGameEnded -= OnGameEnded;
-        }
     }
 }

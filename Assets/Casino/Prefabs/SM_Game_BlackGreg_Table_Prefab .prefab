@@ -491,7 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinishGameListener
   onFinishGameEvent: {fileID: 11400000, guid: 60d05911ba4307e48a42016631e6f3ff, type: 2}
-  blackjackTable: {fileID: 3995956818982773004}
+  blackGregTable: {fileID: 3995956818982773004}
 --- !u!114 &3227041354833252297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -535,7 +535,7 @@ MonoBehaviour:
   playerHandParent: {fileID: 0}
   botHandParent: {fileID: 0}
   cardTablePosition: {fileID: 688527819642123658}
-  startPosition: {x: 0.11, y: 1.393, z: 1.066}
+  startPosition: {x: 0.11, y: 1, z: 0.65}
   spreadDistance: 0.22
   startRotation: {x: 30, y: 180, z: 0}
   cardLimit: 10

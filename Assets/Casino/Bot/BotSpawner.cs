@@ -8,7 +8,7 @@ public class BotSpawner : NetworkBehaviour
     [SerializeField] private GameObject botPrefab;
 
     [Header("Позиции спавна")]
-    [SerializeField] private Vector3[] spawnPositions;
+    [SerializeField] private Vector3 spawnPosition;
 
     [Header("Настройки личностей (опционально)")]
     [SerializeField] private BotPersonality[] forcedPersonalities;
@@ -34,14 +34,8 @@ public class BotSpawner : NetworkBehaviour
             Debug.LogError("[BotSpawner] botPrefab не назначен!");
             return null;
         }
-
-        if (index < 0 || index >= spawnPositions.Length)
-        {
-            Debug.LogError($"[BotSpawner] Индекс {index} выходит за пределы spawnPositions");
-            return null;
-        }
-
-        GameObject bot = Instantiate(botPrefab, spawnPositions[index], Quaternion.identity);
+       
+        GameObject bot = Instantiate(botPrefab, spawnPosition, Quaternion.identity);
         NetworkObject netObj = bot.GetComponent<NetworkObject>();
         if (netObj == null)
         {
@@ -89,10 +83,10 @@ public class BotSpawner : NetworkBehaviour
     /// </summary>
     private void ApplyPersonality(GameObject bot, int index)
     {
-        if (bot.TryGetComponent<BlackGregBotBehavior>(out var blackGregBehavior))
+        if (bot.TryGetComponent<BaseBotBehavior>(out var baseBotBehavior))
         {
             BotPersonality personality = GetPersonalityForIndex(index);
-            blackGregBehavior.SetPersonality(personality);
+            baseBotBehavior.SetPersonality(personality);
         }
     }
 
@@ -104,5 +98,4 @@ public class BotSpawner : NetworkBehaviour
     }
 
     public List<GameObject> GetSpawnedBots() => new List<GameObject>(spawnedBots);
-    public int GetSpawnPositionsCount() => spawnPositions.Length;
 }
