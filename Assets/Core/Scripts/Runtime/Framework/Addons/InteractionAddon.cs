@@ -1,6 +1,7 @@
-using UnityEngine;
-using Unity.Netcode;
+using System;
 using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
 
 namespace Blocks.Gameplay.Core
 {
@@ -29,6 +30,11 @@ namespace Blocks.Gameplay.Core
         [Header("Listening To")]
         [Tooltip("GameEvent raised when the player presses the interaction button.")]
         [SerializeField] private GameEvent onInteractPressed;
+        [SerializeField] private GameEvent onInteractReleased; // Назначь сюда ТОТ ЖЕ ассет, что и в CoreInputHandler.onPrimaryActionReleased
+
+        // --- СОБЫТИЯ ДЛЯ UI ---
+        public event Action<IInteractable> OnFocusEnterLocal;
+        public event Action OnFocusExitLocal;
 
         /// <summary>
         /// Gets or sets a value indicating whether the interactor is currently enabled.
@@ -40,6 +46,13 @@ namespace Blocks.Gameplay.Core
         private IInteractable m_CurrentFocusedInteractable;
         private float m_CooldownTimer;
         private readonly Collider[] m_ProximityColliders = new Collider[20];
+
+        // События для UI удержания
+        public event Action<IInteractable, float> OnHoldProgress; // (цель, прогресс 0..1)
+        public event Action OnHoldCancelled;
+
+        private float m_HoldTimer;
+        private bool m_IsHolding;
 
         #endregion
 
@@ -62,7 +75,9 @@ namespace Blocks.Gameplay.Core
             {
                 m_MainCamera = Camera.main;
                 onInteractPressed.RegisterListener(TryInteract);
+                onInteractReleased.RegisterListener(CancelHold); // Подписка на отпускание
                 IsEnabled = true;
+
             }
             else
             {
@@ -78,6 +93,7 @@ namespace Blocks.Gameplay.Core
             if (m_PlayerManager.IsOwner)
             {
                 onInteractPressed.UnregisterListener(TryInteract);
+                onInteractReleased.UnregisterListener(CancelHold); // Отписка
                 ClearFocus();
             }
         }
@@ -114,8 +130,36 @@ namespace Blocks.Gameplay.Core
             {
                 m_CooldownTimer -= Time.deltaTime;
             }
-
+            
             FindBestInteractable();
+
+            // Обработка удержания
+            if (m_IsHolding && m_CurrentFocusedInteractable != null)
+            {
+                // Если игрок отвел взгляд или цель стала недоступной — отменяем
+                if (!m_CurrentFocusedInteractable.CanInteract(gameObject))
+                {
+                    CancelHold();
+                    return;
+                }
+
+                m_HoldTimer += Time.deltaTime;
+                float progress = Mathf.Clamp01(m_HoldTimer / m_CurrentFocusedInteractable.HoldDuration);
+
+                // Сообщаем UI о прогрессе
+                OnHoldProgress?.Invoke(m_CurrentFocusedInteractable, progress);
+
+                // Удержание завершено!
+                if (m_HoldTimer >= m_CurrentFocusedInteractable.HoldDuration)
+                {
+                    m_IsHolding = false;
+                    m_HoldTimer = 0f;
+                    m_CurrentFocusedInteractable.Interact(gameObject);
+                    m_CooldownTimer = interactionCooldown;
+
+                    // Можно также сообщить UI о завершении (progress = 1f уже был отправлен выше)
+                }
+            }
         }
 
         /// <summary>
@@ -142,7 +186,11 @@ namespace Blocks.Gameplay.Core
 
         private void ClearFocus()
         {
-            m_CurrentFocusedInteractable = null;
+
+                m_CurrentFocusedInteractable = null;
+                // Сообщаем UI, что фокус потерян
+                OnFocusExitLocal?.Invoke();
+
         }
 
         /// <summary>
@@ -205,25 +253,60 @@ namespace Blocks.Gameplay.Core
                 m_CurrentFocusedInteractable = bestTarget;
 
                 // Automatically interact when entering focus for OnFocusEnter trigger mode
-                if (m_CurrentFocusedInteractable != null && m_CurrentFocusedInteractable.TriggerMode == InteractionTriggerMode.OnFocusEnter)
+                if (m_CurrentFocusedInteractable != null)
                 {
-                    m_CurrentFocusedInteractable.Interact(gameObject);
+                    // Сообщаем UI, что мы смотрим на новую цель
+                    OnFocusEnterLocal?.Invoke(m_CurrentFocusedInteractable);
+                    if (m_CurrentFocusedInteractable.TriggerMode == InteractionTriggerMode.OnFocusEnter)
+                    {
+                        m_CurrentFocusedInteractable.Interact(gameObject);
+                    }
+                }
+                else
+                {
+                    // Цель потеряна, скрываем UI
+                    OnFocusExitLocal?.Invoke();
                 }
             }
         }
 
         /// <summary>
-        /// Attempts to interact with the currently focused object via input.
+        /// Вызывается при НАЖАТИИ кнопки взаимодействия
         /// </summary>
         private void TryInteract()
         {
             if (!IsEnabled || m_CooldownTimer > 0 || m_CurrentFocusedInteractable == null) return;
 
-            if (m_CurrentFocusedInteractable.TriggerMode == InteractionTriggerMode.OnButtonPress &&
-                m_CurrentFocusedInteractable.CanInteract(gameObject))
+            if (m_CurrentFocusedInteractable.TriggerMode != InteractionTriggerMode.OnButtonPress) return;
+            if (!m_CurrentFocusedInteractable.CanInteract(gameObject)) return;
+
+            // Проверяем, требует ли объект удержания
+            float holdTime = m_CurrentFocusedInteractable.HoldDuration;
+
+            if (holdTime <= 0f)
             {
+                // Мгновенное взаимодействие (старая логика)
                 m_CurrentFocusedInteractable.Interact(gameObject);
                 m_CooldownTimer = interactionCooldown;
+            }
+            else
+            {
+                // Начинаем удержание
+                m_IsHolding = true;
+                m_HoldTimer = 0f;
+            }
+        }
+
+        /// <summary>
+        /// Вызывается при ОТПУСКАНИИ кнопки взаимодействия
+        /// </summary>
+        private void CancelHold()
+        {
+            if (m_IsHolding)
+            {
+                m_IsHolding = false;
+                m_HoldTimer = 0f;
+                OnHoldCancelled?.Invoke();
             }
         }
 

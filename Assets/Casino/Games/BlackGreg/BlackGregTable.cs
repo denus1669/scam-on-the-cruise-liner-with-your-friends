@@ -378,4 +378,17 @@ public class BlackGregTable : GameTable, ICardGameTable
         // 3. Очищаем столы от карт читера и честного игрока
         ClearHands();
     }
+
+    /// <summary>
+    /// Проверяет, может ли игрок завершить игру (для UI-подсказки).
+    /// Дублируется на сервере в PlayerFinishGame для безопасности.
+    /// </summary>
+    public bool CanPlayerFinish()
+    {
+        if (!IsGameStarted) return false;
+        if (playerHandData.Count < minCardsToFinish) return false;
+        if (botHandData.Count < minCardsToFinish) return false;
+        if (!botHasStood) return false;
+        return true;
+    }
 }

@@ -21,6 +21,8 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
     public int Priority => priority;
     public string InteractionPromptText => promptText;
 
+    public float HoldDuration => 0f;
+
     public bool CanInteract(GameObject interactor)
     {
 

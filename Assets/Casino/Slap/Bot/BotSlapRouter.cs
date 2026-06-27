@@ -1,3 +1,4 @@
+using Blocks.Gameplay.Core;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,10 +10,20 @@ public enum BotSlapEventType { CheatSlapped, BluffSlapped, IdleSlapped }
 /// Маршрутизатор шлепков для бота с использованием паттерна "Стратегия".
 /// </summary>
 [RequireComponent(typeof(BotAgent))]
-public class BotSlapRouter : NetworkBehaviour, ISlapTarget
+public class BotSlapRouter : NetworkBehaviour, IInteractable
 {
     private BotSlapContext _context;
     private List<ISlapReaction<BotSlapContext>> _reactions;
+
+    [SerializeField] private string promptText = "Шлёпнуть по рукам (E)";
+
+
+    public InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
+    public int Priority => 10;
+    public string InteractionPromptText => promptText;
+
+    public float HoldDuration => 0f;
+
 
     // Глобальные события (для анимаций, звуков, VFX на всех клиентах)
     public event Action OnCheatSlapped;
@@ -84,5 +95,13 @@ public class BotSlapRouter : NetworkBehaviour, ISlapTarget
                 OnIdleSlapped?.Invoke();
                 break;
         }
+    }
+
+    public bool CanInteract(GameObject interactor) => true; // Бота можно шлепать всегда
+
+    public void Interact(GameObject interactor)
+    {
+        ulong slapperId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+        ExecuteSlap(slapperId);
     }
 }

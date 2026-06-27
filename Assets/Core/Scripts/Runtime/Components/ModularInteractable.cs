@@ -62,6 +62,15 @@ namespace Blocks.Gameplay.Core
         [Tooltip("Event raised when a stat is depleted. Used to listen for player elimination.")]
         [SerializeField] private StatDepletedEvent onStatDepletedEvent;
 
+        [Tooltip("Время в секундах, которое нужно удерживать кнопку для взаимодействия. 0 = мгновенное нажатие.")]
+        [SerializeField] private float holdDuration = 0f;
+
+        /// <summary>
+        /// Gets the duration in seconds that the interaction button must be held.
+        /// Returns 0 for instant press interactions.
+        /// </summary>
+        public float HoldDuration => holdDuration;
+
         // Cached list of all IInteractionEffect components attached to this object
         private List<IInteractionEffect> m_InteractionEffects;
 

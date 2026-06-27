@@ -33,6 +33,13 @@ namespace Blocks.Gameplay.Core
         /// Executes the interaction logic.
         /// </summary>
         void Interact(GameObject interactor);
+
+        /// <summary>
+        /// Время в секундах, которое нужно удерживать кнопку для взаимодействия.
+        /// 0 = мгновенное нажатие (обычное поведение).
+        /// >0 = требуется удержание.
+        /// </summary>
+        float HoldDuration { get; }
     }
 }
 

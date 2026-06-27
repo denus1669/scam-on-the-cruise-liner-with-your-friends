@@ -15,7 +15,7 @@ public class BotDispleasureController : NetworkBehaviour
     [SerializeField] private float baseDispleasureRate = 5f; // Накопление в секунду
     [SerializeField] private float decayRate = 2f;           // Спад в секунду, когда не смотрят
 
-    private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
+    [SerializeField] private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
 
     // Список ID игроков, которые прямо сейчас смотрят на бота
     private HashSet<ulong> watchers = new HashSet<ulong>();
