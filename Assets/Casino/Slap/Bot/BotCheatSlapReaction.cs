@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class BotCheatSlapReaction : NetworkBehaviour, ISlapReaction<BotSlapContext>
+public class BotCheatSlapReaction : ISlapReaction<BotSlapContext>
 {
     public bool CanSlap(BotSlapContext context) =>
            context.CheatController != null && context.CheatController.IsCheating;

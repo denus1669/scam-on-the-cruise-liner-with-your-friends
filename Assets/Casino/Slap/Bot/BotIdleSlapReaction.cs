@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class BotIdleSlapReaction : NetworkBehaviour, ISlapReaction<BotSlapContext>
+public class BotIdleSlapReaction : ISlapReaction<BotSlapContext>
 {
     public bool CanSlap(BotSlapContext context) => true;
 

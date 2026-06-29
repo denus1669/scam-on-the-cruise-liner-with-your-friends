@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 
-public class BotBluffSlapReaction : NetworkBehaviour, ISlapReaction<BotSlapContext>
+public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
 {
     public bool CanSlap(BotSlapContext context) =>
         context.BotBehavior != null && context.BotBehavior.IsBotBluffingActive;

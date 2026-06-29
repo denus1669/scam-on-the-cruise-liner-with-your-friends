@@ -17,11 +17,11 @@ namespace Blocks.Gameplay.Core
         public float HoldDuration => 0f;
 
         // Событие для визуальных скриптов: "Меня ударил вот этот игрок"
-        public event Action<ulong> OnGlobalReceivedSlap;
+        public event Action<ulong> OnSlapReceived;
 
         public void ExecuteSlap(ulong interactorClientId)
         {
-            if (!IsServer)
+            if (!IsOwner)
             {
                 ReceiveSlapServerRpc(interactorClientId);
             }
@@ -52,8 +52,9 @@ namespace Blocks.Gameplay.Core
         [Rpc(SendTo.Everyone)]
         private void NotifySlapClientRpc(ulong interactorClientId)
         {
-            Debug.Log($"[Client] Игрок {OwnerClientId} получил по рукам! (Здесь будет VFX/Анимация)");
-            OnGlobalReceivedSlap?.Invoke(interactorClientId);
+            Debug.Log($"[RPC] Client-{NetworkManager.Singleton.LocalClientId}: " +
+                          $"Player-{OwnerClientId} got slapped by {interactorClientId}");
+            OnSlapReceived?.Invoke(interactorClientId);
         }
 
         public bool CanInteract(GameObject interactor)

@@ -79,7 +79,6 @@ public class BotSlapRouter : NetworkBehaviour, IInteractable
     }
 
     // --- Сетевая синхронизация событий для визуальных эффектов ---
-
     [Rpc(SendTo.Everyone)]
     public void TriggerEventClientRpc(BotSlapEventType eventType)
     {
