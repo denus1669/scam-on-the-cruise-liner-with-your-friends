@@ -48,21 +48,6 @@ public class CasinoGamesManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Убирает одного случайного бота (например, ему надоело играть).
-    /// </summary>
-    public void DespawnRandomBot()
-    {
-        if (!IsServer || botSpawner == null) return;
-
-        List<GameObject> activeBots = botSpawner.GetSpawnedBots();
-        if (activeBots.Count > 0)
-        {
-            int randomIndex = Random.Range(0, activeBots.Count);
-            botSpawner.DespawnBot(activeBots[randomIndex]);
-        }
-    }
-
-    /// <summary>
     /// Массовая уборка всех ботов (например, закрытие казино или конец раунда).
     /// </summary>
     public void ForceDespawnAllBots()

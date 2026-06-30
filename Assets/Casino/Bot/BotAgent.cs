@@ -27,6 +27,8 @@ public class BotAgent : NetworkBehaviour
     // Текущий стол, с которым взаимодействует бот
     private IGameTable currentTable;
 
+    public IGameTable CurrentTable => currentTable;
+
     private void Awake()
     {
         navAgent = GetComponent<NavMeshAgent>();
@@ -253,7 +255,7 @@ public class BotAgent : NetworkBehaviour
             }
             subscribedTables.Clear();
         }
-    }
+    }   
 
     /// <summary>
     /// Находит объект ExitPoint: сначала по тэгу, затем по имени.

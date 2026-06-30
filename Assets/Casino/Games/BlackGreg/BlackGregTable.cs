@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using System.ComponentModel.Design;
 
 /// <summary>
 /// Компонент стола для игры в блэкджек.
@@ -35,6 +34,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     // Состояние бота
     private bool botHasStood = false;
 
+    public override string TableType => "BlackGreg";
 
     // ---------- Реализация ICardGameTable ----------
     public int GetBotScore() => CalculateHandValue(botHandData);
@@ -139,6 +139,23 @@ public class BlackGregTable : GameTable, ICardGameTable
         int playerScore = CalculateHandValue(playerHandData);
         int botScore = CalculateHandValue(botHandData);
         string winner = DetermineWinner(playerScore, botScore);
+
+        if (IsServer && casinoBank != null)
+        {
+            if (winner == "player")
+            {
+                // Победа: возврат анте (1) + выигрыш (1) = 2 фишки
+                casinoBank.TryDeposit(2, OccupiedByClientId, "Win", TableType);
+                Debug.Log($"[BlackGregTable] Игрок победил! Начислено 2 фишки.");
+            }
+            else if (winner == "draw")
+            {
+                // Ничья: возврат анте (1) = 1 фишка
+                casinoBank.TryDeposit(1, OccupiedByClientId, "Draw", TableType);
+                Debug.Log($"[BlackGregTable] Ничья! Возвращено 1 фишка.");
+            }
+            // Если winner == "bot" — ничего не делаем, анте уже списано
+        }
 
         NotifyWinnerClientRpc(winner, playerScore, botScore);
         EndGame();

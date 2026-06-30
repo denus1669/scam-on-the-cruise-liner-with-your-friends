@@ -12,6 +12,9 @@ public enum BotSlapEventType { CheatSlapped, BluffSlapped, IdleSlapped }
 [RequireComponent(typeof(BotAgent))]
 public class BotSlapRouter : NetworkBehaviour, IInteractable
 {
+    [SerializeField] private CasinoBank casinoBank;
+    public CasinoBank CasinoBank => casinoBank;
+
     private BotSlapContext _context;
     private List<ISlapReaction<BotSlapContext>> _reactions;
 
@@ -30,6 +33,23 @@ public class BotSlapRouter : NetworkBehaviour, IInteractable
     public event Action OnBluffSlapped;
     public event Action OnIdleSlapped;
 
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (casinoBank == null && IsServer)
+        {
+            casinoBank = FindAnyObjectByType<CasinoBank>();
+            if (casinoBank == null)
+            {
+                Debug.LogWarning($"[BotSlapRouter] {gameObject.name}: CasinoBank не найден. " +
+                                 $"Штрафы за шлепки не будут работать.");
+            }
+        }
+    }
+
+
     private void Awake()
     {
         _context = new BotSlapContext
@@ -38,7 +58,8 @@ public class BotSlapRouter : NetworkBehaviour, IInteractable
             BotBehavior = GetComponent<BaseBotBehavior>(),
             DispleasureController = GetComponent<BotDispleasureController>(),
             TargetNetworkObject = GetComponent<NetworkObject>(),
-            Router = this
+            Router = this,
+            BotAgent = GetComponent<BotAgent>()  
         };
 
         // ПОРЯДОК ВАЖЕН: Роутер пойдет по списку сверху вниз.

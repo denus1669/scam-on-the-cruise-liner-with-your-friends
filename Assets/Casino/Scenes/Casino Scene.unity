@@ -238,6 +238,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3995956818982773004, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: casinoBank
+      value: 
+      objectReference: {fileID: 441953932}
     - target: {fileID: 4315834720774711425, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
       propertyPath: m_Name
       value: SM_Game_BlackGreg_Table_Prefab  (1)
@@ -551,6 +555,9 @@ GameObject:
   - component: {fileID: 441953929}
   - component: {fileID: 441953927}
   - component: {fileID: 441953926}
+  - component: {fileID: 441953932}
+  - component: {fileID: 441953931}
+  - component: {fileID: 441953930}
   m_Layer: 0
   m_Name: CasinoGamesManager
   m_TagString: Untagged
@@ -631,6 +638,48 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &441953930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441953925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cee32abbbb316484a87da13635a24508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatisticsCollector
+  ShowTopMostFoldoutHeaderGroup: 1
+  casinoBank: {fileID: 441953932}
+--- !u!114 &441953931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441953925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d5b3fac1f2fc854fb563a22b1a19734, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankVfxNotifier
+  ShowTopMostFoldoutHeaderGroup: 1
+  casinoBank: {fileID: 441953932}
+--- !u!114 &441953932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441953925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 348e47307f006554e8553a39d44b4f4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CasinoBank
+  ShowTopMostFoldoutHeaderGroup: 1
+  startingBalance: 10
 --- !u!1001 &504904492
 PrefabInstance:
   m_ObjectHideFlags: 0

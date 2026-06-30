@@ -14,6 +14,9 @@ public class CheatController : NetworkBehaviour
     [Tooltip("Список доступных видов мухлежа для этого персонажа.")]
     [SerializeField] private List<CheatAction> availableCheats = new List<CheatAction>();
 
+    [Header("Ссыкла на банк казино")]
+    [SerializeField] private CasinoBank casinoBank;
+
     // Сетевое состояние мухлежа
     private NetworkVariable<bool> isCheating = new NetworkVariable<bool>(
         false,
@@ -38,6 +41,17 @@ public class CheatController : NetworkBehaviour
     // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА (срабатывают на всех клиентах) ---
     public event Action<string> OnCheatStarted;
     public event Action OnCheatCanceled;
+
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (casinoBank == null && IsServer)
+        {
+            casinoBank = FindAnyObjectByType<CasinoBank>();
+        }
+    }
 
     private void Awake()
     {
@@ -154,6 +168,13 @@ public class CheatController : NetworkBehaviour
 
         ulong winnerId = isBot ? accuserClientId : ulong.MaxValue;
         activeContext.Table.ForceStopGame(winnerId, isCheaterBot: isBot, reason: "Cheating");
+
+        if (casinoBank != null)
+        {
+            // 2 фишки: возврат анте + компенсация
+            string tableType = (activeContext.Table as GameTable)?.TableType ?? "Unknown";
+            casinoBank.TryDeposit(2, accuserClientId, "CheatCaught", tableType);
+        }
 
         if (isBot)
         {

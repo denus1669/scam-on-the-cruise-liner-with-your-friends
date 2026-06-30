@@ -13,6 +13,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 {
     [SerializeField] private Transform botWaitPoint;
 
+    [Header("Экономика")]
+    [SerializeField] protected CasinoBank casinoBank;
+    [SerializeField] private int anteAmount = 1;
+
+
     public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
     // ---------- Сетевые переменные ----------
@@ -47,6 +52,8 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public bool IsGameStarted => gameInProgress.Value;
 
+    public abstract string TableType { get; }
+
     /// <inheritdoc />
     public event Action<ulong> OnOccupantChanged;
     /// <inheritdoc />
@@ -65,6 +72,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
 
         isOccupied.OnValueChanged += OnIsOccupiedChanged;
         gameInProgress.OnValueChanged += OnGameProgressChanged;
@@ -213,6 +221,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         }
 
         gameInProgress.Value = true;
+
+        if (IsServer && casinoBank != null)
+        {
+            casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ante", TableType);
+        }
     }
 
     /// <inheritdoc />
@@ -243,7 +256,29 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         Debug.Log($"isOccupied {isOccupied.Value}  isBotOccupied {isBotOccupied.Value}");
 
-        return IsOccupied && IsBotOccupied;
+        // Базовая проверка: есть ли игрок и бот
+        if (!IsOccupied || !IsBotOccupied)
+        {
+            Debug.LogWarning($"[GameTable] Невозможно начать игру: нет игрока или бота.");
+            return false;
+        }
+
+        // Проверка наличия средств в кассе для обеспечения игры
+        if (casinoBank == null)
+        {
+            Debug.LogWarning($"[GameTable] CasinoBank не назначен, игра не может начаться.");
+            return false;
+        }
+
+        // Требуется минимум anteAmount фишек, чтобы обеспечить потенциальный выигрыш игрока
+        if (casinoBank.CurrentBalance < anteAmount)
+        {
+            Debug.LogWarning($"[GameTable] Недостаточно средств в кассе для начала игры. " +
+                             $"Требуется: {anteAmount}, доступно: {casinoBank.CurrentBalance}");
+            return false;
+        }
+
+        return true;
     }
 
     // ---------- Обработка триггера ----------

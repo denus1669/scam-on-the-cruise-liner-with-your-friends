@@ -9,6 +9,19 @@ public class BotIdleSlapReaction : ISlapReaction<BotSlapContext>
     {
         Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} ударил бота без причины!");
 
+        if (context.Router.CasinoBank != null)
+        {
+            string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
+            int actualWithdrawn = context.Router.CasinoBank.TryWithdraw(
+                0,
+                slapperClientId,
+                "SlapIdlePenalty",
+                tableType);
+
+            Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+        }
+
+
         if (context.DispleasureController != null)
         {
             context.DispleasureController.AddInstantDispleasure(90f); // Мгновенный штраф недовольства

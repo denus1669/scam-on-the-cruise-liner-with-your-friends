@@ -10,6 +10,19 @@ public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
     public void Slap(ulong slapperClientId, BotSlapContext context)
     {
         Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} купился на блеф!");
+
+        if (context.Router.CasinoBank != null)
+        {
+            string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
+            int actualWithdrawn = context.Router.CasinoBank.TryWithdraw(
+                0,
+                slapperClientId,
+                "SlapBluffPenalty",
+                tableType);
+
+            Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+        }
+
         // TODO: Логика штрафа за ложное обвинение в блефе
         if (context.DispleasureController != null)
         {
