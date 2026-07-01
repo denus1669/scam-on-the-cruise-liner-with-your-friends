@@ -224,7 +224,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
         if (IsServer && casinoBank != null)
         {
-            casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ante", TableType);
+            casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ставка", TableType);
         }
     }
 

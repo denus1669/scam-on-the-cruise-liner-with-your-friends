@@ -15,7 +15,7 @@ public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
         {
             string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
             int actualWithdrawn = context.Router.CasinoBank.TryWithdraw(
-                0,
+                1,
                 slapperClientId,
                 "SlapBluffPenalty",
                 tableType);
