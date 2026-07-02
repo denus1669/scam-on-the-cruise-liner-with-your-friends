@@ -20,32 +20,28 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
     [SerializeField] protected float baseCheatChance = 0.15f;
     [SerializeField] protected float baseBluffChance = 0.25f;
     [SerializeField] protected float watchedCheatMultiplier = 0.1f;
-    [SerializeField] protected string[] bluffAnimationTriggers = { "Bluff_Generic" };
-
-    // Сетевое состояние блефа (Мухлеж уже хранится в CheatController)
-    protected readonly NetworkVariable<bool> _isBluffing = new NetworkVariable<bool>(
-        false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server
-    );
-    public bool IsBotBluffingActive => _isBluffing.Value;
 
     // Ссылки на универсальные компоненты бота
     protected BotAgent botAgent;
     protected IGameTable gameTable;
     protected CheatController cheatController;
+    protected BotBluffController bluffController;          
     protected BotDispleasureController displeasureController;
 
-    protected bool isPlaying = false;
+    private readonly NetworkVariable<bool> _hasBotStood = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public bool HasBotStood => _hasBotStood.Value;
 
-    // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА ---
-    public event Action<string> OnBluffStarted;
+    public event Action OnBotStood; // Одноразовое событие для анимации
+
+
+    protected bool isPlaying = false;
 
     protected virtual void Awake()
     {
         botAgent = GetComponent<BotAgent>();
         cheatController = GetComponent<CheatController>();
+        bluffController = GetComponent<BotBluffController>(); 
         displeasureController = GetComponent<BotDispleasureController>();
-
-        // Убрали botAnimator!
     }
 
     public virtual void InitializeGame(IGameTable table)
@@ -54,6 +50,7 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
         if (IsServer)
         {
+            _hasBotStood.Value = false; // Сброс
             gameTable.OnGameStarted += OnGameStarted;
             gameTable.OnGameEnded += OnGameEnded;
         }
@@ -114,6 +111,7 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
         if (randomRoll < currentCheatChance)
         {
+            // МУХЛЁЖ
             if (cheatController.TryInitiateCheat(gameTable))
             {
                 while (cheatController.IsCheating) yield return null;
@@ -121,30 +119,15 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         }
         else if (randomRoll < currentCheatChance + currentBluffChance)
         {
-            yield return StartCoroutine(PlayBluffRoutine());
+            // БЛЕФ — делегируем в контроллер
+            if (bluffController != null && bluffController.TryBluff())
+            {
+                // Ждём окончания блефа (аналогично мухлежу)
+                while (bluffController.IsBluffing) yield return null;
+            }
         }
 
         yield break;
-    }
-
-    private IEnumerator PlayBluffRoutine()
-    {
-        if (bluffAnimationTriggers.Length == 0) yield break;
-
-        _isBluffing.Value = true;
-        string randomBluff = bluffAnimationTriggers[UnityEngine.Random.Range(0, bluffAnimationTriggers.Length)];
-
-        // Вместо аниматора - шлем сигнал всем клиентам
-        NotifyBluffStartedClientRpc(randomBluff);
-
-        yield return new WaitForSeconds(2.0f);
-        _isBluffing.Value = false;
-    }
-
-    [ClientRpc]
-    private void NotifyBluffStartedClientRpc(string triggerName)
-    {
-        OnBluffStarted?.Invoke(triggerName);
     }
 
     public override void OnNetworkDespawn()
@@ -157,8 +140,14 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         }
     }
 
-    #region Abstract & Virtual Methods (Для наследников)
 
+    #region Abstract & Virtual Methods (Для наследников)
+    protected virtual void SignalBotStood()
+    {
+        if (!IsServer) return;
+        _hasBotStood.Value = true;
+        OnBotStood?.Invoke();
+    }
     protected abstract bool EvaluateAndPerformGameAction();
     protected abstract void OnBotFinishedSession();
     protected virtual float GetPersonalityCheatModifier() => personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);

@@ -3,8 +3,10 @@ using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
-/// Интерактивный объект "Кнопка завершения игры".
-/// Показывает статус через UI-подсказку и отправляет запрос на сервер при удержании.
+/// Интерактивный объект для завершения игры.
+/// Двухступенчатая система:
+/// 1. Удержание 2 сек → вскрыть карты (RevealHands)
+/// 2. Мгновенно → завершить партию (FinishGame)
 /// </summary>
 public class FinishGameInteractable : NetworkBehaviour, IInteractable
 {
@@ -14,36 +16,44 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
     [Header("Настройки взаимодействия")]
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
     [SerializeField] private int priority = 5;
-    [SerializeField] private string promptText = "Завершить игру (Удерживайте E)";
 
     // Кэш для оптимизации обновления текста подсказки
     private string m_CachedPrompt;
     private bool m_LastGameStarted;
+    private bool m_LastCanReveal;
     private bool m_LastCanFinish;
 
     public InteractionTriggerMode TriggerMode => triggerMode;
     public int Priority => priority;
-    public float HoldDuration => 2f;
 
     /// <summary>
-    /// Динамический текст подсказки. Обновляется только при смене состояния стола.
+    /// Динамическое время удержания: 2 сек для Reveal, 0 сек для Finish.
+    /// </summary>
+    public float HoldDuration => blackGregTable != null && blackGregTable.IsRevealed ? 0f : 2f;
+
+    /// <summary>
+    /// Динамический текст подсказки.
     /// </summary>
     public string InteractionPromptText
     {
         get
         {
             bool gameStarted = blackGregTable != null && blackGregTable.IsGameStarted;
+            bool canReveal = blackGregTable != null && blackGregTable.CanPlayerReveal();
             bool canFinish = blackGregTable != null && blackGregTable.CanPlayerFinish();
 
-            if (gameStarted != m_LastGameStarted || canFinish != m_LastCanFinish || m_CachedPrompt == null)
+            if (gameStarted != m_LastGameStarted || canReveal != m_LastCanReveal ||
+                canFinish != m_LastCanFinish || m_CachedPrompt == null)
             {
                 m_LastGameStarted = gameStarted;
+                m_LastCanReveal = canReveal;
                 m_LastCanFinish = canFinish;
 
-                m_CachedPrompt = blackGregTable == null ? promptText :
+                m_CachedPrompt = blackGregTable == null ? "Стол недоступен" :
                     !gameStarted ? "Игра не началась" :
-                    !canFinish ? "Условия не выполнены" :
-                    promptText;
+                    canReveal ? "Вскрыть карты (Удерживайте E)" :
+                    canFinish ? "Завершить партию (E)" :
+                    "Бот не закончил ходить или Игрок не взял 2 карты";
             }
 
             return m_CachedPrompt;
@@ -52,8 +62,6 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
 
     /// <summary>
     /// Определяет, может ли объект быть в фокусе.
-    /// Возвращает true, если игрок является владельцем стола и игра началась.
-    /// НЕ проверяет CanPlayerFinish, чтобы подсказка отображалась всегда.
     /// </summary>
     public bool CanInteract(GameObject interactor)
     {
@@ -68,22 +76,22 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
     }
 
     /// <summary>
-    /// Выполняется после успешного удержания кнопки.
-    /// Содержит финальную проверку условий перед отправкой RPC.
+    /// Выполняется после успешного удержания/нажатия кнопки.
     /// </summary>
     public void Interact(GameObject interactor)
     {
         if (!IsSpawned || blackGregTable == null)
             return;
 
-        // Финальная проверка на клиенте перед отправкой запроса
-        if (!blackGregTable.CanPlayerFinish())
-        {
-            Debug.Log("[FinishGameInteractable] Удержание завершено, но условия больше не выполнены.");
-            return;
-        }
-
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        blackGregTable.RequestFinishGameServerRpc(clientId);
+
+        if (blackGregTable.CanPlayerReveal())
+        {
+            blackGregTable.RevealHandsServerRpc(clientId);
+        }
+        else if (blackGregTable.CanPlayerFinish())
+        {
+            blackGregTable.FinishGameServerRpc(clientId);
+        }
     }
 }

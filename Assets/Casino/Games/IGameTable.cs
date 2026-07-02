@@ -65,4 +65,13 @@ public interface IGameTable
     /// <param name="isCheaterBot">Указывает, был ли пойманный читер ботом.</param>
     /// <param name="reason">Причина остановки (для логов и UI).</param>
     void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason);
+
+
+    /// <summary>
+    /// Вызывается сервером, когда читер пойман за руку.
+    /// Каждый стол сам решает, что делать: остановить игру, откатить состояние или наложить штраф.
+    /// </summary>
+    /// <param name="accuserClientId">ID игрока, который поймал читера.</param>
+    /// <param name="isCheaterBot">true, если читер — бот, false — если игрок.</param>
+    void OnCheaterCaught(ulong accuserClientId, bool isCheaterBot);
 }

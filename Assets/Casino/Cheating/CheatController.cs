@@ -41,6 +41,8 @@ public class CheatController : NetworkBehaviour
     // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА (срабатывают на всех клиентах) ---
     public event Action<string> OnCheatStarted;
     public event Action OnCheatCanceled;
+    public event Action<bool> OnCheatingStateChanged;
+
 
 
     public override void OnNetworkSpawn()
@@ -51,6 +53,13 @@ public class CheatController : NetworkBehaviour
         {
             casinoBank = FindAnyObjectByType<CasinoBank>();
         }
+
+        // НОВОЕ: подписка на изменение состояния мухлежа
+        isCheating.OnValueChanged += HandleCheatingStateChanged;
+
+        // НОВОЕ: принудительное излучение текущего состояния для поздних подписчиков
+        OnCheatingStateChanged?.Invoke(isCheating.Value);
+
     }
 
     private void Awake()
@@ -162,24 +171,19 @@ public class CheatController : NetworkBehaviour
         if (activeContext == null || activeContext.Table == null) return;
 
         string cheaterName = isBot ? $"Бот {gameObject.name}" : $"Игрок {OwnerClientId}";
-        Debug.Log($"[CheatSystem] {cheaterName} ПОЙМАН ЗА РУКУ! Остановка игры...");
+        Debug.Log($"[CheatSystem] {cheaterName} ПОЙМАН ЗА РУКУ! Делегируем обработку столу.");
 
+        // 1. VFX для всех клиентов
         GameInterruptedClientRpc(accuserClientId, isBot);
 
-        ulong winnerId = isBot ? accuserClientId : ulong.MaxValue;
-        activeContext.Table.ForceStopGame(winnerId, isCheaterBot: isBot, reason: "Cheating");
+        // 2. Делегируем столу решение: форс-стоп, откат руки, штраф и т.д.
+        activeContext.Table.OnCheaterCaught(accuserClientId, isBot);
 
-        if (casinoBank != null)
-        {
-            // 2 фишки: возврат анте + компенсация
-            string tableType = (activeContext.Table as GameTable)?.TableType ?? "Unknown";
-            casinoBank.TryDeposit(2, accuserClientId, "CheatCaught", tableType);
-        }
+        // 3. Отменяем сам мухлёж (анимация, состояние)
+        CancelCheat();
 
-        if (isBot)
-        {
-            if (botAgent != null) botAgent.GoToExit();
-        }
+        // Больше никаких GoToExit и casinoBank.TryDeposit — 
+        // это теперь ответственность стола через OnCheaterCaught.
     }
 
     [ClientRpc]
@@ -232,5 +236,9 @@ public class CheatController : NetworkBehaviour
         }
 
         return validCheats[validCheats.Count - 1];
+    }
+    private void HandleCheatingStateChanged(bool previous, bool current)
+    {
+        OnCheatingStateChanged?.Invoke(current);
     }
 }

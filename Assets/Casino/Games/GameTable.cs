@@ -281,6 +281,14 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         return true;
     }
 
+    public virtual void OnCheaterCaught(ulong accuserClientId, bool isCheaterBot)
+    {
+        // Поведение по умолчанию: форс-стоп игры. 
+        // Конкретные столы (например, BlackGregTable) могут переопределить.
+        ulong winnerId = isCheaterBot ? accuserClientId : ulong.MaxValue;
+        ForceStopGame(winnerId, isCheaterBot, "Cheating");
+    }
+
     // ---------- Обработка триггера ----------
     public virtual void OnTriggerExit(Collider other)
     {

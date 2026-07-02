@@ -263,8 +263,13 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 2922287428
       objectReference: {fileID: 0}
+    - target: {fileID: 8715977649960220713, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4554578114382903827, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
+    - {fileID: 8715977649960220713, guid: 6c50d873d27a43647bdb837a76e3edf5, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

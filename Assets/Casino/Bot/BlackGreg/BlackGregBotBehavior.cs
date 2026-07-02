@@ -50,6 +50,7 @@ public class BlackGregBotBehavior : BaseBotBehavior
         else
         {
             cardTable.BotStand();
+            SignalBotStood();
             return false; // Бот закончил ход, выходим из цикла
         }
     }

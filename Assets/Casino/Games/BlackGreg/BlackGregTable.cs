@@ -13,6 +13,10 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private Transform playerHandParent;
     [SerializeField] private Transform botHandParent;
     [SerializeField] private Transform cardTablePosition; // точка для сброшенных/нераспределённых карт
+    [Header("Reveal Settings")]
+    [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (центр стола)
+    [SerializeField] private Transform revealPlayerPosition; // Куда выкладывать карты игроку (центр стола)
+
 
     [Header("Positioning")]
     [SerializeField] private Vector3 startPosition = new Vector3(0f, 0f, 0f);
@@ -22,6 +26,9 @@ public class BlackGregTable : GameTable, ICardGameTable
     [Header("Game Rules")]
     [SerializeField] private int cardLimit = 10;
     [SerializeField] private int minCardsToFinish = 2;
+
+    private readonly NetworkVariable<bool> _isRevealed = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public bool IsRevealed => _isRevealed.Value;
 
     // Данные рук (сервер)
     private List<CardData> playerHandData = new List<CardData>();
@@ -33,6 +40,9 @@ public class BlackGregTable : GameTable, ICardGameTable
 
     // Состояние бота
     private bool botHasStood = false;
+
+    // Копия руки бота до мухлежа. Хранится только пока активен мухлеж в текущем раунде.
+    private List<CardData> _originalBotHand;
 
     public override string TableType => "BlackGreg";
 
@@ -72,9 +82,28 @@ public class BlackGregTable : GameTable, ICardGameTable
     {
         if (!IsServer) return;
 
-        botHandData = new List<CardData>(newHand);
+        // Сохраняем копию перед первым мухлежом в раунде
+        if (_originalBotHand == null)
+        {
+            _originalBotHand = new List<CardData>(botHandData);
+            Debug.Log($"[BlackGregTable] Сохранена оригинальная рука бота ({_originalBotHand.Count} карт)");
+        }
 
-        // Синхронизируем изменения с клиентами (визуал обновится автоматически благодаря ClientRpc)
+        botHandData = new List<CardData>(newHand);
+        SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+    }
+
+    private void RevertBotHand()
+    {
+        if (_originalBotHand == null)
+        {
+            Debug.LogWarning("[BlackGregTable] Попытка откатить руку, но копия отсутствует.");
+            return;
+        }
+
+        botHandData = _originalBotHand;
+        _originalBotHand = null;
+        Debug.Log($"[BlackGregTable] Рука бота откачена до оригинальной ({botHandData.Count} карт)");
         SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
     }
 
@@ -87,6 +116,8 @@ public class BlackGregTable : GameTable, ICardGameTable
         playerHandData.Clear();
         botHandData.Clear();
         botHasStood = false;
+        _originalBotHand = null;
+        _isRevealed.Value = false;
 
         Debug.Log("CanStartGame " + CanStartGame());
         base.StartGame(); // устанавливает gameInProgress.Value = true
@@ -96,6 +127,8 @@ public class BlackGregTable : GameTable, ICardGameTable
     {
         if (!IsServer || !IsGameStarted) return;
 
+        _isRevealed.Value = false; // Сброс флага
+        _originalBotHand = null;
         base.EndGame(); // устанавливает gameInProgress.Value = false
         ClearHands();   // очистка визуала и данных
     }
@@ -120,9 +153,9 @@ public class BlackGregTable : GameTable, ICardGameTable
         }
     }
 
-    public void PlayerFinishGame()
+    public void FinishGame()
     {
-        if (!IsServer || !IsGameStarted) return;
+        if (!IsServer || !IsGameStarted || !_isRevealed.Value) return;
 
         if (playerHandData.Count < minCardsToFinish || botHandData.Count < minCardsToFinish)
         {
@@ -140,7 +173,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         int botScore = CalculateHandValue(botHandData);
         string winner = DetermineWinner(playerScore, botScore);
 
-        if (IsServer && casinoBank != null)
+        if (casinoBank != null)
         {
             if (winner == "player")
             {
@@ -175,7 +208,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     public void RequestFinishGameServerRpc(ulong clientId)
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
-            PlayerFinishGame();
+            FinishGame();
     }
 
     // ---------- Сетевая синхронизация рук ----------
@@ -363,49 +396,98 @@ public class BlackGregTable : GameTable, ICardGameTable
         }
     }
 
-    /// <summary>
-    /// Экстренно завершает карточную игру при поимке за руку.
-    /// </summary>
-    public override void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason)
+
+
+    public override void OnCheaterCaught(ulong accuserClientId, bool isCheaterBot)
     {
-        // Вызываем базовый метод для сброса флага gameInProgress
-        base.ForceStopGame(winnerClientId, isCheaterBot, reason);
-
-        Debug.Log($"[BlackGregTable] Обработка экстренного завершения. Читер бот? {isCheaterBot}. Победитель: {winnerClientId}");
-
-        // 1. Логика распределения фишек/токенов
-        if (isCheaterBot)
+        if (!isCheaterBot)
         {
-            // Бот жульничал и был пойман игроком. Игрок гарантированно забирает весь банк.
-            Debug.Log($"[BlackGregTable] Игрок {winnerClientId} ловит бота на мухлеже и забирает весь банк стола!");
-            // TODO: Выдать фишки игроку (например, Bank.Reward(winnerClientId, tableStake * 2))
-        }
-        else
-        {
-            // Реальный игрок жульничал и его поймали (бот или система). Игрок теряет ставку.
-            Debug.Log($"[BlackGregTable] Игрок {OccupiedByClientId} оштрафован за неоправданный удар бота! Банк уходит боту.");
-            // TODO: Списать штраф у игрока (например, Bank.Deduct(OccupiedByClientId, penaltyAmount))
+            // Игрок-читер — пока используем поведение по умолчанию (форс-стоп).
+            // В будущем здесь будет мини-игра или другая механика.
+            base.OnCheaterCaught(accuserClientId, isCheaterBot);
+            return;
         }
 
-        // 2. Оповещаем клиентов о причине и результатах для отображения в UI
-        // Передаем специальный маркер победы вместо обычного счета
-        string uiWinnerMarker = isCheaterBot ? "player_caught_bot" : "bot_caught_player";
-        NotifyWinnerClientRpc(uiWinnerMarker, 0, 0);
+        // Бот пойман — откатываем руку и продолжаем игру.
+        Debug.Log($"[BlackGregTable] Бот пойман на мухлеже игроком {accuserClientId}. Рука откачена, игра продолжается.");
+        RevertBotHand();
 
-        // 3. Очищаем столы от карт читера и честного игрока
-        ClearHands();
+        // Игра НЕ останавливается — бот и игрок доигрывают партию.
+        // Бот продолжит свою сессию в PlaySessionRoutine, так как gameInProgress остался true.
+    }
+
+    /// <summary>
+    /// Первый шаг: вскрыть карты.
+    /// </summary>
+    public void RevealHands()
+    {
+        if (!IsServer || !IsGameStarted || _isRevealed.Value) return;
+
+        _isRevealed.Value = true;
+        RevealHandsClientRpc();
+        Debug.Log("[BlackGregTable] Карты вскрыты. Ожидание подтверждения игрока.");
+    }
+
+
+
+    [ClientRpc]
+    private void RevealHandsClientRpc()
+    {
+        // Очистить старые визуалы
+        foreach (var view in spawnedCardViews)
+            if (view != null) Destroy(view.gameObject);
+        spawnedCardViews.Clear();
+
+        placeNextCardOnLeft = true;
+
+        // Карты игрока — перемещаются в revealPlayerPosition, лицом вверх
+        Transform playerRevealPos = revealPlayerPosition != null ? revealPlayerPosition : cardTablePosition;
+        if (playerRevealPos != null)
+        {
+            for (int i = 0; i < playerHandData.Count; i++)
+                SpawnCardVisual(playerHandData[i], playerRevealPos, i, true);
+        }
+
+        // Карты бота — перемещаются в revealBotPosition, лицом вверх
+        Transform botRevealPos = revealBotPosition != null ? revealBotPosition : cardTablePosition;
+        if (botRevealPos != null)
+        {
+            for (int i = 0; i < botHandData.Count; i++)
+                SpawnCardVisual(botHandData[i], botRevealPos, i, true);
+        }
     }
 
     /// <summary>
     /// Проверяет, может ли игрок завершить игру (для UI-подсказки).
     /// Дублируется на сервере в PlayerFinishGame для безопасности.
     /// </summary>
-    public bool CanPlayerFinish()
+
+    public bool CanPlayerReveal()
     {
         if (!IsGameStarted) return false;
+        if (_isRevealed.Value) return false;
         if (playerHandData.Count < minCardsToFinish) return false;
         if (botHandData.Count < minCardsToFinish) return false;
         if (!botHasStood) return false;
         return true;
+    }
+
+    [Rpc(SendTo.Server)]
+    public void RevealHandsServerRpc(ulong clientId)
+    {
+        if (IsServer && IsOccupied && clientId == OccupiedByClientId)
+            RevealHands();
+    }
+    public bool CanPlayerFinish()
+    {
+        return IsGameStarted && _isRevealed.Value;
+    }
+
+
+    [Rpc(SendTo.Server)]
+    public void FinishGameServerRpc(ulong clientId)
+    {
+        if (IsServer && IsOccupied && clientId == OccupiedByClientId)
+            FinishGame();
     }
 }

@@ -55,6 +55,7 @@ public class BotSlapRouter : NetworkBehaviour, IInteractable
         _context = new BotSlapContext
         {
             CheatController = GetComponent<CheatController>(),
+            BluffController = GetComponent<BotBluffController>(),
             BotBehavior = GetComponent<BaseBotBehavior>(),
             DispleasureController = GetComponent<BotDispleasureController>(),
             TargetNetworkObject = GetComponent<NetworkObject>(),
