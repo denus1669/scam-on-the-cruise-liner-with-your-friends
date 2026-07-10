@@ -625,7 +625,6 @@ GameObject:
   - component: {fileID: 7514753126934208344}
   - component: {fileID: 5573165450364946144}
   - component: {fileID: 3227041354833252297}
-  - component: {fileID: 4554578114382903827}
   - component: {fileID: 3995956818982773004}
   m_Layer: 8
   m_Name: 'SM_Game_BlackGreg_Table '
@@ -775,22 +774,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &4554578114382903827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6667248287144915161}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9041a6e481692744f8aa1e9644dd77f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FinishGameListener
-  ShowTopMostFoldoutHeaderGroup: 1
-  blackGregTable: {fileID: 0}
-  triggerMode: 0
-  priority: 5
 --- !u!114 &3995956818982773004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -818,6 +801,8 @@ MonoBehaviour:
   startRotation: {x: 30, y: 180, z: 0}
   cardLimit: 10
   minCardsToFinish: 2
+  playerHandData: []
+  botHandData: []
 --- !u!1 &7479003504105714197
 GameObject:
   m_ObjectHideFlags: 0
