@@ -47,17 +47,15 @@ public class BlackGregBotBehavior : BaseBotBehavior
             cardTable.BotDrawCard();
             return true; // Продолжаем сессию, будем думать еще раз
         }
-        else
-        {
-            cardTable.BotStand();
-            SignalBotStood();
-            return false; // Бот закончил ход, выходим из цикла
-        }
+
+        return false;
     }
 
     protected override void OnBotFinishedSession()
     {
+        cardTable.BotStand();
         Debug.Log($"[BlackGreg ИИ] Бот {gameObject.name} завершил ход (Stand).");
+        base.OnBotFinishedSession();
         // Здесь можно вызвать логику сравнения счетов на столе, если это не делает сам стол
     }
 
