@@ -688,7 +688,7 @@
     "m_DefaultRefNameVersion": 1,
     "m_RefNameGeneratedByDisplayName": "Select Texture",
     "m_DefaultReferenceName": "_Select_Texture",
-    "m_OverrideReferenceName": "",
+    "m_OverrideReferenceName": "_TextureIndex",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
@@ -1225,9 +1225,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": 326.0,
-            "y": -174.00001525878907,
-            "width": 208.0,
+            "x": 327.0,
+            "y": -176.00001525878907,
+            "width": 208.00006103515626,
             "height": 375.0
         }
     },
