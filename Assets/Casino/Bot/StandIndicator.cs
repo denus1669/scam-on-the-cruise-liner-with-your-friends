@@ -13,19 +13,21 @@ public class StandIndicator : NetworkObjectVisibilityIndicator
     private void OnEnable()
     {
         if (botBehavior != null)
-            botBehavior.OnBotStood += HandleBotStood;
+            botBehavior.OnBotStoodChanged += HandleBotStoodChanged;
     }
 
     private void OnDisable()
     {
         if (botBehavior != null)
-            botBehavior.OnBotStood -= HandleBotStood;
+            botBehavior.OnBotStoodChanged -= HandleBotStoodChanged;
     }
 
-    private void HandleBotStood()
+    private void HandleBotStoodChanged(bool hasStood)
     {
-        ShowIndicator(); // Включаем иконку "✋"
-        // TODO: Проиграть анимацию жеста Stand через Animator
+        if (hasStood)
+            ShowIndicator();
+        else
+            HideIndicator();
     }
 
     // При сбросе _hasBotStood (новый раунд) индикатор выключается автоматически

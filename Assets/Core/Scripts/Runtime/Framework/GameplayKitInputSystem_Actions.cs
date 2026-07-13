@@ -185,7 +185,7 @@ namespace Blocks.Gameplay.Core
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""FinishGame"",
+                    ""name"": ""Continue"",
                     ""type"": ""Button"",
                     ""id"": ""811d5a7c-c065-4564-a20c-e3005ec9aabc"",
                     ""expectedControlType"": """",
@@ -539,7 +539,7 @@ namespace Blocks.Gameplay.Core
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""FinishGame"",
+                    ""action"": ""Continue"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1159,7 +1159,7 @@ namespace Blocks.Gameplay.Core
             m_Player_SecondaryAction = m_Player.FindAction("SecondaryAction", throwIfNotFound: true);
             m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
             m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
-            m_Player_FinishGame = m_Player.FindAction("FinishGame", throwIfNotFound: true);
+            m_Player_Continue = m_Player.FindAction("Continue", throwIfNotFound: true);
             m_Player_Attention = m_Player.FindAction("Attention", throwIfNotFound: true);
             m_Player_Slap = m_Player.FindAction("Slap", throwIfNotFound: true);
             // UI
@@ -1265,7 +1265,7 @@ namespace Blocks.Gameplay.Core
         private readonly InputAction m_Player_SecondaryAction;
         private readonly InputAction m_Player_Reload;
         private readonly InputAction m_Player_Menu;
-        private readonly InputAction m_Player_FinishGame;
+        private readonly InputAction m_Player_Continue;
         private readonly InputAction m_Player_Attention;
         private readonly InputAction m_Player_Slap;
         /// <summary>
@@ -1320,9 +1320,9 @@ namespace Blocks.Gameplay.Core
             /// </summary>
             public InputAction @Menu => m_Wrapper.m_Player_Menu;
             /// <summary>
-            /// Provides access to the underlying input action "Player/FinishGame".
+            /// Provides access to the underlying input action "Player/Continue".
             /// </summary>
-            public InputAction @FinishGame => m_Wrapper.m_Player_FinishGame;
+            public InputAction @Continue => m_Wrapper.m_Player_Continue;
             /// <summary>
             /// Provides access to the underlying input action "Player/Attention".
             /// </summary>
@@ -1387,9 +1387,9 @@ namespace Blocks.Gameplay.Core
                 @Menu.started += instance.OnMenu;
                 @Menu.performed += instance.OnMenu;
                 @Menu.canceled += instance.OnMenu;
-                @FinishGame.started += instance.OnFinishGame;
-                @FinishGame.performed += instance.OnFinishGame;
-                @FinishGame.canceled += instance.OnFinishGame;
+                @Continue.started += instance.OnContinue;
+                @Continue.performed += instance.OnContinue;
+                @Continue.canceled += instance.OnContinue;
                 @Attention.started += instance.OnAttention;
                 @Attention.performed += instance.OnAttention;
                 @Attention.canceled += instance.OnAttention;
@@ -1437,9 +1437,9 @@ namespace Blocks.Gameplay.Core
                 @Menu.started -= instance.OnMenu;
                 @Menu.performed -= instance.OnMenu;
                 @Menu.canceled -= instance.OnMenu;
-                @FinishGame.started -= instance.OnFinishGame;
-                @FinishGame.performed -= instance.OnFinishGame;
-                @FinishGame.canceled -= instance.OnFinishGame;
+                @Continue.started -= instance.OnContinue;
+                @Continue.performed -= instance.OnContinue;
+                @Continue.canceled -= instance.OnContinue;
                 @Attention.started -= instance.OnAttention;
                 @Attention.performed -= instance.OnAttention;
                 @Attention.canceled -= instance.OnAttention;
@@ -1817,12 +1817,12 @@ namespace Blocks.Gameplay.Core
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnMenu(InputAction.CallbackContext context);
             /// <summary>
-            /// Method invoked when associated input action "FinishGame" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// Method invoked when associated input action "Continue" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
             /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-            void OnFinishGame(InputAction.CallbackContext context);
+            void OnContinue(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "Attention" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

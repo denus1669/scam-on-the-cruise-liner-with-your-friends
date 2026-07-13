@@ -32,7 +32,9 @@ namespace Blocks.Gameplay.Core
 
 
         [Header("Game Events")]
-        [SerializeField] private GameEvent onFinishGameActionPressed;
+        [SerializeField] private GameEvent onContinueActionPressed;
+        [SerializeField] private GameEvent onContinueActionReleased;
+
         [SerializeField] private GameEvent onAttentionActionPressed;
         [SerializeField] private GameEvent onSlapActionPressed;
 
@@ -90,7 +92,8 @@ namespace Blocks.Gameplay.Core
 
             m_InputActions.Player.Menu.performed += HandleMenuPressed;
 
-            m_InputActions.Player.FinishGame.performed += HandleFinishGameActionPressed;
+            m_InputActions.Player.Continue.performed += HandleContinueActionPressed;
+            m_InputActions.Player.Continue.canceled += HandleContinueActionReleased;
             m_InputActions.Player.Attention.performed += HandleAttentionActionPressed;
             m_InputActions.Player.Slap.performed += HandleSlapActionPressed;
         }
@@ -114,7 +117,8 @@ namespace Blocks.Gameplay.Core
 
             m_InputActions.Player.Menu.performed -= HandleMenuPressed;
 
-            m_InputActions.Player.FinishGame.performed -= HandleFinishGameActionPressed;
+            m_InputActions.Player.Continue.performed -= HandleContinueActionPressed;
+            m_InputActions.Player.Continue.canceled -= HandleContinueActionReleased;
             m_InputActions.Player.Attention.performed -= HandleAttentionActionPressed;
             m_InputActions.Player.Slap.performed -= HandleSlapActionPressed;
 
@@ -132,7 +136,8 @@ namespace Blocks.Gameplay.Core
         private void HandlePrimaryActionPressed(InputAction.CallbackContext context) => onPrimaryActionPressed?.Raise();
         private void HandlePrimaryActionReleased(InputAction.CallbackContext context) => onPrimaryActionReleased?.Raise();
         private void HandleMenuPressed(InputAction.CallbackContext context) => onMenuPressed?.Raise();
-        private void HandleFinishGameActionPressed(InputAction.CallbackContext context) => onFinishGameActionPressed?.Raise();
+        private void HandleContinueActionPressed(InputAction.CallbackContext context) => onContinueActionPressed?.Raise();
+        private void HandleContinueActionReleased(InputAction.CallbackContext context) => onContinueActionReleased?.Raise();
         private void HandleAttentionActionPressed(InputAction.CallbackContext context) => onAttentionActionPressed?.Raise();
         private void HandleSlapActionPressed(InputAction.CallbackContext context) => onSlapActionPressed?.Raise();
 

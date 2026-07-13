@@ -27,19 +27,32 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private int cardLimit = 10;
     [SerializeField] private int minCardsToFinish = 2;
 
-    private readonly NetworkVariable<bool> _isRevealed = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public bool IsRevealed => _isRevealed.Value;
-
-    // Данные рук (сервер)
-    private List<CardData> playerHandData = new List<CardData>();
-    private List<CardData> botHandData = new List<CardData>();
-
-    // Визуал на клиентах
-    private List<CardView> spawnedCardViews = new List<CardView>();
-    private bool placeNextCardOnLeft = true;
+    private readonly NetworkVariable<bool> _isRevealed = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
     // Состояние бота
-    private bool botHasStood = false;
+    private readonly NetworkVariable<bool> _botHasStood = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+    
+    public bool IsRevealed => _isRevealed.Value;
+
+    public bool BotHasStood => _botHasStood.Value;
+
+
+    // Данные рук (сервер)
+    [SerializeField] private List<CardData> playerHandData = new List<CardData>();
+    [SerializeField] private List<CardData> botHandData = new List<CardData>();
+
+    // Визуал на клиентах
+    private List<CardView> _botSpawnedCardViews = new List<CardView>();
+    private List<CardView> _playerSpawnedCardViews = new List<CardView>();
+    private bool placeNextCardOnLeft = true;
 
     // Копия руки бота до мухлежа. Хранится только пока активен мухлеж в текущем раунде.
     private List<CardData> _originalBotHand;
@@ -69,10 +82,20 @@ public class BlackGregTable : GameTable, ICardGameTable
 
     }
 
+    [Rpc(SendTo.Server)]
+    public void BotStandServerRpc()
+    {
+        if (!IsServer) return;
+
+        Debug.Log("BotStand");
+        _botHasStood.Value = true;
+        PutOnTableBotCards();
+    }
     public void BotStand()
     {
         if (!IsServer) return;
-        botHasStood = true;
+
+        BotStandServerRpc();
     }
 
     /// <summary>
@@ -115,7 +138,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         // Сброс состояния для новой игры
         playerHandData.Clear();
         botHandData.Clear();
-        botHasStood = false;
+        _botHasStood.Value = false;
         _originalBotHand = null;
         _isRevealed.Value = false;
 
@@ -131,6 +154,13 @@ public class BlackGregTable : GameTable, ICardGameTable
         _originalBotHand = null;
         base.EndGame(); // устанавливает gameInProgress.Value = false
         ClearHands();   // очистка визуала и данных
+        ClearHandsClientRpc();
+    }
+    [ClientRpc]
+    private void ClearHandsClientRpc()
+    {
+        CardViewCleaner(_playerSpawnedCardViews);
+        CardViewCleaner(_botSpawnedCardViews);
     }
 
     // ---------- Методы для игрока (вызываются UI) ----------
@@ -163,7 +193,7 @@ public class BlackGregTable : GameTable, ICardGameTable
             return;
         }
 
-        if (!botHasStood)
+        if (!BotHasStood)
         {
             Debug.LogWarning("Бот ещё не завершил свои ходы.");
             return;
@@ -212,16 +242,16 @@ public class BlackGregTable : GameTable, ICardGameTable
     }
 
     // ---------- Сетевая синхронизация рук ----------
+
     [ClientRpc]
     private void SyncHandsClientRpc(ulong playerClientId, CardData[] syncedPlayerHand, CardData[] syncedBotHand)
     {
+        if (IsRevealed) return; 
+
         playerHandData = new List<CardData>(syncedPlayerHand);
         botHandData = new List<CardData>(syncedBotHand);
 
-        // Очистка старых визуалов
-        foreach (var view in spawnedCardViews)
-            if (view != null) Destroy(view.gameObject);
-        spawnedCardViews.Clear();
+        CardViewCleaner(_playerSpawnedCardViews);
 
         placeNextCardOnLeft = true;
 
@@ -240,24 +270,36 @@ public class BlackGregTable : GameTable, ICardGameTable
         if (playerHand != null)
         {
             for (int i = 0; i < playerHandData.Count; i++)
-                SpawnCardVisual(playerHandData[i], playerHand, i, isPlayerFaceUp);
+                SpawnCardVisual(playerHandData[i], playerHand, i, isPlayerFaceUp, _playerSpawnedCardViews);
         }
 
-        bool isBotFaceUp = false;
-
-        // Получаем руку бота
-        Transform botHand = null;
-        if (botNetworkObjectRef.Value.TryGet(out NetworkObject botObj))
+        if (!BotHasStood)
         {
-            botHand = FindChildByName(botObj.transform, "CardHandPosition");
-        }
-        if (botHand == null) botHand = botHandParent;
+            CardViewCleaner(_botSpawnedCardViews);
 
-        if (botHand != null)
-        {
-            for (int i = 0; i < botHandData.Count; i++)
-                SpawnCardVisual(botHandData[i], botHand, i, isBotFaceUp);
+            bool isBotFaceUp = false;
+
+            // Получаем руку бота
+            Transform botHand = null;
+            if (botNetworkObjectRef.Value.TryGet(out NetworkObject botObj))
+            {
+                botHand = FindChildByName(botObj.transform, "CardHandPosition");
+            }
+            if (botHand == null) botHand = botHandParent;
+
+            if (botHand != null)
+            {
+                for (int i = 0; i < botHandData.Count; i++)
+                    SpawnCardVisual(botHandData[i], botHand, i, isBotFaceUp, _botSpawnedCardViews);
+            }
         }
+    }
+
+    private void CardViewCleaner(List<CardView> spawnedViews)
+    {
+        foreach (var view in spawnedViews)
+            if (view != null) Destroy(view.gameObject);
+        spawnedViews.Clear();
     }
 
     [ClientRpc]
@@ -317,11 +359,12 @@ public class BlackGregTable : GameTable, ICardGameTable
     {
         playerHandData.Clear();
         botHandData.Clear();
-        SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+        CardViewCleaner(_playerSpawnedCardViews);
+        CardViewCleaner(_botSpawnedCardViews);
     }
 
     // ---------- Визуализация ----------
-    private void SpawnCardVisual(CardData cardData, Transform parent, int cardIndex, bool isFaceUp)
+    private void SpawnCardVisual(CardData cardData, Transform parent, int cardIndex, bool isFaceUp, List<CardView> spawnedViews)
     {
         if (cardViewPrefab == null) return;
 
@@ -331,7 +374,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         view.transform.localRotation = Quaternion.Euler(startRotation);
         view.SetCardData(cardData);
         view.SetVisible(isFaceUp);
-        spawnedCardViews.Add(view);
+        spawnedViews.Add(view);
     }
 
     private Vector3 GetNextCardPosition(int currentCardIndex)
@@ -417,6 +460,69 @@ public class BlackGregTable : GameTable, ICardGameTable
     }
 
     /// <summary>
+    /// Кладем карты на стол в закрытую.
+    /// </summary>
+    /// 
+    /*
+    public void PutOnTableCards(Transform cardTablePosition, List<CardData> cardsData, List<CardView> spawnedViews)
+    {
+        if (!IsServer) return;
+        // Очистить старые визуалы
+        CardViewCleaner(spawnedViews);
+
+        if (cardTablePosition != null)
+        {
+            for (int i = 0; i < cardsData.Count; i++)
+                SpawnCardVisual(cardsData[i], cardTablePosition, i, false, spawnedViews);
+        }
+
+        Debug.Log("[BlackGregTable] Карты на столе. Ожидание подтверждения игрока.");
+    }*/
+
+    public void PutOnTableBotCards()
+    {
+        if (!IsServer) return;
+
+        PutOnTableBotCardsClientRpc();
+    }
+
+    public void PutOnTablePlayerCards()
+    {
+        if (!IsServer) return;
+        PutOnTablePlayerCardsClientRpc();
+    }
+
+    [ClientRpc]
+    public void PutOnTablePlayerCardsClientRpc()
+    {
+        // Очистить старые визуалы
+        CardViewCleaner(_playerSpawnedCardViews);
+
+        if (revealPlayerPosition != null)
+        {
+            for (int i = 0; i < playerHandData.Count; i++)
+                SpawnCardVisual(playerHandData[i], revealPlayerPosition, i, false, _playerSpawnedCardViews);
+        }
+
+        Debug.Log("[BlackGregTable] Карты на столе. Ожидание подтверждения игрока.");
+    }
+
+    [ClientRpc]
+    public void PutOnTableBotCardsClientRpc()
+    {
+        // Очистить старые визуалы
+        CardViewCleaner(_botSpawnedCardViews);
+
+        if (revealBotPosition != null)
+        {
+            for (int i = 0; i < botHandData.Count; i++)
+                SpawnCardVisual(botHandData[i], revealBotPosition, i, false, _botSpawnedCardViews);
+        }
+
+        Debug.Log("[BlackGregTable] Карты на столе. Ожидание подтверждения игрока.");
+    }
+
+    /// <summary>
     /// Первый шаг: вскрыть карты.
     /// </summary>
     public void RevealHands()
@@ -428,33 +534,13 @@ public class BlackGregTable : GameTable, ICardGameTable
         Debug.Log("[BlackGregTable] Карты вскрыты. Ожидание подтверждения игрока.");
     }
 
-
-
     [ClientRpc]
     private void RevealHandsClientRpc()
     {
-        // Очистить старые визуалы
-        foreach (var view in spawnedCardViews)
-            if (view != null) Destroy(view.gameObject);
-        spawnedCardViews.Clear();
-
-        placeNextCardOnLeft = true;
-
-        // Карты игрока — перемещаются в revealPlayerPosition, лицом вверх
-        Transform playerRevealPos = revealPlayerPosition != null ? revealPlayerPosition : cardTablePosition;
-        if (playerRevealPos != null)
-        {
-            for (int i = 0; i < playerHandData.Count; i++)
-                SpawnCardVisual(playerHandData[i], playerRevealPos, i, true);
-        }
-
-        // Карты бота — перемещаются в revealBotPosition, лицом вверх
-        Transform botRevealPos = revealBotPosition != null ? revealBotPosition : cardTablePosition;
-        if (botRevealPos != null)
-        {
-            for (int i = 0; i < botHandData.Count; i++)
-                SpawnCardVisual(botHandData[i], botRevealPos, i, true);
-        }
+        for (int i = 0; i < _playerSpawnedCardViews.Count; i++)
+            _playerSpawnedCardViews[i].SetVisible(true);
+        for (int i = 0; i < _botSpawnedCardViews.Count; i++)
+            _botSpawnedCardViews[i].SetVisible(true);
     }
 
     /// <summary>
@@ -468,7 +554,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         if (_isRevealed.Value) return false;
         if (playerHandData.Count < minCardsToFinish) return false;
         if (botHandData.Count < minCardsToFinish) return false;
-        if (!botHasStood) return false;
+        if (!BotHasStood) return false;
         return true;
     }
 
@@ -476,7 +562,10 @@ public class BlackGregTable : GameTable, ICardGameTable
     public void RevealHandsServerRpc(ulong clientId)
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
+        {
+            PutOnTablePlayerCards();
             RevealHands();
+        }
     }
     public bool CanPlayerFinish()
     {

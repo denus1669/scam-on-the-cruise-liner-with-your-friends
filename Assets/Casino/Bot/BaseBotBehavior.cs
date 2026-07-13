@@ -28,11 +28,14 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
     protected BotBluffController bluffController;          
     protected BotDispleasureController displeasureController;
 
-    private readonly NetworkVariable<bool> _hasBotStood = new(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<bool> _hasBotStood = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
     public bool HasBotStood => _hasBotStood.Value;
 
-    public event Action OnBotStood; // Одноразовое событие для анимации
-
+    public event Action<bool> OnBotStoodChanged;
 
     protected bool isPlaying = false;
 
@@ -51,6 +54,9 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         if (IsServer)
         {
             _hasBotStood.Value = false; // Сброс
+            NotifyBotStoodChangedClientRpc(false);
+
+
             gameTable.OnGameStarted += OnGameStarted;
             gameTable.OnGameEnded += OnGameEnded;
         }
@@ -74,6 +80,8 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
     private void OnGameEnded()
     {
         EndSession();
+        _hasBotStood.Value = false;
+        NotifyBotStoodChangedClientRpc(false);
         if (botAgent != null) botAgent.GoToExit();
     }
 
@@ -142,14 +150,19 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
 
     #region Abstract & Virtual Methods (Для наследников)
-    protected virtual void SignalBotStood()
+    protected virtual void OnBotFinishedSession()
     {
         if (!IsServer) return;
         _hasBotStood.Value = true;
-        OnBotStood?.Invoke();
+        NotifyBotStoodChangedClientRpc(true);
+    }
+
+    [ClientRpc]
+    private void NotifyBotStoodChangedClientRpc(bool hasStood)
+    {
+        OnBotStoodChanged?.Invoke(hasStood);
     }
     protected abstract bool EvaluateAndPerformGameAction();
-    protected abstract void OnBotFinishedSession();
     protected virtual float GetPersonalityCheatModifier() => personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);
     protected virtual float GetPersonalityBluffModifier() => personality == BotPersonality.Risky ? 0.8f : (personality == BotPersonality.Cautious ? 1.2f : 1f);
     protected virtual bool CheckIfPlayerIsWatching() => false;
