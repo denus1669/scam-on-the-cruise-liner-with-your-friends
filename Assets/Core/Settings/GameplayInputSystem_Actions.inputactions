@@ -97,7 +97,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "FinishGame",
+                    "name": "Continue",
                     "type": "Button",
                     "id": "811d5a7c-c065-4564-a20c-e3005ec9aabc",
                     "expectedControlType": "",
@@ -451,7 +451,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "FinishGame",
+                    "action": "Continue",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

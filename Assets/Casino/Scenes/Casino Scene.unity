@@ -487,6 +487,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 5116993282974997414, guid: e3769a20051c22847ab053be0e8d81e3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7605289959106422121, guid: e3769a20051c22847ab053be0e8d81e3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.37373
@@ -833,6 +837,10 @@ PrefabInstance:
     - target: {fileID: 380185152059991914, guid: 8b0db8a75b7411d439feffb26c4157fa, type: 3}
       propertyPath: m_Name
       value: SessionBrowser
+      objectReference: {fileID: 0}
+    - target: {fileID: 380185152059991914, guid: 8b0db8a75b7411d439feffb26c4157fa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3443645952012491784, guid: 8b0db8a75b7411d439feffb26c4157fa, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1524,6 +1532,7 @@ GameObject:
   - component: {fileID: 2054266441}
   - component: {fileID: 2054266439}
   - component: {fileID: 2054266438}
+  - component: {fileID: 2054266442}
   m_Layer: 0
   m_Name: GameSessionManager
   m_TagString: Untagged
@@ -1604,6 +1613,22 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &2054266442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054266437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30819267fb373a5409cefe86471171ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CursorManager
+  gameplayCursorVisible: 0
+  gameplayLockMode: 1
+  uiCursorVisible: 1
+  uiLockMode: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

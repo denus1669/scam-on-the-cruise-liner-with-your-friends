@@ -2,10 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// UI-компонент для экрана статистики дня.
-/// Показывается в фазе DayStatistics, содержит кнопку "Продолжить".
-/// </summary>
 public class DayStatisticsUI : MonoBehaviour
 {
     [Header("UI элементы")]
@@ -15,6 +11,17 @@ public class DayStatisticsUI : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private TextMeshProUGUI continueButtonText;
 
+    [Header("Слушатель продолжения")]
+    [SerializeField] private ContinueListner continueListner;
+
+    private void Awake()
+    {
+        if (DayStatisticsPanel != null)
+        {
+            DayStatisticsPanel.SetActive(false);
+        }
+    }
+
     private void OnEnable()
     {
         var manager = GameSessionManager.Instance;
@@ -22,8 +29,6 @@ public class DayStatisticsUI : MonoBehaviour
         {
             manager.OnPhaseChanged += HandlePhaseChanged;
             manager.OnDayEnded += HandleDayEnded;
-
-            // Обновляем начальное состояние
             HandlePhaseChanged(manager.CurrentPhase);
         }
 
@@ -60,14 +65,11 @@ public class DayStatisticsUI : MonoBehaviour
 
     private void HandleDayEnded(int finishedDay)
     {
-        // Обновляем заголовок
         if (dayTitleText != null)
         {
             dayTitleText.text = $"День {finishedDay} завершён";
         }
 
-        // TODO: Здесь будет получение статистики из StatisticsCollector
-        // Пока показываем заглушку
         if (statsText != null)
         {
             statsText.text = "Статистика дня:\n" +
@@ -77,7 +79,6 @@ public class DayStatisticsUI : MonoBehaviour
                              "Баланс: +0 фишек";
         }
 
-        // Обновляем текст кнопки в зависимости от того, последний ли это день
         var manager = GameSessionManager.Instance;
         if (manager != null && continueButtonText != null)
         {
@@ -88,10 +89,13 @@ public class DayStatisticsUI : MonoBehaviour
 
     private void OnContinueClicked()
     {
-        var manager = GameSessionManager.Instance;
-        if (manager != null)
+        if (continueListner != null)
         {
-            manager.RequestContinueServerRpc();
+            continueListner.OnContinueStarted();
+        }
+        else
+        {
+            Debug.LogError("[DayStatisticsUI] continueListner не назначен!");
         }
     }
 }

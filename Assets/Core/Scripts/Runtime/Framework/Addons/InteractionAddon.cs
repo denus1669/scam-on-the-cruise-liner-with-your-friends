@@ -30,7 +30,7 @@ namespace Blocks.Gameplay.Core
         [Header("Listening To")]
         [Tooltip("GameEvent raised when the player presses the interaction button.")]
         [SerializeField] private GameEvent onInteractPressed;
-        [SerializeField] private GameEvent onInteractReleased; // Назначь сюда ТОТ ЖЕ ассет, что и в CoreInputHandler.onPrimaryActionReleased
+        [SerializeField] private GameEvent onInteractReleased; 
 
         // --- СОБЫТИЯ ДЛЯ UI ---
         public event Action<IInteractable> OnFocusEnterLocal;

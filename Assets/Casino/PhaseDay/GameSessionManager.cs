@@ -12,6 +12,10 @@ public class GameSessionManager : NetworkBehaviour
 {
     public static GameSessionManager Instance { get; private set; }
 
+    public static event Action OnInstanceReady;
+    public static event Action OnInstanceDestroyed;
+
+
     [Header("Ссылки")]
     [SerializeField] private DayConfiguration dayConfiguration;
     [SerializeField] private BotSpawner botSpawner;
@@ -54,6 +58,8 @@ public class GameSessionManager : NetworkBehaviour
 
     // Coroutine для таймера (только на сервере)
     private Coroutine _gamePhaseCoroutine;
+    // Coroutine для поэтапного спавна ботов (только на сервере)
+    private Coroutine _spawnRoutine;
 
     // Локальное время для Update (только сервер)
     private float _lastTimerUpdate;
@@ -71,13 +77,24 @@ public class GameSessionManager : NetworkBehaviour
     // ---------- Unity / NetworkBehaviour ----------
     private void Awake()
     {
-        // Простой синглтон (не-сетевой, т.к. объект на сцене)
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
+        OnInstanceReady?.Invoke(); // ← НОВОЕ
+    }
+
+    public override void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+            OnInstanceDestroyed?.Invoke(); // ← НОВОЕ
+        }
+
+        base.OnDestroy();
     }
 
     public override void OnNetworkSpawn()
@@ -168,7 +185,7 @@ public class GameSessionManager : NetworkBehaviour
         Debug.Log($"[GameSessionManager] === ДЕНЬ {_currentDay.Value} НАЧИНАЕТСЯ ===");
 
         // Спавним ботов
-        SpawnBotsForDay();
+        _spawnRoutine = StartCoroutine(SpawnBotsGraduallyRoutine());
 
         // Переход в GamePhase
         _currentPhase.Value = SessionPhase.GamePhase;
@@ -177,20 +194,50 @@ public class GameSessionManager : NetworkBehaviour
 
         yield break;
     }
-    private void SpawnBotsForDay()
+    /// <summary>
+    /// Этапный спавн ботов: сначала initialBotCount сразу, потом по одному с задержкой.
+    /// </summary>
+    private IEnumerator SpawnBotsGraduallyRoutine()
     {
         if (botSpawner == null)
         {
             Debug.LogError("[GameSessionManager] botSpawner не назначен!");
-            return;
+            yield break;
         }
 
-        for (int i = 0; i < dayConfiguration.botCount; i++)
+        Debug.Log($"[GameSessionManager] Начинаем этапный спавн: {dayConfiguration.initialBotCount} сразу, затем по одному");
+
+        int spawnedCount = 0;
+
+        // Фаза 1: Спавним initialBotCount ботов сразу
+        for (int i = 0; i < dayConfiguration.initialBotCount && spawnedCount < dayConfiguration.botCount; i++)
         {
-            botSpawner.SpawnBot(i);
+            botSpawner.SpawnBot(spawnedCount);
+            spawnedCount++;
+            Debug.Log($"[GameSessionManager] Спавн бота {spawnedCount}/{dayConfiguration.botCount} (начальная пачка)");
         }
 
-        Debug.Log($"[GameSessionManager] Заспавнено {dayConfiguration.botCount} ботов");
+        // Фаза 2: Спавним остальных ботов по одному с задержкой
+        while (spawnedCount < dayConfiguration.botCount && _currentPhase.Value == SessionPhase.GamePhase)
+        {
+            float delay = UnityEngine.Random.Range(dayConfiguration.spawnDelayMin, dayConfiguration.spawnDelayMax);
+            Debug.Log($"[GameSessionManager] Ждём {delay:F1} сек перед спавном следующего бота...");
+
+            yield return new WaitForSeconds(delay);
+
+            // Проверяем, что мы всё ещё в GamePhase (день мог закончиться)
+            if (_currentPhase.Value != SessionPhase.GamePhase)
+            {
+                Debug.Log("[GameSessionManager] День закончился, останавливаем спавн");
+                yield break;
+            }
+
+            botSpawner.SpawnBot(spawnedCount);
+            spawnedCount++;
+            Debug.Log($"[GameSessionManager] Спавн бота {spawnedCount}/{dayConfiguration.botCount} (этапный)");
+        }
+
+        Debug.Log($"[GameSessionManager] Все {dayConfiguration.botCount} ботов заспавнены");
     }
 
     /// <summary>
@@ -200,6 +247,15 @@ public class GameSessionManager : NetworkBehaviour
     {
         if (!IsServer) return;
         if (_currentPhase.Value != SessionPhase.GamePhase) return;
+
+
+        // Останавливаем спавн ботов (если ещё идёт)
+        if (_spawnRoutine != null)
+        {
+            StopCoroutine(_spawnRoutine);
+            _spawnRoutine = null;
+            Debug.Log("[GameSessionManager] Спавн ботов остановлен");
+        }
 
         if (_gamePhaseCoroutine != null)
         {
