@@ -4,6 +4,8 @@ using UnityEngine;
 /// Глобальная заглушка анимации мухлежа бота.
 /// Видна ВСЕМ игрокам. В будущем будет заменена на настоящую анимацию.
 /// </summary>
+/// 
+
 public class CheatAnimationIndicator : NetworkObjectVisibilityIndicator
 {
     [Header("Зависимости")]

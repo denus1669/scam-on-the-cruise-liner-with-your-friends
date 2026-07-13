@@ -1,49 +1,57 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using System.Collections.Generic;
+using Unity.Netcode;
 
 namespace Blocks.Gameplay.Core
 {
     /// <summary>
-    /// Менеджер, управляющий таймерами поломок игровых автоматов в казино.
+    /// РњРµРЅРµРґР¶РµСЂ, СѓРїСЂР°РІР»СЏСЋС‰РёР№ С‚Р°Р№РјРµСЂР°РјРё РїРѕР»РѕРјРѕРє. 
+    /// Р Р°Р±РѕС‚Р°РµС‚ РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕ РЅР° СЃРµСЂРІРµСЂРµ Рё РЅР°РїСЂСЏРјСѓСЋ РґРµСЂРіР°РµС‚ РјРµС‚РѕРґС‹ СЏРґРµСЂ Р°РІС‚РѕРјР°С‚РѕРІ (SlotMachine).
     /// </summary>
-    public class SlotMachineBreakdownManager : MonoBehaviour
+    public class SlotMachineBreakdownManager : NetworkBehaviour
     {
-        [Header("Список автоматов в казино")]
-        [SerializeField] private List<SlotMachineInteractable> slotMachines = new List<SlotMachineInteractable>();
+        [Header("РЎРїРёСЃРѕРє Р°РІС‚РѕРјР°С‚РѕРІ РІ РєР°Р·РёРЅРѕ")]
+        [SerializeField] private List<SlotMachine> slotMachines = new List<SlotMachine>();
 
-        [Header("Настройки времени поломки (в секундах)")]
+        [Header("РќР°СЃС‚СЂРѕР№РєРё РІСЂРµРјРµРЅРё РїРѕР»РѕРјРєРё (РІ СЃРµРєСѓРЅРґР°С…)")]
         [SerializeField] private float minBreakTime = 30f;
         [SerializeField] private float maxBreakTime = 60f;
 
-        // Внутренний класс для отслеживания состояния таймера каждого автомата
         private class MachineTimerState
         {
-            public SlotMachineInteractable machine;
+            public SlotMachine machine;
             public float timeRemaining;
         }
 
         private List<MachineTimerState> m_ActiveTimers = new List<MachineTimerState>();
         private bool m_IsRunning = false;
 
-        private void Start()
+        public override void OnNetworkSpawn()
         {
-            // Запускаем механику при старте игры
-            StartBreakdownSession();
+            base.OnNetworkSpawn();
+
+            // Р›РѕРіРёРєР° РїРѕР»РѕРјРѕРє СЂР°Р±РѕС‚Р°РµС‚ РўРћР›Р¬РљРћ РЅР° СЃРµСЂРІРµСЂРµ
+            if (IsServer)
+            {
+                StartBreakdownSession();
+            }
         }
 
         public void StartBreakdownSession()
         {
+            Debug.Log($"[{nameof(SlotMachineBreakdownManager)}] РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјРµРЅРµРґР¶РµСЂР° РїРѕР»РѕРјРѕРє РЅР° СЃРµСЂРІРµСЂРµ...");
             if (slotMachines == null || slotMachines.Count == 0)
             {
-                Debug.LogWarning($"[{nameof(SlotMachineBreakdownManager)}] Список slotMachines пуст. Добавьте автоматы в Инспекторе!", this);
+                Debug.LogWarning($"[{nameof(SlotMachineBreakdownManager)}] РЎРїРёСЃРѕРє slotMachines РїСѓСЃС‚. Р”РѕР±Р°РІСЊС‚Рµ Р°РІС‚РѕРјР°С‚С‹ РІ РРЅСЃРїРµРєС‚РѕСЂРµ!", this);
                 return;
             }
 
             m_ActiveTimers.Clear();
 
-            // Инициализируем каждый автомат и задаем случайный стартовый таймер
             foreach (var machine in slotMachines)
             {
+                Debug.Log($"[{nameof(SlotMachineBreakdownManager)}] РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р°РІС‚РѕРјР°С‚Р°: {machine.machineName}"); 
+
                 if (machine == null) continue;
 
                 machine.Initialize(this);
@@ -55,7 +63,6 @@ namespace Blocks.Gameplay.Core
                 };
 
                 m_ActiveTimers.Add(timerState);
-                Debug.Log($"[Менеджер поломок] Автомату '{machine.MachineName}' задан таймер: {timerState.timeRemaining:F1} сек.");
             }
 
             m_IsRunning = true;
@@ -63,59 +70,45 @@ namespace Blocks.Gameplay.Core
 
         private void Update()
         {
-            if (!m_IsRunning) return;
+            if (!IsServer || !m_IsRunning) return;
 
-            // Идем по списку таймеров
+            Debug.Log($"[{nameof(SlotMachineBreakdownManager)}] РћР±РЅРѕРІР»РµРЅРёРµ С‚Р°Р№РјРµСЂРѕРІ РїРѕР»РѕРјРѕРє...");
+
             for (int i = 0; i < m_ActiveTimers.Count; i++)
             {
                 var timerState = m_ActiveTimers[i];
 
-                // Если автомат уже сломан, его собственный таймер поломки временно замораживается
                 if (timerState.machine.IsBroken) continue;
 
-                // Уменьшаем оставшееся время
                 timerState.timeRemaining -= Time.deltaTime;
 
-                // Если время вышло — автомат ломается
                 if (timerState.timeRemaining <= 0f)
                 {
-                    timerState.machine.TriggerBreakdown();
-
-                    // Правило: Если один из автоматов срабатывает, время сбрасывается на ВСЕХ автоматах и задается заново
+                    // РњРµРЅРµРґР¶РµСЂ РїРѕ СЃРІРѕРµР№ Р»РѕРіРёРєРµ РґРµСЂРіР°РµС‚ СЏРґСЂРѕ
+                    timerState.machine.BreakDown();
                     ResetAllTimers();
-
-                    // Прерываем цикл текущего кадра, так как все таймеры только что обновились
-                    break;
+                    break; // РџСЂРµСЂС‹РІР°РµРј С†РёРєР», С‚Р°Рє РєР°Рє РјС‹ С‚РѕР»СЊРєРѕ С‡С‚Рѕ РѕР±РЅРѕРІРёР»Рё РІСЃРµ С‚Р°Р№РјРµСЂС‹
                 }
             }
         }
 
-        /// <summary>
-        /// Сбрасывает текущее время ожидания для всех автоматов и генерирует новые случайные таймеры.
-        /// </summary>
         private void ResetAllTimers()
         {
-            Debug.Log("<color=yellow>[Менеджер поломок] Один из автоматов вышел из строя! Сброс и перегенерация всех таймеров...</color>");
+            Debug.Log("<color=yellow>[РњРµРЅРµРґР¶РµСЂ РїРѕР»РѕРјРѕРє] РЎР±СЂРѕСЃ Рё РїРµСЂРµРіРµРЅРµСЂР°С†РёСЏ РІСЃРµС… С‚Р°Р№РјРµСЂРѕРІ...</color>");
 
             foreach (var timerState in m_ActiveTimers)
             {
                 timerState.timeRemaining = Random.Range(minBreakTime, maxBreakTime);
-
-                // Выводим лог только для тех, кто прямо сейчас исправен (чтобы понимать новое время ожидания)
-                if (!timerState.machine.IsBroken)
-                {
-                    Debug.Log($"[Менеджер поломок] Автомату '{timerState.machine.MachineName}' обновлен таймер поломки: {timerState.timeRemaining:F1} сек.");
-                }
             }
         }
 
         /// <summary>
-        /// Коллбэк, вызываемый автоматом, когда игрок его успешно починил.
+        /// РљРѕР»Р»Р±СЌРє РѕС‚ СЏРґСЂР° Р°РІС‚РѕРјР°С‚Р° (SlotMachine) РїСЂРё РїРѕС‡РёРЅРєРµ.
         /// </summary>
-        public void OnMachineFixed(SlotMachineInteractable fixedMachine)
+        public void OnMachineFixed(SlotMachine fixedMachine)
         {
-            // На данном этапе просто фиксируем событие починки. 
-            // В будущем сюда можно добавить начисление очков, вызов звуков или запуск QTE мини-игры из диздока.
+            Debug.Log($"[РњРµРЅРµРґР¶РµСЂ РїРѕР»РѕРјРѕРє] РЎРµСЂРІРµСЂ Р·Р°С„РёРєСЃРёСЂРѕРІР°Р» РїРѕС‡РёРЅРєСѓ Р°РІС‚РѕРјР°С‚Р°: {fixedMachine.machineName}");
+            // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РЅР°С‡РёСЃР»РµРЅРёРµ РѕС‡РєРѕРІ, СЃС‚Р°С‚РёСЃС‚РёРєСѓ, Р·Р°РїСѓСЃРє СЃР»РµРґСѓСЋС‰РµР№ С„Р°Р·С‹ Рё С‚.Рґ.
         }
     }
 }

@@ -1,56 +1,91 @@
+п»їusing System;
+using Unity.Netcode;
 using UnityEngine;
+using Blocks.Gameplay.Core;
 
-public class SlotMachine : MonoBehaviour
+/// <summary>
+/// РЇРґСЂРѕ РёРіСЂРѕРІРѕРіРѕ Р°РІС‚РѕРјР°С‚Р°.
+/// РҐСЂР°РЅРёС‚ СЃРµС‚РµРІРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ, РїСЂРёРЅРёРјР°РµС‚ РєРѕРјР°РЅРґС‹ РѕС‚ РњРµРЅРµРґР¶РµСЂР° (РїРѕР»РѕРјРєР°) 
+/// Рё РѕС‚ РРЅС‚РµСЂР°РєС‚РёРІРЅРѕРіРѕ РєРѕРјРїРѕРЅРµРЅС‚Р° (РїРѕС‡РёРЅРєР° РёРіСЂРѕРєРѕРј).
+/// </summary>
+public class SlotMachine : NetworkBehaviour
 {
-    [Header("Идентификатор автомата")]
+    [Header("РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р°РІС‚РѕРјР°С‚Р°")]
     public string machineName = "Slot Machine";
 
-    private bool isBroken = false;
-    private SlotMachineManager manager;
+    // Р•РґРёРЅСЃС‚РІРµРЅРЅС‹Р№ РёСЃС‚РѕС‡РЅРёРє РёСЃС‚РёРЅС‹ СЃРѕСЃС‚РѕСЏРЅРёСЏ Р°РІС‚РѕРјР°С‚Р°. Р—Р°РїРёСЃС‹РІР°С‚СЊ РјРѕР¶РµС‚ С‚РѕР»СЊРєРѕ СЃРµСЂРІРµСЂ.
+    private readonly NetworkVariable<bool> _isBroken = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
-    // Свойство для проверки состояния автомата из других скриптов
-    public bool IsBroken => isBroken;
+    private SlotMachineBreakdownManager manager;
 
-    public void Initialize(SlotMachineManager slotManager)
+    // РЎРІРѕР№СЃС‚РІРѕ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃРѕСЃС‚РѕСЏРЅРёСЏ Р°РІС‚РѕРјР°С‚Р° (РЅР°РїСЂРёРјРµСЂ, РґР»СЏ Interactable РёР»Рё РґСЂСѓРіРёС… СЃРёСЃС‚РµРј)
+    public bool IsBroken => _isBroken.Value;
+
+    // РЎРѕР±С‹С‚РёРµ РґР»СЏ РІРёР·СѓР°Р»РѕРІ (Р»Р°РјРїРѕС‡РєРё, Р°РЅРёРјР°С†РёРё), РЅР° РєРѕС‚РѕСЂРѕРµ РїРѕРґРїРёСЃР°РЅ SlotsAnimationIndicator
+    public event Action<bool> OnSlotMachineStateChanged;
+
+    public override void OnNetworkSpawn()
     {
-        manager = slotManager;
-        isBroken = false;
+        base.OnNetworkSpawn();
+        _isBroken.OnValueChanged += HandleSlotMachineStateChanged;
+
+        // РЎРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РІРёР·СѓР°Р»РѕРІ РїСЂРё СЃРїР°РІРЅРµ РґР»СЏ РІСЃРµС… РєР»РёРµРЅС‚РѕРІ
+        OnSlotMachineStateChanged?.Invoke(_isBroken.Value);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        _isBroken.OnValueChanged -= HandleSlotMachineStateChanged;
+        base.OnNetworkDespawn();
+    }
+
+    private void HandleSlotMachineStateChanged(bool previousValue, bool current)
+    {
+        OnSlotMachineStateChanged?.Invoke(current);
     }
 
     /// <summary>
-    /// Вызывается менеджером, когда срабатывает таймер поломки.
+    /// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ. Р’С‹Р·С‹РІР°РµС‚СЃСЏ РјРµРЅРµРґР¶РµСЂРѕРј С‚РѕР»СЊРєРѕ РЅР° СЃРµСЂРІРµСЂРµ.
+    /// </summary>
+    public void Initialize(SlotMachineBreakdownManager slotManager)
+    {
+        manager = slotManager;
+        if (IsServer)
+        {
+            _isBroken.Value = false;
+        }
+    }
+
+    /// <summary>
+    /// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РјРµРЅРµРґР¶РµСЂРѕРј, РєРѕРіРґР° СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ С‚Р°Р№РјРµСЂ РїРѕР»РѕРјРєРё.
+    /// РЎС‚СЂРѕРіРѕ СЃРµСЂРІРµСЂРЅР°СЏ Р»РѕРіРёРєР°.
     /// </summary>
     public void BreakDown()
     {
-        if (isBroken) return;
+        if (!IsServer || _isBroken.Value) return;
 
-        isBroken = true;
-        Debug.Log($"<color=red>[ПОЛОМКА]</color> Игровой автомат '{machineName}' сломался! Требуется починка (Нажмите E).");
-
-        // Здесь в будущем будет запускаться визуальный эффект (искры, дым, пульсация)
+        _isBroken.Value = true;
+        Debug.Log($"<color=red>[РџРћР›РћРњРљРђ]</color> РРіСЂРѕРІРѕР№ Р°РІС‚РѕРјР°С‚ '{machineName}' СЃР»РѕРјР°Р»СЃСЏ! РўСЂРµР±СѓРµС‚СЃСЏ РїРѕС‡РёРЅРєР°.");
     }
 
     /// <summary>
-    /// Метод взаимодействия (вызывается при нажатии клавиши 'E' игроком)
+    /// RPC РґР»СЏ Р·Р°РїСЂРѕСЃР° РїРѕС‡РёРЅРєРё РѕС‚ РєР»РёРµРЅС‚Р°. Р’С‹Р·С‹РІР°РµС‚СЃСЏ РёР· SlotMachineInteractable.
     /// </summary>
-    public void Interact()
+    [Rpc(SendTo.Server)]
+    public void TryFixMachineServerRpc(ulong clientId)
     {
-        if (isBroken)
-        {
-            FixMachine();
-        }
-        else
-        {
-            Debug.Log($"Игровой автомат '{machineName}' исправно работает. Мухлевать пока нельзя.");
-        }
+        if (!_isBroken.Value) return; // Р—Р°С‰РёС‚Р°: РµСЃР»Рё СѓР¶Рµ РїРѕС‡РёРЅРёР»Рё, РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+
+        _isBroken.Value = false;
+        Debug.Log($"<color=green>[РџРћР§РРќРљРђ]</color> РРіСЂРѕРІРѕР№ Р°РІС‚РѕРјР°С‚ '{machineName}' СѓСЃРїРµС€РЅРѕ РїРѕС‡РёРЅРµРЅ РёРіСЂРѕРєРѕРј (Client ID: {clientId})!");
     }
 
-    private void FixMachine()
+    [ClientRpc]
+    private void NotifySlotMachineStateChangedClientRpc(string animationTrigger)
     {
-        isBroken = false;
-        Debug.Log($"<color=green>[ПОЧИНКА]</color> Игровой автомат '{machineName}' успешно починен игроком!");
 
-        // Оповещаем менеджер, что автомат починен, чтобы он мог возобновить или скорректировать логику, если нужно
-        manager.OnMachineFixed(this);
     }
 }

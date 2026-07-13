@@ -1,25 +1,25 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
 [ExecuteAlways]
 public class ProgressBar3D : MonoBehaviour
 {
-    [Header("Настройки шкалы")]
-    [Tooltip("Значение заполнения от 0 (пусто) до 1 (полно)")]
+    [Header("РќР°СЃС‚СЂРѕР№РєРё С€РєР°Р»С‹")]
+    [Tooltip("Р—РЅР°С‡РµРЅРёРµ Р·Р°РїРѕР»РЅРµРЅРёСЏ РѕС‚ 0 (РїСѓСЃС‚Рѕ) РґРѕ 1 (РїРѕР»РЅРѕ)")]
     [Range(0f, 1f)]
     public float fillAmount = 0.5f;
 
-    [Header("Цвета шкалы")]
-    public Color backgroundColor = new Color(0.2f, 0.2f, 0.2f, 1f); // Темно-серый по умолчанию
-    public Color fillColor = Color.green; // Зеленый по умолчанию
+    [Header("Р¦РІРµС‚Р° С€РєР°Р»С‹")]
+    public Color backgroundColor = new Color(0.2f, 0.2f, 0.2f, 1f); // РўРµРјРЅРѕ-СЃРµСЂС‹Р№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+    public Color fillColor = Color.green; // Р—РµР»РµРЅС‹Р№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 
-    [Header("Тестирование (работает в Play Mode)")]
+    [Header("РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ (СЂР°Р±РѕС‚Р°РµС‚ РІ Play Mode)")]
     public bool testAnimation = false;
     public float animationSpeed = 1f;
 
     private Renderer[] _renderers;
     private MaterialPropertyBlock _propBlock;
 
-    // Кэшируем ID всех параметров для максимальной производительности
+    // РљСЌС€РёСЂСѓРµРј ID РІСЃРµС… РїР°СЂР°РјРµС‚СЂРѕРІ РґР»СЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё
     private static readonly int FillAmountProp = Shader.PropertyToID("_FillAmount");
     private static readonly int BgColorProp = Shader.PropertyToID("_BackgroundColor");
     private static readonly int FillColorProp = Shader.PropertyToID("_FillColor");
@@ -44,7 +44,7 @@ public class ProgressBar3D : MonoBehaviour
     }
 
     // =========================================================
-    // БАЗА ДЛЯ ДЕНИСА .!.
+    // Р‘РђР—Рђ Р”Р›РЇ Р”Р•РќРРЎРђ 
     // =========================================================
     public void SetFill(float value)
     {
@@ -52,7 +52,7 @@ public class ProgressBar3D : MonoBehaviour
         UpdateFill();
     }
 
-    // Новый метод для Дениса, если он захочет менять цвет кодом (например, шкала краснеет при малом ХП)
+    // РќРѕРІС‹Р№ РјРµС‚РѕРґ РґР»СЏ Р”РµРЅРёСЃР°, РµСЃР»Рё РѕРЅ Р·Р°С…РѕС‡РµС‚ РјРµРЅСЏС‚СЊ С†РІРµС‚ РєРѕРґРѕРј (РЅР°РїСЂРёРјРµСЂ, С€РєР°Р»Р° РєСЂР°СЃРЅРµРµС‚ РїСЂРё РјР°Р»РѕРј РҐРџ)
     public void SetColors(Color background, Color fill)
     {
         backgroundColor = background;
@@ -74,7 +74,7 @@ public class ProgressBar3D : MonoBehaviour
 
             rnd.GetPropertyBlock(_propBlock);
 
-            // Передаем значения в шейдер
+            // РџРµСЂРµРґР°РµРј Р·РЅР°С‡РµРЅРёСЏ РІ С€РµР№РґРµСЂ
             _propBlock.SetFloat(FillAmountProp, fillAmount);
             _propBlock.SetColor(BgColorProp, backgroundColor);
             _propBlock.SetColor(FillColorProp, fillColor);

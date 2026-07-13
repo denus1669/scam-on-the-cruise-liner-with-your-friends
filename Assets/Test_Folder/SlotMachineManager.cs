@@ -42,7 +42,6 @@ public class SlotMachineManager : MonoBehaviour
         {
             if (machine == null) continue;
 
-            machine.Initialize(this);
 
             MachineTimer timerData = new MachineTimer
             {

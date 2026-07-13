@@ -1,86 +1,84 @@
+п»їusing Blocks.Gameplay.Core;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Blocks.Gameplay.Core
 {
     /// <summary>
-    /// Компонент игрового автомата, поддерживающий механику случайных поломок и интеграцию с CoreInteractor.
+    /// РРЅС‚РµСЂР°РєС‚РёРІРЅС‹Р№ РєРѕРјРїРѕРЅРµРЅС‚ Р°РІС‚РѕРјР°С‚Р°.
+    /// РћС‚РІРµС‡Р°РµС‚ РўРћР›Р¬РљРћ Р·Р° РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ UI (С‡РµСЂРµР· РёРЅС‚РµСЂС„РµР№СЃ IInteractable) Рё РїРµСЂРµРґР°С‡Сѓ РІРІРѕРґР° РёРіСЂРѕРєР° РІ СЏРґСЂРѕ.
     /// </summary>
-    public class SlotMachineInteractable : MonoBehaviour, IInteractable
+    public class SlotMachineInteractable : NetworkBehaviour, IInteractable
     {
-        [Header("Настройки автомата")]
-        [SerializeField] private string machineName = "Slot Machine";
-        [SerializeField] private int interactionPriority = 10;
+        [Header("РЎР»РѕС‚-РјР°С€РёРЅР° (РЇРґСЂРѕ)")]
+        [SerializeField] private SlotMachine slotMachine;
 
-        private bool m_IsBroken = false;
-        private SlotMachineBreakdownManager m_Manager;
+        [Header("РќР°СЃС‚СЂРѕР№РєРё РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ")]
+        [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
+        [SerializeField] private int priority = 10;
 
-        // ==========================================
-        // Реализация интерфейса IInteractable
-        // ==========================================
+        // РљСЌС€ РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё РѕР±РЅРѕРІР»РµРЅРёСЏ С‚РµРєСЃС‚Р° РїРѕРґСЃРєР°Р·РєРё (РїРѕ Р°РЅР°Р»РѕРіРёРё СЃ FinishGameInteractable)
+        private string m_CachedPrompt;
+        private bool m_LastIsBroken;
 
-        public InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
-        public int Priority => interactionPriority;
-
-        // ДОБАВЛЕНО: Реализация недостающего члена интерфейса.
-        // Так как тип возвращаемого значения в вашем интерфейсе может быть float, возвращаем 0f.
-        // Если интерфейс требует другой тип (например, int), измените тип данных здесь.
-        public float HoldDuration => 0f;
-
-        // Текст подсказки для UI (показывается только если автомат сломан)
-        public string InteractionPromptText => m_IsBroken ? $"Нажмите E, чтобы починить {machineName}" : string.Empty;
-
-        // ==========================================
-
-        public bool IsBroken => m_IsBroken;
-        public string MachineName => machineName;
+        public InteractionTriggerMode TriggerMode => triggerMode;
+        public int Priority => priority;
+        /// <summary>
+        /// Р”РёРЅР°РјРёС‡РµСЃРєРѕРµ РІСЂРµРјСЏ СѓРґРµСЂР¶Р°РЅРёСЏ
+        /// </summary>
+        public float HoldDuration => 2f;
 
         /// <summary>
-        /// Инициализация связи с менеджером поломок.
+        /// Р”РёРЅР°РјРёС‡РµСЃРєРёР№ С‚РµРєСЃС‚ РїРѕРґСЃРєР°Р·РєРё, Р·Р°РІРёСЃСЏС‰РёР№ РѕС‚ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЏРґСЂР°.
         /// </summary>
-        public void Initialize(SlotMachineBreakdownManager manager)
+        public string InteractionPromptText
         {
-            m_Manager = manager;
-            m_IsBroken = false;
+            get
+            {
+                bool isBroken = slotMachine != null && slotMachine.IsBroken;
+
+                // РћР±РЅРѕРІР»СЏРµРј РєСЌС€ С‚РѕР»СЊРєРѕ РµСЃР»Рё СЃРѕСЃС‚РѕСЏРЅРёРµ РёР·РјРµРЅРёР»РѕСЃСЊ
+                if (isBroken != m_LastIsBroken || m_CachedPrompt == null)
+                {
+                    m_LastIsBroken = isBroken;
+                    m_CachedPrompt = slotMachine == null ? "РђРІС‚РѕРјР°С‚ РЅРµРґРѕСЃС‚СѓРїРµРЅ" :
+                        isBroken ? $"РџРѕС‡РёРЅРёС‚СЊ {slotMachine.machineName} (E)" : string.Empty;
+                }
+
+                return m_CachedPrompt;
+            }
         }
 
         /// <summary>
-        /// Вызывается менеджером, когда наступает время поломки этого автомата.
-        /// </summary>
-        public void TriggerBreakdown()
-        {
-            if (m_IsBroken) return;
-
-            m_IsBroken = true;
-            Debug.Log($"<color=red>[ПОЛОМКА]</color> Игровой автомат '{machineName}' сломался! Требуется починка.");
-        }
-
-        /// <summary>
-        /// Проверка системы взаимодействия: можно ли взаимодействовать с объектом прямо сейчас.
+        /// РћРїСЂРµРґРµР»СЏРµС‚, РјРѕР¶РµС‚ Р»Рё РѕР±СЉРµРєС‚ Р±С‹С‚СЊ РІ С„РѕРєСѓСЃРµ.
         /// </summary>
         public bool CanInteract(GameObject interactor)
         {
-            // Взаимодействовать можно только в том случае, если автомат сломан
-            return m_IsBroken;
+            // Р’Р·Р°РёРјРѕРґРµР№СЃС‚РІРѕРІР°С‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РµСЃР»Рё Р°РІС‚РѕРјР°С‚ СЃР»РѕРјР°РЅ
+            if (slotMachine == null || !slotMachine.IsBroken)
+                return false;
+
+            return true;
         }
 
         /// <summary>
-        /// Основная логика взаимодействия, вызываемая при нажатии игроком клавиши 'E'.
+        /// Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕРіРѕ СѓРґРµСЂР¶Р°РЅРёСЏ/РЅР°Р¶Р°С‚РёСЏ РєРЅРѕРїРєРё.
         /// </summary>
         public void Interact(GameObject interactor)
         {
-            if (!CanInteract(interactor)) return;
+            if (!IsSpawned || slotMachine == null)
+                return;
 
-            FixMachine();
-        }
-
-        private void FixMachine()
-        {
-            m_IsBroken = false;
-            Debug.Log($"<color=green>[ПОЧИНКА]</color> Игровой автомат '{machineName}' успешно починен игроком!");
-
-            if (m_Manager != null)
+            // РџРѕР»СѓС‡Р°РµРј ID РєР»РёРµРЅС‚Р°, РєРѕС‚РѕСЂС‹Р№ РЅР°Р¶Р°Р» РЅР° РєРЅРѕРїРєСѓ
+            if (interactor.TryGetComponent<NetworkObject>(out var netObj))
             {
-                m_Manager.OnMachineFixed(this);
+                ulong clientId = netObj.OwnerClientId;
+                // Р”РµСЂРіР°РµРј СЏРґСЂРѕ С‡РµСЂРµР· ServerRpc
+                slotMachine.TryFixMachineServerRpc(clientId);
+            }
+            else
+            {
+                Debug.LogWarning("[SlotMachineInteractable] Interactor РЅРµ РёРјРµРµС‚ NetworkObject!");
             }
         }
     }
