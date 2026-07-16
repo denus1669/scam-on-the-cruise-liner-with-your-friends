@@ -34,13 +34,13 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <summary>Синхронизируемый флаг, указывающий, идёт ли игра.</summary>
     protected readonly NetworkVariable<bool> gameInProgress = new NetworkVariable<bool>(false);
 
-    private readonly NetworkVariable<bool> isBotOccupied = new NetworkVariable<bool>(
+    protected readonly NetworkVariable<bool> isBotOccupied = new NetworkVariable<bool>(
         false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
-    private NetworkObject currentBot;
+    protected NetworkObject currentBot;
 
     // ---------- Реализация IGameTable ----------
     /// <inheritdoc />
@@ -139,7 +139,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         if (!IsServer) return;
 
-        if (isOccupied.Value)
+        if (IsOccupied)
         {
             Debug.LogWarning($"[GameTable] Попытка занять уже занятый стол клиентом {clientId}");
             return;
@@ -167,12 +167,25 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     }
 
     // ---------- Управление ботом (сервер) ----------
+
+    /// <summary>
+    /// Проверяет, может ли бот быть назначен на этот стол.
+    /// Базовая проверка: стол не занят другим ботом.
+    /// Наследники могут переопределять для дополнительных проверок (например, сломан/взорван).
+    /// Вызывается на сервере.
+    /// </summary>
+    public virtual bool CanAssignBot()
+    {
+        // Базовое условие: бот уже не занимает это место
+        return !IsBotOccupied;
+    }
+
     /// <inheritdoc />
     public virtual void AssignBot(NetworkObject bot)
     {
         if (!IsServer) return;
 
-        if (isBotOccupied.Value)
+        if (!CanAssignBot())
         {
             Debug.LogWarning($"[GameTable] Попытка назначить бота, но место уже занято.");
             return;
@@ -181,7 +194,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         currentBot = bot;
         botNetworkObjectRef.Value = new NetworkObjectReference(bot);
         isBotOccupied.Value = true;
-        Debug.Log($"[GameTable] Бот {bot.name} занял место за столом.");
+        Debug.Log($"[GameTable] Бот {bot.GetEntityId()} занял место за столом.");
     }
 
     /// <inheritdoc />

@@ -10,6 +10,7 @@ public class BlackGregBotBehavior : BaseBotBehavior
     [Header("Специфичные настройки BlackGreg")]
     [Range(0f, 1f)]
     [SerializeField] private float stupidityChance = 0.08f;
+    public override System.Type SupportedTableType => typeof(BlackGregTable);
 
     private ICardGameTable cardTable;
 

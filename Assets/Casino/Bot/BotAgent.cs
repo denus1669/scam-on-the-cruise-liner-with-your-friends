@@ -16,7 +16,7 @@ public class BotAgent : NetworkBehaviour
     [SerializeField] private float pathUpdateInterval = 0.2f;
 
     [Header("Точка выхода")]
-    [SerializeField] private Transform exitPoint;   // куда уходит бот, покидая казино
+    [SerializeField] private Transform exitPoint;
 
     private NavMeshAgent navAgent;
     private Coroutine movementCoroutine;
@@ -40,32 +40,32 @@ public class BotAgent : NetworkBehaviour
         base.OnNetworkSpawn();
         if (IsServer)
         {
-            // При спавне бот сам ищет стол и идёт к нему
-            FindAndGoToRandomTable();
             exitPoint = FindExitPoint();
+            GoToRandomFreeTable();
         }
         else
         {
-            // На клиентах NavMeshAgent не нужен
             if (navAgent != null) navAgent.enabled = false;
         }
     }
 
+    #region Public Navigation Methods
+
     /// <summary>
-    /// Находит все столы на сцене, выбирает случайный свободный и отправляет бота к нему.
+    /// Находит любой свободный стол на сцене с учётом CanAssignBot().
+    /// Возвращает null, если свободных столов нет.
     /// </summary>
-    public void FindAndGoToRandomTable()
+    public IGameTable FindFreeTable()
     {
-        if (!IsServer) return;
+        if (!IsServer) return null;
 
         List<IGameTable> freeTables = new List<IGameTable>();
 
-        // Используем современный API, без сортировки
         MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
 
         foreach (var behaviour in allBehaviours)
         {
-            if (behaviour is IGameTable table && !table.IsBotOccupied)
+            if (behaviour is IGameTable table && table.CanAssignBot())
             {
                 freeTables.Add(table);
             }
@@ -73,35 +73,64 @@ public class BotAgent : NetworkBehaviour
 
         if (freeTables.Count == 0)
         {
-            Debug.Log($"[BotAgent] Нет свободных столов. Бот {gameObject.name} ожидает освобождения.");
-            WaitForFreeTable();
-            return;
+            Debug.Log($"[BotAgent] Нет свободных столов для бота {gameObject.name}");
+            return null;
         }
 
         int randomIndex = UnityEngine.Random.Range(0, freeTables.Count);
-        IGameTable selectedTable = freeTables[randomIndex];
-        currentTable = selectedTable;
+        return freeTables[randomIndex];
+    }
 
-        Debug.Log($"[BotAgent] Бот {gameObject.name} выбрал стол {((MonoBehaviour)selectedTable).name}");
+    /// <summary>
+    /// Отправляет бота к указанному столу.
+    /// При прибытии: поворачивает лицом, назначает бота, инициализирует поведение.
+    /// </summary>
+    public void GoToTable(IGameTable table)
+    {
+        if (!IsServer) return;
+        if (table == null) return;
 
-        Transform targetTransform = selectedTable.BotWaitPoint ?? ((MonoBehaviour)selectedTable).transform;
+        CancelMovement();
 
+        // Освобождаем предыдущий стол
+        if (currentTable != null)
+        {
+            currentTable.RemoveBot();
+        }
+
+        currentTable = table;
+
+        // РЕЗЕРВИРУЕМ СТОЛ СРАЗУ — чтобы другие боты не выбрали его
+        NetworkObject netObj = GetComponent<NetworkObject>();
+        if (netObj != null)
+        {
+            currentTable.AssignBot(netObj);
+            Debug.Log($"[BotAgent] Бот {gameObject.name} зарезервировал стол '{((MonoBehaviour)table).name}'");
+        }
+
+        Transform targetTransform = table.BotWaitPoint ?? ((MonoBehaviour)table).transform;
         MoveToTarget(targetTransform, OnReachedTable);
     }
 
     /// <summary>
-    /// Поворачивает бота лицом к текущему столу (игнорируя наклон по вертикали).
+    /// Convenience-метод: находит свободный стол и идёт к нему.
+    /// Если столов нет — переходит в режим ожидания.
     /// </summary>
-    private void FaceCurrentTable()
+    public void GoToRandomFreeTable()
     {
-        if (currentTable == null) return;
+        if (!IsServer) return;
 
-        Transform tableTransform = ((MonoBehaviour)currentTable).transform;
-        Vector3 direction = tableTransform.position - transform.position;
-        direction.y = 0f; // чтобы бот не задирал голову
+        IGameTable freeTable = FindFreeTable();
 
-        if (direction != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(direction);
+        if (freeTable != null)
+        {
+            GoToTable(freeTable);
+        }
+        else
+        {
+            Debug.Log($"[BotAgent] Бот {gameObject.name} ожидает освобождения стола.");
+            WaitForFreeTable();
+        }
     }
 
     /// <summary>
@@ -110,6 +139,8 @@ public class BotAgent : NetworkBehaviour
     public void GoToExit()
     {
         if (!IsServer) return;
+
+        CancelMovement();
 
         if (currentTable != null)
         {
@@ -129,8 +160,26 @@ public class BotAgent : NetworkBehaviour
     }
 
     /// <summary>
-    /// Универсальный метод движения к цели. После прибытия вызывает указанный колбэк.
+    /// Прерывает текущее движение (если есть).
     /// </summary>
+    public void CancelMovement()
+    {
+        if (movementCoroutine != null)
+        {
+            StopCoroutine(movementCoroutine);
+            movementCoroutine = null;
+        }
+
+        if (navAgent != null && navAgent.isOnNavMesh)
+        {
+            navAgent.isStopped = true;
+        }
+    }
+
+    #endregion
+
+    #region Movement
+
     private void MoveToTarget(Transform target, Action onArrived)
     {
         if (movementCoroutine != null)
@@ -165,57 +214,72 @@ public class BotAgent : NetworkBehaviour
         onArrived?.Invoke();
     }
 
+    /// <summary>
+    /// Поворачивает бота лицом к текущему столу (игнорируя наклон по вертикали).
+    /// </summary>
+    private void FaceCurrentTable()
+    {
+        if (currentTable == null) return;
+
+        Transform tableTransform = ((MonoBehaviour)currentTable).transform;
+        Vector3 direction = tableTransform.position - transform.position;
+        direction.y = 0f;
+
+        if (direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(direction);
+    }
+
+    #endregion
+
+    #region Arrival Callbacks
+
     private void OnReachedTable()
     {
-        if (currentTable != null)
-        {
-            // Поворачиваемся к столу
-            FaceCurrentTable();
+        if (currentTable == null) return;
 
-            NetworkObject netObj = GetComponent<NetworkObject>();
-            if (netObj != null)
-            {
-                currentTable.AssignBot(netObj);
-                Debug.Log($"[BotAgent] Бот {gameObject.name} занял место за столом.");
-            }
+            // Проверка: стол мог стать недоступным (сломался, взорвался)
+            /*
+        if (!currentTable.CanAssignBot())
+        {   
+            Debug.LogWarning($"[BotAgent] Стол '{((MonoBehaviour)currentTable).name}' стал недоступен после прибытия. Ищем новый.");
+            currentTable = null;
+            GoToRandomFreeTable();
+            return;
+        }*/
 
-            // Ищем у себя IBotGameBehavior и инициализируем его текущим столом
-            if (TryGetComponent<IBotGameBehavior>(out var behavior))
-            {
-                behavior.InitializeGame(currentTable);
-            }
-        }
+
+        // Только поворот лицом к столу
+        FaceCurrentTable();
+
+        // Включаем нужный behavior под тип стола
+        ActivateBehaviorForTable(currentTable);
     }
+
     private void OnReachedExit()
     {
         Debug.Log($"[BotAgent] Бот {gameObject.name} покинул казино.");
-        Destroy(gameObject);
-        // Здесь можно запустить деспавн или дальнейшее поведение
-    }
-
-    /// <summary>
-    /// Прерывает текущее движение (если есть).
-    /// </summary>
-    public void CancelMovement()
-    {
-        if (movementCoroutine != null)
+        
+        // Сетевой деспавн — безопаснее чем Destroy
+        NetworkObject netObj = GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned)
         {
-            StopCoroutine(movementCoroutine);
-            movementCoroutine = null;
+            netObj.Despawn();
         }
-
-        if (navAgent != null && navAgent.isOnNavMesh)
+        else
         {
-            navAgent.isStopped = true;
+            Destroy(gameObject);
         }
     }
+
+    #endregion
+
+    #region Waiting for Free Table
 
     private void WaitForFreeTable()
     {
         if (isWaitingForTable) return;
         isWaitingForTable = true;
 
-        // Находим все столы на сцене
         MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
         foreach (var behaviour in allBehaviours)
         {
@@ -229,9 +293,8 @@ public class BotAgent : NetworkBehaviour
 
     private void OnTableBotOccupancyChanged(bool isOccupied)
     {
-        if (!isOccupied) // Стол освободился
+        if (!isOccupied)
         {
-            // Отписываемся от всех столов
             foreach (var table in subscribedTables)
             {
                 table.OnBotOccupancyChanged -= OnTableBotOccupancyChanged;
@@ -239,8 +302,7 @@ public class BotAgent : NetworkBehaviour
             subscribedTables.Clear();
             isWaitingForTable = false;
 
-            // Пытаемся снова найти стол
-            FindAndGoToRandomTable();
+            GoToRandomFreeTable();
         }
     }
 
@@ -255,30 +317,75 @@ public class BotAgent : NetworkBehaviour
             }
             subscribedTables.Clear();
         }
-    }   
+    }
+
+    #endregion
+
+    #region Utility
 
     /// <summary>
     /// Находит объект ExitPoint: сначала по тэгу, затем по имени.
-    /// Возвращает первый найденный активный объект или null.
     /// </summary>
     public Transform FindExitPoint()
     {
-        // 1. Быстрый поиск по тэгу
-        GameObject exitPoint = GameObject.FindWithTag("ExitPoint");
-        if (exitPoint != null)
-            return exitPoint.transform;
+        GameObject exitObj = GameObject.FindWithTag("ExitPoint");
+        if (exitObj != null)
+            return exitObj.transform;
 
-        // 2. Медленный поиск по имени (fallback)
-        exitPoint = GameObject.Find("ExitPoint");
-        if (exitPoint != null)
+        exitObj = GameObject.Find("ExitPoint");
+        if (exitObj != null)
         {
-            Debug.LogWarning("[ExitPointFinder] Объект найден по имени, рекомендуется назначить тэг 'ExitPoint' для повышения производительности.");
-            return exitPoint.transform;
+            Debug.LogWarning("[ExitPointFinder] Объект найден по имени, рекомендуется назначить тэг 'ExitPoint'.");
+            return exitObj.transform;
         }
 
         Debug.LogError("[ExitPointFinder] Объект с тэгом или именем 'ExitPoint' не найден на сцене!");
         return null;
     }
 
+    /// <summary>
+    /// Включает подходящий behavior для данного типа стола.
+    /// Все остальные behaviors отключает.
+    /// </summary>
+    private void ActivateBehaviorForTable(IGameTable table)
+    {
+        // Получаем все behaviors на боте
+        var allBehaviors = GetComponents<BaseBotBehavior>();
 
+        BaseBotBehavior selectedBehavior = null;
+        foreach (var behavior in allBehaviors)
+        {
+            // Выключаем все
+            behavior.enabled = false;
+            // Проверяем совместимость с текущим столом
+            if (IsBehaviorCompatible(behavior, table))
+            {
+                selectedBehavior = behavior;
+            }
+        }
+
+        if (selectedBehavior == null)
+        {
+            Debug.LogError($"[BotAgent] Нет подходящего behavior для стола {table.TableType}");
+            GoToExit();
+            return;
+        }
+
+        // Включаем выбранный
+        selectedBehavior.enabled = true;
+        selectedBehavior.InitializeGame(table);
+
+        Debug.Log($"[BotAgent] Активирован {selectedBehavior.GetType().Name} для стола {table.TableType}");
+    }
+
+    /// <summary>
+    /// Проверяет, подходит ли behavior для данного типа стола.
+    /// Каждый behavior сам декларирует какие столы поддерживает.
+    /// </summary>
+    private bool IsBehaviorCompatible(BaseBotBehavior behavior, IGameTable table)
+    {
+        return behavior.SupportedTableType.IsInstanceOfType(table);
+    }
+
+    #endregion
 }

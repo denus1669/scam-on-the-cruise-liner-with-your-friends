@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SlotsAnimationIndicator : NetworkObjectVisibilityIndicator
+public class SlotsAnimationBreakdownIndicator : NetworkObjectVisibilityIndicator
 {
     
     [Header("Зависимости")] 
@@ -17,13 +17,13 @@ public class SlotsAnimationIndicator : NetworkObjectVisibilityIndicator
     private void OnEnable()
     {
         if (slotMachine != null)
-            slotMachine.OnSlotMachineStateChanged += HandleBotStoodChanged;
+            slotMachine.OnSlotMachineBreakdownChanged += HandleBotStoodChanged;
     }
 
     private void OnDisable()
     {
         if (slotMachine != null)
-            slotMachine.OnSlotMachineStateChanged -= HandleBotStoodChanged;
+            slotMachine.OnSlotMachineBreakdownChanged -= HandleBotStoodChanged;
     }
 
     private void HandleBotStoodChanged(bool hasStood)

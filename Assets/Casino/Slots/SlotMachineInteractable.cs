@@ -9,7 +9,7 @@ namespace Blocks.Gameplay.Core
     /// Отвечает ТОЛЬКО за отображение UI (через интерфейс IInteractable) и передачу ввода игрока в ядро.
     /// Учитывает три состояния автомата: исправен, сломан, взорван.
     /// </summary>
-    public class SlotMachineInteractable : NetworkBehaviour, IInteractable
+    public class SlotMachineInteractable : NetworkBehaviour, IInteractable, IHoldReleaseInteractable
     {
         [Header("Слот-машина (Ядро)")]
         [SerializeField] private SlotMachine slotMachine;
@@ -71,11 +71,11 @@ namespace Blocks.Gameplay.Core
                     }
                     else if (isExploded)
                     {
-                        m_CachedPrompt = $"{slotMachine.machineName} уничтожен";
+                        m_CachedPrompt = $"{slotMachine.slotMachineName} уничтожен";
                     }
                     else if (isBroken)
                     {
-                        m_CachedPrompt = $"Починить {slotMachine.machineName} (E)";
+                        m_CachedPrompt = $"Починить {slotMachine.slotMachineName} (E)";
                     }
                     else
                     {
@@ -134,6 +134,23 @@ namespace Blocks.Gameplay.Core
             else
             {
                 Debug.LogWarning("[SlotMachineInteractable] Interactor не имеет NetworkObject!");
+            }
+        }
+
+        // IHoldReleaseInteractable - обработка отмены удержания
+        public void OnHoldReleased(GameObject interactor, float holdTime)
+        {
+            if (!IsSpawned || slotMachine == null) return;
+
+            // Если автомат был занят игроком для починки, освобождаем его
+            if (slotMachine.IsOccupied && interactor.TryGetComponent<NetworkObject>(out var netObj))
+            {
+                ulong clientId = netObj.OwnerClientId;
+                if (slotMachine.OccupiedByClientId == clientId)
+                {
+                    slotMachine.Leave(clientId);
+                    Debug.Log($"[SlotMachineInteractable] Игрок {clientId} отменил починку, стол освобождён");
+                }
             }
         }
     }

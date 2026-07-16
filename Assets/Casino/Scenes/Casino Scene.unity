@@ -867,6 +867,10 @@ PrefabInstance:
       propertyPath: slotMachine
       value: 
       objectReference: {fileID: 476119460}
+    - target: {fileID: 6936879655637228433, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: slotMachineName
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8371449471237639755, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_Name
       value: SM_Slots (2)
@@ -1032,6 +1036,10 @@ PrefabInstance:
       propertyPath: slotMachine
       value: 
       objectReference: {fileID: 694844709}
+    - target: {fileID: 6936879655637228433, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: slotMachineName
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8371449471237639755, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_Name
       value: SM_Slots (1)
@@ -2014,7 +2022,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BotSpawner
   ShowTopMostFoldoutHeaderGroup: 1
   botPrefab: {fileID: 5497669901684611537, guid: d007726a2e85d26429152e0348dec952, type: 3}
-  spawnPosition: {x: 0, y: 0, z: 0}
+  spawnPosition: {x: 10, y: 0, z: 0}
   forcedPersonalities: 
 --- !u!114 &2054266439
 MonoBehaviour:
@@ -2030,6 +2038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameSessionManager
   ShowTopMostFoldoutHeaderGroup: 1
   dayConfiguration: {fileID: 11400000, guid: 4a82d14c7dea67a48954186544b23faa, type: 2}
+  slotMachineBreakdownManager: {fileID: 698027261}
   botSpawner: {fileID: 2054266438}
   gameTables:
   - {fileID: 1512270989}
@@ -2443,6 +2452,10 @@ PrefabInstance:
       propertyPath: slotMachine
       value: 
       objectReference: {fileID: 6504483748956879741}
+    - target: {fileID: 6936879655637228433, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: slotMachineName
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8371449471237639755, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_Name
       value: SM_Slots

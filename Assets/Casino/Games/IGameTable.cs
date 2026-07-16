@@ -74,4 +74,6 @@ public interface IGameTable
     /// <param name="accuserClientId">ID игрока, который поймал читера.</param>
     /// <param name="isCheaterBot">true, если читер — бот, false — если игрок.</param>
     void OnCheaterCaught(ulong accuserClientId, bool isCheaterBot);
+
+    bool CanAssignBot();
 }

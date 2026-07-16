@@ -1,3 +1,4 @@
+using Blocks.Gameplay.Core;
 using System;
 using System.Collections;
 using Unity.Netcode;
@@ -18,6 +19,7 @@ public class GameSessionManager : NetworkBehaviour
 
     [Header("Ссылки")]
     [SerializeField] private DayConfiguration dayConfiguration;
+    [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private GameTable[] gameTables; // Массив всех столов в казино
 
@@ -184,14 +186,16 @@ public class GameSessionManager : NetworkBehaviour
     {
         Debug.Log($"[GameSessionManager] === ДЕНЬ {_currentDay.Value} НАЧИНАЕТСЯ ===");
 
+        // Переход в GamePhase
         _currentPhase.Value = SessionPhase.GamePhase;
+        _timeRemaining.Value = dayConfiguration.gamePhaseDuration;
+        _lastTimerUpdate = Time.time;
 
         // Спавним ботов
         _spawnRoutine = StartCoroutine(SpawnBotsGraduallyRoutine());
 
-        // Переход в GamePhase
-        _timeRemaining.Value = dayConfiguration.gamePhaseDuration;
-        _lastTimerUpdate = Time.time;
+        // Запускаем сессию поломки игровых автоматов
+        slotMachineBreakdownManager.StartBreakdownSession();
 
         yield break;
     }

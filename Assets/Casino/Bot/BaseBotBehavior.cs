@@ -39,6 +39,11 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
     protected bool isPlaying = false;
 
+    /// <summary>
+    /// Тип стола, с которым работает это поведение.
+    /// </summary>
+    public abstract System.Type SupportedTableType { get; }
+
     protected virtual void Awake()
     {
         botAgent = GetComponent<BotAgent>();
@@ -49,6 +54,13 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
     public virtual void InitializeGame(IGameTable table)
     {
+        // Отписка от предыдущего стола (защита от двойной подписки)
+        if (gameTable != null && IsServer)
+        {
+            gameTable.OnGameStarted -= OnGameStarted;
+            gameTable.OnGameEnded -= OnGameEnded;
+        }
+
         gameTable = table;
 
         if (IsServer)
@@ -59,6 +71,18 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
 
             gameTable.OnGameStarted += OnGameStarted;
             gameTable.OnGameEnded += OnGameEnded;
+        }
+    }
+
+    protected virtual void OnDisable()
+    {
+        if (isPlaying) EndSession();
+
+        if (gameTable != null && IsServer)
+        {
+            gameTable.OnGameStarted -= OnGameStarted;
+            gameTable.OnGameEnded -= OnGameEnded;
+            gameTable = null;
         }
     }
 

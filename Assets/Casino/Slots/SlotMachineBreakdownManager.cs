@@ -15,8 +15,8 @@ namespace Blocks.Gameplay.Core
         [SerializeField] private List<SlotMachine> slotMachines = new List<SlotMachine>();
 
         [Header("Настройки времени поломки (в секундах)")]
-        [SerializeField] private float minBreakTime = 30f;
-        [SerializeField] private float maxBreakTime = 60f;
+        [SerializeField] private float minBreakTime = 10f;
+        [SerializeField] private float maxBreakTime = 30f;
 
         [Header("Настройки взрыва")]
         [Tooltip("Время в секундах, которое есть у игроков, чтобы починить автомат до взрыва")]
@@ -57,13 +57,6 @@ namespace Blocks.Gameplay.Core
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
-            // Логика поломок работает ТОЛЬКО на сервере
-            if (IsServer)
-            {
-                CacheAllBots();
-                StartBreakdownSession();
-            }
         }
 
         /// <summary>
@@ -80,12 +73,10 @@ namespace Blocks.Gameplay.Core
                     m_CachedBots.Add(bot);
                 }
             }
-            Debug.Log($"[Менеджер поломок] Закэшировано {m_CachedBots.Count} ботов для распределения раздражения.");
         }
 
         public void StartBreakdownSession()
         {
-            Debug.Log($"[{nameof(SlotMachineBreakdownManager)}] Инициализация менеджера поломок на сервере...");
             if (slotMachines == null || slotMachines.Count == 0)
             {
                 Debug.LogWarning($"[{nameof(SlotMachineBreakdownManager)}] Список slotMachines пуст. Добавьте автоматы в Инспекторе!", this);
@@ -97,7 +88,6 @@ namespace Blocks.Gameplay.Core
 
             foreach (var machine in slotMachines)
             {
-                Debug.Log($"[{nameof(SlotMachineBreakdownManager)}] Инициализация автомата: {machine.machineName}");
 
                 if (machine == null) continue;
 
@@ -119,7 +109,16 @@ namespace Blocks.Gameplay.Core
         {
             if (!IsServer || !m_IsRunning) return;
 
-            // Обрабатываем таймеры поломок
+            UpdateBreakdownTimers();
+            UpdateExplosionTimers();
+            UpdateTimeSynchronization();
+        }
+        /// <summary>
+        /// Обновляет таймеры поломок автоматов.
+        /// Когда таймер истекает, автомат ломается и добавляется в список ожидающих взрыва.
+        /// </summary>
+        private void UpdateBreakdownTimers()
+        {
             for (int i = 0; i < m_ActiveTimers.Count; i++)
             {
                 var timerState = m_ActiveTimers[i];
@@ -141,48 +140,71 @@ namespace Blocks.Gameplay.Core
                     break; // Прерываем цикл, так как мы только что обновили все таймеры
                 }
             }
+        }
 
-            // Обрабатываем таймеры взрывов
+        /// <summary>
+        /// Обновляет таймеры взрывов сломанных автоматов.
+        /// Обрабатывает случаи когда автомат починили или взорвался.
+        /// </summary>
+        private void UpdateExplosionTimers()
+        {
             for (int i = m_PendingExplosions.Count - 1; i >= 0; i--)
             {
                 var explosionTimer = m_PendingExplosions[i];
 
+                // Проверяем, не был ли автомат уже взорван
                 if (explosionTimer.machine.IsExploded)
                 {
-                    // Сбрасываем время перед удалением
                     explosionTimer.machine.SetTimeToExplode(0f);
                     m_PendingExplosions.RemoveAt(i);
                     continue;
                 }
 
+                // Проверяем, не был ли автомат починен
                 if (!explosionTimer.machine.IsBroken)
                 {
-                    // Автомат починили - сбрасываем время
                     explosionTimer.machine.SetTimeToExplode(0f);
                     m_PendingExplosions.RemoveAt(i);
                     continue;
                 }
 
+                // Уменьшаем время до взрыва
                 explosionTimer.timeUntilExplode -= Time.deltaTime;
 
+                // Проверяем, не истекло ли время
                 if (explosionTimer.timeUntilExplode <= 0f)
                 {
-                    explosionTimer.machine.SetTimeToExplode(0f);
-                    explosionTimer.machine.Explode();
-                    DistributeDispleasureToAllBots();
-
-                    // Запускаем восстановление с задержкой
-                    StartCoroutine(RestoreMachineWithDelay(explosionTimer.machine, restoreDelay));
-
+                    HandleExplosion(explosionTimer.machine);
                     m_PendingExplosions.RemoveAt(i);
                 }
             }
+        }
 
-            // Периодическая синхронизация времени до взрыва с клиентами
+        /// <summary>
+        /// Обрабатывает взрыв автомата: запускает эффект, распределяет раздражение и планирует восстановление.
+        /// </summary>
+        private void HandleExplosion(SlotMachine machine)
+        {
+            machine.SetTimeToExplode(0f);
+            machine.Explode();
+            DistributeDispleasureToAllBots();
+
+            // Запускаем восстановление с задержкой
+            StartCoroutine(RestoreMachineWithDelay(machine, restoreDelay));
+        }
+
+        /// <summary>
+        /// Периодически синхронизирует время до взрыва с клиентами.
+        /// Работает с заданным интервалом для баланса между плавностью и нагрузкой на сеть.
+        /// </summary>
+        private void UpdateTimeSynchronization()
+        {
             m_SyncTimer += Time.deltaTime;
+
             if (m_SyncTimer >= syncInterval)
             {
                 m_SyncTimer = 0f;
+
                 foreach (var timer in m_PendingExplosions)
                 {
                     if (timer.machine != null && !timer.machine.IsExploded)
@@ -214,7 +236,7 @@ namespace Blocks.Gameplay.Core
             // ВАЖНО: сразу синхронизируем время с клиентами
             machine.SetTimeToExplode(timeBeforeExplode);
 
-            Debug.Log($"<color=orange>[Менеджер поломок]</color> Автомат '{machine.machineName}' сломан! До взрыва: {timeBeforeExplode} сек.");
+            Debug.Log($"<color=orange>[Менеджер поломок]</color> Автомат '{machine.slotMachineName}' сломан! До взрыва: {timeBeforeExplode} сек.");
         }
 
         private void ResetAllTimers()
@@ -236,8 +258,7 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         private void DistributeDispleasureToAllBots()
         {
-            if (m_CachedBots.Count == 0)
-            {
+
                 // Если кэш пуст, пытаемся обновить его
                 CacheAllBots();
 
@@ -246,7 +267,7 @@ namespace Blocks.Gameplay.Core
                     Debug.LogWarning("[Менеджер поломок] Не найдено ни одного бота для распределения раздражения!");
                     return;
                 }
-            }
+            
 
             int affectedBots = 0;
             foreach (var bot in m_CachedBots)
@@ -267,7 +288,7 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         public void OnMachineFixed(SlotMachine fixedMachine)
         {
-            Debug.Log($"[Менеджер поломок] Сервер зафиксировал починку автомата: {fixedMachine.machineName}");
+            Debug.Log($"[Менеджер поломок] Сервер зафиксировал починку автомата: {fixedMachine.slotMachineName}");
             // Автомат будет автоматически удален из m_PendingExplosions в следующем кадре Update
             // когда система обнаружит, что machine.IsBroken == false
         }

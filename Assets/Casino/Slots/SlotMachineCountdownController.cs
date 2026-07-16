@@ -68,8 +68,8 @@ namespace Blocks.Gameplay.Core
             if (slotMachine != null)
             {
                 slotMachine.OnTimeToExplodeChanged += HandleTimeToExplodeChanged;
-                slotMachine.OnSlotMachineStateChanged += HandleSlotMachineStateChanged;
-                slotMachine.OnSlotMachineRestored += HandleRestored;
+                slotMachine.OnSlotMachineBreakdownChanged += HandleSlotMachineStateChanged;
+                slotMachine.OnSlotMachineExplosionChanged += HandleExplosionStateChanged;
 
                 HandleTimeToExplodeChanged(slotMachine.TimeToExplode);
             }
@@ -80,8 +80,8 @@ namespace Blocks.Gameplay.Core
             if (slotMachine != null)
             {
                 slotMachine.OnTimeToExplodeChanged -= HandleTimeToExplodeChanged;
-                slotMachine.OnSlotMachineStateChanged -= HandleSlotMachineStateChanged;
-                slotMachine.OnSlotMachineRestored -= HandleRestored;
+                slotMachine.OnSlotMachineBreakdownChanged -= HandleSlotMachineStateChanged;
+                slotMachine.OnSlotMachineExplosionChanged -= HandleExplosionStateChanged;
             }
         }
 
@@ -104,18 +104,21 @@ namespace Blocks.Gameplay.Core
             targetFillAmount = Mathf.Clamp01(timeToExplode / maxTimeToExplode);
         }
 
-        /// <summary>
-        /// Обработчик изменения состояния поломки.
-        /// Сбрасываем заполнение когда автомат починен.
-        /// </summary>
         private void HandleSlotMachineStateChanged(bool isBroken)
         {
-            if (!isBroken)
-            {
-                targetFillAmount = 0f;
-                currentFillAmount = 0f;
-                progressBar.SetFill(0f);
-            }
+            if (!isBroken) ResetProgress();
+        }
+
+        private void HandleExplosionStateChanged(bool isExploded)
+        {
+            if (!isExploded) ResetProgress(); // Обработка логики Restore
+        }
+
+        private void ResetProgress()
+        {
+            targetFillAmount = 0f;
+            currentFillAmount = 0f;
+            progressBar.SetFill(0f);
         }
 
         /// <summary>
