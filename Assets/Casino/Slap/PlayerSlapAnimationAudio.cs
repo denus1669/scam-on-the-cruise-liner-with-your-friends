@@ -2,6 +2,10 @@ using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 
+/// <summary>
+/// Компонент для визуализации шлепков (анимации, воспроизведение звуков).
+/// Слушает события из PlayerSlapReceiver и адаптирует громкость/типы звуков под силу удара.
+/// </summary>
 public class PlayerSlapAnimationAudio : MonoBehaviour
 {
     [Header("Компоненты отображения")]
@@ -9,14 +13,15 @@ public class PlayerSlapAnimationAudio : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
 
     [Header("Аудио Клипы")]
-    [SerializeField] private AudioClip playerRecieveSlapSound;
-    [SerializeField] private AudioClip playerAttackSlapSound;
+    [SerializeField] private AudioClip playerRecieveSlapSound; // Обычный шлепок
+    [SerializeField] private AudioClip playerHeavySlapSound;   // Сильный удар (с отбрасыванием)
+    [SerializeField] private AudioClip playerAttackSlapSound;  // Звук замаха/атаки
 
     [Header("Триггеры для Игрока")]
-    [SerializeField] private readonly int playerRecieveSlapTrigger = Animator.StringToHash("Player_Slap_Recieved");      // Игрок получил шлепок
-    [SerializeField] private readonly int playerAttackSlapTrigger = Animator.StringToHash("Player_Slap_Attack");      // Игрок наносит шлепок
-    
-    [Header("Ссылка для Игрока")]
+    [SerializeField] private readonly int playerRecieveSlapTrigger = Animator.StringToHash("Player_Slap_Recieved"); // Жертва получила шлепок
+    [SerializeField] private readonly int playerAttackSlapTrigger = Animator.StringToHash("Player_Slap_Attack");    // Бьющий наносит удар
+
+    [Header("Ссылка на ядро")]
     [SerializeField] private PlayerSlapReceiver playerSlapReceiver;
 
     private void Awake()
@@ -24,26 +29,21 @@ public class PlayerSlapAnimationAudio : MonoBehaviour
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
-        // Пытаемся найти компоненты на этом же объекте
         if (playerSlapReceiver == null) playerSlapReceiver = GetComponent<PlayerSlapReceiver>();
     }
 
     private void OnEnable()
     {
-
-        // Если на объекте есть маршрутизатор шлепков для Бота
         if (playerSlapReceiver != null)
         {
+            // Подписываемся на события получения и совершения удара
             playerSlapReceiver.OnSlapReceived += PlayPlayerSlapReceivedVisuals;
             //playerSlapReceiver.OnSlapAttacked += PlayPlayerSlapAttackedVisuals;
         }
-
-        Debug.Log($"[CharacterSlapVisuals]  {playerSlapReceiver != null} .");
     }
 
     private void OnDisable()
     {
-
         if (playerSlapReceiver != null)
         {
             playerSlapReceiver.OnSlapReceived -= PlayPlayerSlapReceivedVisuals;
@@ -51,35 +51,51 @@ public class PlayerSlapAnimationAudio : MonoBehaviour
         }
     }
 
-    #region Эффекты Жертвы-Бота (Реакции на стратегии)
-    private void PlayPlayerSlapReceivedVisuals(ulong interactorClientId)
+    /// <summary>
+    /// Отыгрывает визуал и звук ПОЛУЧЕНИЯ удара жертвой.
+    /// </summary>
+    /// <param name="interactorClientId">Кто ударил.</param>
+    /// <param name="forceNormalized">Сила удара от 0 до 1.</param>
+    private void PlayPlayerSlapReceivedVisuals(ulong interactorClientId, float forceNormalized)
     {
-        Debug.Log($"[ANIM] Client-{NetworkManager.Singleton.LocalClientId}: " +
-                      $"Playing slap animation on {gameObject.name}");
+        Debug.Log($"[SlapVisuals] Игрок {gameObject.name} получил шлепок силой {forceNormalized:F2}");
 
         if (animator != null)
         {
-            Debug.Log($"[ANIM] Trigger set: {playerRecieveSlapTrigger}");
             animator.SetTrigger(playerRecieveSlapTrigger);
         }
-        PlaySound(playerRecieveSlapSound);
+
+        // Динамический выбор звука и громкости на основе силы заряда
+        if (forceNormalized > 0.5f && playerHeavySlapSound != null)
+        {
+            PlaySound(playerHeavySlapSound, forceNormalized);
+        }
+        else
+        {
+            PlaySound(playerRecieveSlapSound, Mathf.Max(0.3f, forceNormalized));
+        }
     }
 
-    private void PlayPlayerSlapAttackedVisuals(ulong interactorClientId)
+    /// <summary>
+    /// Отыгрывает визуал и звук АТАКИ бьющего игрока.
+    /// </summary>
+    /// <param name="victimClientId">Кому наносится удар.</param>
+    private void PlayPlayerSlapAttackedVisuals(ulong victimClientId)
     {
-        // Игрок нанес шлепок
-        if (animator != null) animator.SetTrigger(playerAttackSlapTrigger);
-        PlaySound(playerAttackSlapSound);
+        Debug.Log($"[SlapVisuals] Игрок {gameObject.name} нанес удар игроку {victimClientId}");
+
+        if (animator != null)
+        {
+            animator.SetTrigger(playerAttackSlapTrigger);
+        }
+        PlaySound(playerAttackSlapSound, 1f);
     }
 
-    #endregion
-
-    private void PlaySound(AudioClip clip)
+    private void PlaySound(AudioClip clip, float volumeScale)
     {
         if (audioSource != null && clip != null)
         {
-            audioSource.PlayOneShot(clip);
+            audioSource.PlayOneShot(clip, volumeScale);
         }
     }
-
 }

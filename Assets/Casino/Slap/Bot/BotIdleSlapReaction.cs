@@ -24,7 +24,7 @@ public class BotIdleSlapReaction : ISlapReaction<BotSlapContext>
 
         if (context.DispleasureController != null)
         {
-            context.DispleasureController.AddInstantDispleasure(90f); // Мгновенный штраф недовольства
+            context.DispleasureController.AddInstantDispleasure(10f); // Мгновенный штраф недовольства
         }
 
         context.Router.TriggerEventClientRpc(BotSlapEventType.IdleSlapped);

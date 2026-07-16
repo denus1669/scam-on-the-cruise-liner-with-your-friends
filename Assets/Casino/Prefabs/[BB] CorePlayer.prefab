@@ -33,6 +33,7 @@ GameObject:
   - component: {fileID: 7814610562723482993}
   - component: {fileID: 7534455076458437880}
   - component: {fileID: 9030635836983482947}
+  - component: {fileID: 2291338215762006501}
   m_Layer: 3
   m_Name: '[BB] CorePlayer'
   m_TagString: Player
@@ -517,6 +518,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerSlapReceiver
   ShowTopMostFoldoutHeaderGroup: 1
+  maxChargeTime: 1.5
+  minKnockbackForce: 7
+  maxKnockbackForce: 30
+  knockbackThreshold: 0.2
 --- !u!114 &7534455076458437880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -546,6 +551,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.InteractionProgressIndicator
   interactionAddon: {fileID: 3955545337037980288}
   progressBar: {fileID: 6058389763045973362}
+--- !u!114 &2291338215762006501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ecae97661d98794bac64ce1c81f3cad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerSlapInteractable
+  slapReceiver: {fileID: 7814610562723482993}
+  maxHoldDuration: 1.5
+  interactionPriority: 12
 --- !u!1 &278635475345762243
 GameObject:
   m_ObjectHideFlags: 0
@@ -2971,6 +2991,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3747493943479594404, guid: d44e26f98f3e448988291f85f97cc468, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7952323412477205337}
+    - targetCorrespondingSourceObject: {fileID: 3747493943479594404, guid: d44e26f98f3e448988291f85f97cc468, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5554350910770452166}
   m_SourcePrefab: {fileID: 100100000, guid: d44e26f98f3e448988291f85f97cc468, type: 3}
 --- !u!95 &178504057993001136 stripped
 Animator:
@@ -3053,8 +3076,22 @@ MonoBehaviour:
   animator: {fileID: 178504057993001136}
   audioSource: {fileID: 1130550962405701607}
   playerRecieveSlapSound: {fileID: 8300000, guid: ab8ac899c357b214eba4942d49e8d68e, type: 3}
+  playerHeavySlapSound: {fileID: 8300000, guid: 60f218280de4fe240934d7e6dbff5e3b, type: 3}
   playerAttackSlapSound: {fileID: 8300000, guid: dcd7fae5ed5019b48b107567f3727337, type: 3}
-  playerSlapReceiver: {fileID: 7814610562723482993}
+  playerSlapReceiver: {fileID: 0}
+--- !u!114 &5554350910770452166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6904528430749907056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2cb6f77911cdb41b13175577d3b5f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TextureGroupSwitcher
+  textureIndex: 0
 --- !u!1001 &7826930159659495339
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1136,6 +1136,10 @@ MonoBehaviour:
   - {fileID: 476119460}
   minBreakTime: 15
   maxBreakTime: 20
+  timeBeforeExplode: 20
+  explodeDispleasureAmount: 50
+  syncInterval: 0.1
+  restoreDelay: 3
 --- !u!4 &698027262
 Transform:
   m_ObjectHideFlags: 0

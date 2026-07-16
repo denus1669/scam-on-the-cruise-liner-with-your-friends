@@ -7,6 +7,7 @@ namespace Blocks.Gameplay.Core
     /// <summary>
     /// Интерактивный компонент автомата.
     /// Отвечает ТОЛЬКО за отображение UI (через интерфейс IInteractable) и передачу ввода игрока в ядро.
+    /// Учитывает три состояния автомата: исправен, сломан, взорван.
     /// </summary>
     public class SlotMachineInteractable : NetworkBehaviour, IInteractable
     {
@@ -17,16 +18,36 @@ namespace Blocks.Gameplay.Core
         [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
         [SerializeField] private int priority = 10;
 
-        // Кэш для оптимизации обновления текста подсказки (по аналогии с FinishGameInteractable)
+        [Header("Время удержания")]
+        [Tooltip("Время удержания кнопки для починки сломанного автомата")]
+        [SerializeField] private float fixHoldDuration = 2f;
+
+        // Кэш для оптимизации обновления текста подсказки
         private string m_CachedPrompt;
         private bool m_LastIsBroken;
+        private bool m_LastIsExploded;
 
         public InteractionTriggerMode TriggerMode => triggerMode;
         public int Priority => priority;
+
         /// <summary>
-        /// Динамическое время удержания
+        /// Динамическое время удержания.
+        /// Для взорванных автоматов - 0 (мгновенное нажатие, без удержания).
+        /// Для сломанных - заданное время для починки.
         /// </summary>
-        public float HoldDuration => 2f;
+        public float HoldDuration
+        {
+            get
+            {
+                if (slotMachine == null) return fixHoldDuration;
+
+                // Взорванный автомат - мгновенное нажатие (информационное)
+                if (slotMachine.IsExploded) return 0f;
+
+                // Сломанный автомат - полное удержание для починки
+                return fixHoldDuration;
+            }
+        }
 
         /// <summary>
         /// Динамический текст подсказки, зависящий от состояния ядра.
@@ -36,13 +57,30 @@ namespace Blocks.Gameplay.Core
             get
             {
                 bool isBroken = slotMachine != null && slotMachine.IsBroken;
+                bool isExploded = slotMachine != null && slotMachine.IsExploded;
 
                 // Обновляем кэш только если состояние изменилось
-                if (isBroken != m_LastIsBroken || m_CachedPrompt == null)
+                if (isBroken != m_LastIsBroken || isExploded != m_LastIsExploded || m_CachedPrompt == null)
                 {
                     m_LastIsBroken = isBroken;
-                    m_CachedPrompt = slotMachine == null ? "Автомат недоступен" :
-                        isBroken ? $"Починить {slotMachine.machineName} (E)" : string.Empty;
+                    m_LastIsExploded = isExploded;
+
+                    if (slotMachine == null)
+                    {
+                        m_CachedPrompt = "Автомат недоступен";
+                    }
+                    else if (isExploded)
+                    {
+                        m_CachedPrompt = $"{slotMachine.machineName} уничтожен";
+                    }
+                    else if (isBroken)
+                    {
+                        m_CachedPrompt = $"Починить {slotMachine.machineName} (E)";
+                    }
+                    else
+                    {
+                        m_CachedPrompt = string.Empty;
+                    }
                 }
 
                 return m_CachedPrompt;
@@ -50,24 +88,41 @@ namespace Blocks.Gameplay.Core
         }
 
         /// <summary>
-        /// Определяет, может ли объект быть в фокусе.
+        /// Определяет, может ли объект быть в фокусе и показывать текст подсказки.
+        /// Возвращает true для сломанных И взорванных автоматов, чтобы текст показывался в обоих случаях.
         /// </summary>
         public bool CanInteract(GameObject interactor)
         {
-            // Взаимодействовать можно только если автомат сломан
-            if (slotMachine == null || !slotMachine.IsBroken)
+            if (slotMachine == null)
                 return false;
 
-            return true;
+            // Показываем промпт для сломанных И взорванных автоматов
+            // Реальное взаимодействие будет заблокировано в методе Interact()
+            return slotMachine.IsBroken || slotMachine.IsExploded;
         }
 
         /// <summary>
         /// Выполняется после успешного удержания/нажатия кнопки.
+        /// Для взорванных автоматов просто показывает сообщение и ничего не делает.
         /// </summary>
         public void Interact(GameObject interactor)
         {
             if (!IsSpawned || slotMachine == null)
                 return;
+
+            // Взорванный автомат - только информационное сообщение, без реального взаимодействия
+            if (slotMachine.IsExploded)
+            {
+                // Здесь можно добавить UI-уведомление игроку, например:
+                // UIManager.ShowNotification("Этот автомат уничтожен и не может быть починен.");
+                return;
+            }
+
+            // Двойная проверка перед отправкой RPC (на случай гонок состояния)
+            if (!slotMachine.IsBroken)
+            {
+                return;
+            }
 
             // Получаем ID клиента, который нажал на кнопку
             if (interactor.TryGetComponent<NetworkObject>(out var netObj))

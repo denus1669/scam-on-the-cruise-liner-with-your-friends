@@ -198,6 +198,7 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         private void FindBestInteractable()
         {
+          
             if (m_MainCamera == null) return;
 
             var interactables = new List<IInteractable>();
@@ -304,6 +305,13 @@ namespace Blocks.Gameplay.Core
         {
             if (m_IsHolding)
             {
+                // Поддержка досрочного отпускания для заряжаемых действий
+                if (m_CurrentFocusedInteractable is IHoldReleaseInteractable holdInteractable)
+                {
+                    holdInteractable.OnHoldReleased(gameObject, m_HoldTimer);
+                    m_CooldownTimer = interactionCooldown;
+                }
+
                 m_IsHolding = false;
                 m_HoldTimer = 0f;
                 OnHoldCancelled?.Invoke();

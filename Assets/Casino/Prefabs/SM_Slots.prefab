@@ -88,6 +88,128 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d4be09010bd8a7e4c8da2671942d23a4, type: 3}
   m_PrefabInstance: {fileID: 2095696630749200844}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8508682816950105285
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 9180179217993700593}
+    m_Modifications:
+    - target: {fileID: 6090191583296555107, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: fillAmount
+      value: 0.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.016
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.515
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.543
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6836802429242201633, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      propertyPath: m_Name
+      value: SM_Bar_2
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6836802429242201633, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7762203671293511910}
+    - targetCorrespondingSourceObject: {fileID: 6836802429242201633, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9118840074437328480}
+  m_SourcePrefab: {fileID: 100100000, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+--- !u!114 &2490592894599101606 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6090191583296555107, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+  m_PrefabInstance: {fileID: 8508682816950105285}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951505265792754404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad96621a5fb758c4d82b9263aaf7f944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressBar3D
+--- !u!4 &2575507900994025566 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6172996080602582171, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+  m_PrefabInstance: {fileID: 8508682816950105285}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2951505265792754404 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6836802429242201633, guid: 7969dc40a2230c1418ba3e5310b2754a, type: 3}
+  m_PrefabInstance: {fileID: 8508682816950105285}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7762203671293511910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951505265792754404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b995ad53d30fb784d93dd216a7f39b02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.SlotMachineCountdownController
+  progressBar: {fileID: 2490592894599101606}
+  slotMachine: {fileID: 6936879655637228433}
+  safeColor: {r: 0, g: 1, b: 0, a: 1}
+  warningColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  dangerColor: {r: 1, g: 0, b: 0, a: 1}
+  backgroundColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.8}
+  fillAnimationSpeed: 10
+  maxTimeToExplode: 20
+--- !u!114 &9118840074437328480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951505265792754404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ee672164733cc4f8598c967ffa728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotsAnimationIndicator
+  targetObject: {fileID: 2951505265792754404}
+  slotMachine: {fileID: 6936879655637228433}
 --- !u!1001 &8713397796252513050
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -170,6 +292,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1918482339981649447}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2575507900994025566}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
       insertIndex: -1
@@ -180,7 +305,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6936879655637228433}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4080150168697894344}
   m_SourcePrefab: {fileID: 100100000, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+--- !u!1 &8087864717487773554 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 635547659545568360, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+  m_PrefabInstance: {fileID: 8713397796252513050}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8371449471237639755 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
@@ -202,6 +335,7 @@ MonoBehaviour:
   slotMachine: {fileID: 6936879655637228433}
   triggerMode: 0
   priority: 10
+  fixHoldDuration: 2
 --- !u!65 &8624214024847501150
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -237,6 +371,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlotMachine
   ShowTopMostFoldoutHeaderGroup: 1
   machineName: Slot Machine
+--- !u!114 &4080150168697894344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8371449471237639755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21284860a6f49354eac26297216d7b7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.SlotMachineExplosionVFX
+  ShowTopMostFoldoutHeaderGroup: 1
+  slotMachine: {fileID: 6936879655637228433}
+  explosionParticles: {fileID: 0}
+  smokeParticles: {fileID: 0}
+  explosionAudioSource: {fileID: 0}
+  explosionSound: {fileID: 8300000, guid: 1374a61232a09c942a3155b9549041b7, type: 3}
+  enableCameraShake: 1
+  shakeIntensity: 0.5
+  shakeDuration: 0.3
+  hideModelAfterExplosion: 1
+  machineModel: {fileID: 8087864717487773554}
 --- !u!4 &9180179217993700593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}

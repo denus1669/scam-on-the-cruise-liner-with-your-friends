@@ -1,5 +1,6 @@
 using UnityEngine;
-using TMPro; // Подключаем TextMeshPro
+using TMPro;
+using Blocks.Gameplay.Core; // Подключаем TextMeshPro
 
 namespace Blocks.Gameplay.Core
 {

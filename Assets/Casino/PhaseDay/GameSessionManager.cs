@@ -184,11 +184,12 @@ public class GameSessionManager : NetworkBehaviour
     {
         Debug.Log($"[GameSessionManager] === ДЕНЬ {_currentDay.Value} НАЧИНАЕТСЯ ===");
 
+        _currentPhase.Value = SessionPhase.GamePhase;
+
         // Спавним ботов
         _spawnRoutine = StartCoroutine(SpawnBotsGraduallyRoutine());
 
         // Переход в GamePhase
-        _currentPhase.Value = SessionPhase.GamePhase;
         _timeRemaining.Value = dayConfiguration.gamePhaseDuration;
         _lastTimerUpdate = Time.time;
 
