@@ -18,6 +18,12 @@ public class BotAgent : NetworkBehaviour
     [Header("Точка выхода")]
     [SerializeField] private Transform exitPoint;
 
+    private readonly NetworkVariable<bool> _isArrived = new NetworkVariable<bool>(
+    false,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
+    public bool IsArrived => _isArrived.Value;
+
     private NavMeshAgent navAgent;
     private Coroutine movementCoroutine;
 
@@ -29,6 +35,8 @@ public class BotAgent : NetworkBehaviour
 
     public IGameTable CurrentTable => currentTable;
 
+    public Action<bool> OnArrivedChanged;
+
     private void Awake()
     {
         navAgent = GetComponent<NavMeshAgent>();
@@ -38,6 +46,7 @@ public class BotAgent : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        _isArrived.OnValueChanged += HandleOnArrivedChanged;
         if (IsServer)
         {
             exitPoint = FindExitPoint();
@@ -48,7 +57,17 @@ public class BotAgent : NetworkBehaviour
             if (navAgent != null) navAgent.enabled = false;
         }
     }
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        _isArrived.OnValueChanged -= HandleOnArrivedChanged;
+    }
 
+    public void HandleOnArrivedChanged(bool previousValue, bool newValue)
+    {
+        Debug.Log($"[BotAgent] OnArrivedChanged: {previousValue} -> {newValue}");
+        OnArrivedChanged?.Invoke(newValue);
+    }
     #region Public Navigation Methods
 
     /// <summary>
@@ -253,6 +272,9 @@ public class BotAgent : NetworkBehaviour
 
         // Включаем нужный behavior под тип стола
         ActivateBehaviorForTable(currentTable);
+
+        _isArrived.Value = true;
+
     }
 
     private void OnReachedExit()

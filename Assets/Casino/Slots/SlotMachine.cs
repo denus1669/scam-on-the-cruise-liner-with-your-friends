@@ -85,10 +85,20 @@ public class SlotMachine : GameTable
     public event Action<bool> OnSlotMachineBreakdownChanged; // true = сломан, false = исправен
     public event Action<bool> OnSlotMachineExplosionChanged; // true = взорван, false = исправен
 
+    private void BotOnPlace()
+    {
+
+        StartGame();
+    }
+
     #region GameTable Overrides
     public override void StartGame()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+        {
+            Debug.LogWarning($"[SlotMachine] Попытка начать игру на клиенте. Игровая логика должна выполняться только на сервере.");
+            return;
+        }
 
         if (!CanStartGame())
         {
@@ -97,6 +107,8 @@ public class SlotMachine : GameTable
         }
 
         gameInProgress.Value = true;
+
+        Debug.Log($"[SlotMachine] Игра на автомате '{slotMachineName}' началась. Бот: {currentBot?.name}");
     }
 
     protected override bool CanStartGame()
@@ -141,7 +153,7 @@ public class SlotMachine : GameTable
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _isBroken.OnValueChanged += HandleSlotMachineStateChanged;
+        _isBroken.OnValueChanged += HandleSlotMachineBreakdownChanged;
         _isExploded.OnValueChanged += HandleExplosionStateChanged;
         _timeToExplode.OnValueChanged += HandleTimeToExplodeChanged;
 
@@ -154,7 +166,7 @@ public class SlotMachine : GameTable
 
     public override void OnNetworkDespawn()
     {
-        _isBroken.OnValueChanged -= HandleSlotMachineStateChanged;
+        _isBroken.OnValueChanged -= HandleSlotMachineBreakdownChanged;
         _isExploded.OnValueChanged -= HandleExplosionStateChanged;
         _timeToExplode.OnValueChanged -= HandleTimeToExplodeChanged;
 
@@ -164,7 +176,7 @@ public class SlotMachine : GameTable
         base.OnNetworkDespawn();
     }
 
-    private void HandleSlotMachineStateChanged(bool previousValue, bool current)
+    private void HandleSlotMachineBreakdownChanged(bool previousValue, bool current)
     {
         Debug.LogWarning($"[SlotMachine] Состояние поломки изменилось: {previousValue} → {current}");
         OnSlotMachineBreakdownChanged?.Invoke(current);

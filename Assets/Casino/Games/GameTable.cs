@@ -17,7 +17,6 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     [SerializeField] protected CasinoBank casinoBank;
     [SerializeField] private int anteAmount = 1;
 
-
     public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
     // ---------- Сетевые переменные ----------
@@ -215,6 +214,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             return;
         }
 
+        gameInProgress.Value = false;
         currentBot = null;
         botNetworkObjectRef.Value = default;
         isBotOccupied.Value = false;
@@ -225,7 +225,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public virtual void StartGame()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+        {
+            Debug.LogWarning($"[SlotMachine] Попытка начать игру на клиенте. Игровая логика должна выполняться только на сервере.");
+            return;
+        }
 
         if (!CanStartGame())
         {

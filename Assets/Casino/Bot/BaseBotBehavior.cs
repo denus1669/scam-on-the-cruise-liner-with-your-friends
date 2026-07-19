@@ -73,9 +73,17 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
             gameTable.OnGameEnded += OnGameEnded;
         }
     }
+    
+    protected virtual void OnEnable()
+    {
+        if (!IsServer) return;
+        botAgent.OnArrivedChanged += HandleBotArrivedChanged;
+
+    }
 
     protected virtual void OnDisable()
     {
+        botAgent.OnArrivedChanged -= HandleBotArrivedChanged;
         if (isPlaying) EndSession();
 
         if (gameTable != null && IsServer)
@@ -86,10 +94,17 @@ public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
         }
     }
 
+    public virtual void HandleBotArrivedChanged(bool hasArrived)
+    {
+    }
+
     public virtual void StartSession()
     {
+        Debug.Log($"[BaseBotBehavior] Бот начал сессию на столе '{gameTable?.GetType().Name}'");
         if (!IsServer || isPlaying) return;
         isPlaying = true;
+        Debug.Log($"[BaseBotBehavior] isPlaying = {isPlaying}, стол: '{gameTable?.GetType().Name}'");
+
         StartCoroutine(PlaySessionRoutine());
     }
 

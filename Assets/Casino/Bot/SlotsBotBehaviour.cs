@@ -2,6 +2,7 @@ using UnityEngine;
 using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using System;
+using UnityEditor.AdaptivePerformance.Editor;
 
 /// <summary>
 /// Поведение бота для игры на слот-машинах.
@@ -31,7 +32,7 @@ public class SlotsBotBehaviour : BaseBotBehavior
         if (table is SlotMachine slot)
         {
             _currentSlot = slot;
-            Debug.Log($"[SlotsBotBehaviour] Бот инициализирован на автомате '{slot.slotMachineName}'");
+            Debug.Log($"[SlotsBotBehaviour] Инициализация игры на автомате '{_currentSlot.slotMachineName}'");
         }
         else
         {
@@ -39,8 +40,16 @@ public class SlotsBotBehaviour : BaseBotBehavior
         }
     }
 
+    public override void HandleBotArrivedChanged(bool hasArrived)
+    {
+        if(hasArrived) 
+            gameTable.StartGame();
+    }
+
     public override void StartSession()
     {
+        Debug.Log($"[SlotsBotBehaviour] Бот начал сессию на автомате '{_currentSlot.slotMachineName}'");
+
         base.StartSession();
 
         if (_currentSlot == null) return;
@@ -55,6 +64,7 @@ public class SlotsBotBehaviour : BaseBotBehavior
 
     public override void EndSession()
     {
+        Debug.Log($"[SlotsBotBehaviour] Бот завершил сессию на автомате '{_currentSlot?.slotMachineName}'");
         // Отписываемся от событий
         if (_currentSlot != null)
         {
@@ -76,6 +86,7 @@ public class SlotsBotBehaviour : BaseBotBehavior
     /// </summary>
     protected override bool EvaluateAndPerformGameAction()
     {
+        Debug.Log($"[SlotsBotBehaviour] EvaluateAndPerformGameAction на автомате '{_currentSlot?.slotMachineName}'");
         if (_currentSlot == null)
         {
             Debug.LogWarning("[SlotsBotBehaviour] _currentSlot == null, завершаем сессию");
@@ -121,6 +132,8 @@ public class SlotsBotBehaviour : BaseBotBehavior
     /// </summary>
     private bool HandleBrokenSlot()
     {
+
+        Debug.LogWarning($"[SlotsBotBehaviour] Автомат '{_currentSlot.slotMachineName}' сломан/взорван. Бот ищет новый стол...");
         // Отписываемся от текущего автомата
         if (_currentSlot != null)
         {
@@ -190,6 +203,7 @@ public class SlotsBotBehaviour : BaseBotBehavior
     /// </summary>
     private void HandleSpinCompleted(bool isWin, int comboIndex)
     {
+        Debug.Log($"[SlotsBotBehaviour] Спин завершён. Результат: {(isWin ? "Выигрыш" : "Проигрыш")}, Комбинация #{comboIndex}");
         if (isWin)
         {
             Debug.Log($"[SlotsBotBehaviour] Бот выиграл! Комбинация #{comboIndex}");
