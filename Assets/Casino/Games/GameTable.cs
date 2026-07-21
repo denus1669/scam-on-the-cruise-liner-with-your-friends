@@ -41,6 +41,9 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
     protected NetworkObject currentBot;
 
+    public Transform TableTransform => transform;
+    public string TableName => gameObject.name; 
+
     // ---------- Реализация IGameTable ----------
     /// <inheritdoc />
     public bool IsOccupied => isOccupied.Value;
@@ -72,6 +75,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         base.OnNetworkSpawn();
 
+        GameTableManager.Instance?.RegisterTable(this);
 
         isOccupied.OnValueChanged += OnIsOccupiedChanged;
         gameInProgress.OnValueChanged += OnGameProgressChanged;
@@ -86,6 +90,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+        GameTableManager.Instance?.UnregisterTable(this);
 
         isOccupied.OnValueChanged -= OnIsOccupiedChanged;
         gameInProgress.OnValueChanged -= OnGameProgressChanged;
@@ -107,7 +112,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         OnBotOccupancyChanged?.Invoke(current);
     }
 
-    private void OnGameProgressChanged(bool previous, bool current)
+    public void OnGameProgressChanged(bool previous, bool current)
     {
         if (current)
             OnGameStarted?.Invoke();
@@ -218,6 +223,8 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         currentBot = null;
         botNetworkObjectRef.Value = default;
         isBotOccupied.Value = false;
+        GameTableManager.Instance?.NotifyTableFreed();
+
         Debug.Log($"[GameTable] Бот убран из-за стола.");
     }
 

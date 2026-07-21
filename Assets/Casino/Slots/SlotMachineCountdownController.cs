@@ -1,12 +1,12 @@
 using UnityEngine;
+using Unity.Netcode;
 
 namespace Blocks.Gameplay.Core
 {
     /// <summary>
     /// Контроллер 3D прогресс-бара обратного отсчета до взрыва сломанного автомата.
     /// Отвечает ТОЛЬКО за заполнение и цвет шкалы.
-    /// Видимостью управляет SlotMachineCountdownIndicator.
-    /// Работает только на клиентах (не на сервере).
+    /// Работает только на клиентах (не на сервере), синхронизируясь через ServerTime.
     /// </summary>
     public class SlotMachineCountdownController : MonoBehaviour
     {
@@ -36,6 +36,10 @@ namespace Blocks.Gameplay.Core
 
         [Tooltip("Начальное время обратного отсчета в секундах (должно совпадать с настройкой менеджера)")]
         [SerializeField] private float maxTimeToExplode = 20f;
+
+        // Локальные переменные для таймера
+        private double _serverEndTime;
+        private bool _isCountdownActive;
 
         private float targetFillAmount = 0f;
         private float currentFillAmount = 0f;
@@ -67,11 +71,10 @@ namespace Blocks.Gameplay.Core
         {
             if (slotMachine != null)
             {
-                slotMachine.OnTimeToExplodeChanged += HandleTimeToExplodeChanged;
+                // [ИЗМЕНЕНО] Подписываемся на новое событие старта таймера
+                slotMachine.OnTimeToExplodeStarted += HandleTimeToExplodeStarted;
                 slotMachine.OnSlotMachineBreakdownChanged += HandleSlotMachineStateChanged;
                 slotMachine.OnSlotMachineExplosionChanged += HandleExplosionStateChanged;
-
-                HandleTimeToExplodeChanged(slotMachine.TimeToExplode);
             }
         }
 
@@ -79,14 +82,34 @@ namespace Blocks.Gameplay.Core
         {
             if (slotMachine != null)
             {
-                slotMachine.OnTimeToExplodeChanged -= HandleTimeToExplodeChanged;
+                slotMachine.OnTimeToExplodeStarted -= HandleTimeToExplodeStarted;
                 slotMachine.OnSlotMachineBreakdownChanged -= HandleSlotMachineStateChanged;
                 slotMachine.OnSlotMachineExplosionChanged -= HandleExplosionStateChanged;
+
+                _isCountdownActive = false;
             }
         }
 
         private void Update()
         {
+            // Если таймер не активен, не тратим ресурсы на вычисления
+            if (!_isCountdownActive) return;
+
+            // [КЛЮЧЕВОЕ ИЗМЕНЕНИЕ] Вычисляем оставшееся время локально на клиенте
+            // Используем NetworkManager автомата для получения точного серверного времени
+            double currentTime = slotMachine.NetworkManager.ServerTime.Time;
+            float remainingTime = (float)(_serverEndTime - currentTime);
+
+            // Если время вышло
+            if (remainingTime <= 0f)
+            {
+                remainingTime = 0f;
+                _isCountdownActive = false; // Останавливаем таймер
+            }
+
+            // Обновляем целевое заполнение
+            targetFillAmount = Mathf.Clamp01(remainingTime / maxTimeToExplode);
+
             // Плавная анимация заполнения через Lerp
             currentFillAmount = Mathf.Lerp(currentFillAmount, targetFillAmount, Time.deltaTime * fillAnimationSpeed);
             progressBar.SetFill(currentFillAmount);
@@ -97,28 +120,37 @@ namespace Blocks.Gameplay.Core
         }
 
         /// <summary>
-        /// Обработчик изменений времени до взрыва от ядра автомата.
+        /// Обработчик старта таймера. Получает точное серверное время окончания.
         /// </summary>
-        private void HandleTimeToExplodeChanged(float timeToExplode)
+        private void HandleTimeToExplodeStarted(double serverEndTime)
         {
-            targetFillAmount = Mathf.Clamp01(timeToExplode / maxTimeToExplode);
+            _serverEndTime = serverEndTime;
+            _isCountdownActive = true;
         }
 
         private void HandleSlotMachineStateChanged(bool isBroken)
         {
+            // Если автомат починили, сбрасываем прогресс-бар
             if (!isBroken) ResetProgress();
         }
 
         private void HandleExplosionStateChanged(bool isExploded)
         {
-            if (!isExploded) ResetProgress(); // Обработка логики Restore
+            // Если автомат взорвался (или был восстановлен), сбрасываем
+            // Примечание: визуальное скрытие/показ самого индикатора лучше делать в SlotMachineCountdownIndicator
+            if (!isExploded) ResetProgress();
         }
 
         private void ResetProgress()
         {
+            _isCountdownActive = false;
             targetFillAmount = 0f;
             currentFillAmount = 0f;
-            progressBar.SetFill(0f);
+
+            if (progressBar != null)
+            {
+                progressBar.SetFill(0f);
+            }
         }
 
         /// <summary>
@@ -141,17 +173,6 @@ namespace Blocks.Gameplay.Core
             {
                 return dangerColor;
             }
-        }
-
-        /// <summary>
-        /// Обработчик события восстановления автомата.
-        /// Сбрасывает прогресс-бар.
-        /// </summary>
-        private void HandleRestored()
-        {
-            targetFillAmount = 0f;
-            currentFillAmount = 0f;
-            progressBar.SetFill(0f);
         }
     }
 }

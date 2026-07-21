@@ -18,7 +18,7 @@ public abstract class BlackGregCheatAction : CheatAction
         else
         {
             ApplyPlayerCheat(table, context.ClientId);
-        }
+        } 
     }
 
     /// <summary>

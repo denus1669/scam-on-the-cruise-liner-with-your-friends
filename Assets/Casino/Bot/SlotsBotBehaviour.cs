@@ -1,8 +1,7 @@
 using UnityEngine;
-using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using System;
-using UnityEditor.AdaptivePerformance.Editor;
+using System.Collections;
 
 /// <summary>
 /// Поведение бота для игры на слот-машинах.
@@ -21,7 +20,7 @@ public class SlotsBotBehaviour : BaseBotBehavior
 
     private float _lastSpinTime = -999f;
 
-    public override System.Type SupportedTableType => typeof(SlotMachine);
+    public override Type SupportedTableType => typeof(SlotMachine);
 
     #region IBotGameBehavior Implementation
 
@@ -48,7 +47,6 @@ public class SlotsBotBehaviour : BaseBotBehavior
 
     public override void StartSession()
     {
-        Debug.Log($"[SlotsBotBehaviour] Бот начал сессию на автомате '{_currentSlot.slotMachineName}'");
 
         base.StartSession();
 
@@ -59,7 +57,6 @@ public class SlotsBotBehaviour : BaseBotBehavior
         _currentSlot.OnSlotMachineBreakdownChanged += HandleSlotBreakdownChanged;
         _currentSlot.OnSpinCompleted += HandleSpinCompleted;
 
-        Debug.Log($"[SlotsBotBehaviour] Бот начал сессию на автомате '{_currentSlot.slotMachineName}'");
     }
 
     public override void EndSession()
@@ -80,13 +77,34 @@ public class SlotsBotBehaviour : BaseBotBehavior
 
     #region Game Logic
 
+    protected override IEnumerator SuspiciousActionPhase() 
+    {
+        if (bluffController == null) yield break;
+
+        float currentBluffChance = baseBluffChance * GetPersonalityBluffModifier();
+
+        float randomRoll = UnityEngine.Random.value;
+
+        if (randomRoll < currentBluffChance)
+        {
+            // БЛЕФ — делегируем в контроллер
+            if (bluffController != null && bluffController.TryBluff())
+            {
+                // Ждём окончания блефа (аналогично мухлежу)
+                while (bluffController.IsBluffing) yield return null;
+            }
+        }
+
+        yield break;
+    }
+
+
     /// <summary>
     /// Основная логика действий бота во время игры.
     /// Вызывается из BaseBotBehavior в цикле.
     /// </summary>
     protected override bool EvaluateAndPerformGameAction()
     {
-        Debug.Log($"[SlotsBotBehaviour] EvaluateAndPerformGameAction на автомате '{_currentSlot?.slotMachineName}'");
         if (_currentSlot == null)
         {
             Debug.LogWarning("[SlotsBotBehaviour] _currentSlot == null, завершаем сессию");
@@ -140,7 +158,6 @@ public class SlotsBotBehaviour : BaseBotBehavior
             _currentSlot.OnSlotMachineExplosionChanged -= HandleSlotExploded;
             _currentSlot.OnSlotMachineBreakdownChanged -= HandleSlotBreakdownChanged;
             _currentSlot.OnSpinCompleted -= HandleSpinCompleted;
-            _currentSlot.RemoveBot();
         }
 
         // Ищем новый свободный стол через BotAgent
@@ -148,13 +165,14 @@ public class SlotsBotBehaviour : BaseBotBehavior
         if (botAgent == null) return false;
 
         IGameTable newTable = botAgent.FindFreeTable();
+
         if (newTable != null)
         {
-            // Идём к новому столу
-            botAgent.GoToTable(newTable);
-
             // Назначаем себя на новый стол
             newTable.AssignBot(GetComponent<NetworkObject>());
+
+            // Идём к новому столу
+            botAgent.GoToTable(newTable);
 
             // Переинициализируемся
             InitializeGame(newTable);

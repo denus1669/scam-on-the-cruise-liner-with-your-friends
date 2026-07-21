@@ -8,6 +8,14 @@ using UnityEngine;
 /// </summary>
 public interface IGameTable
 {
+    /// <summary>
+    /// Трансформ стола (используется для навигации и поворота бота).
+    /// </summary>
+    Transform TableTransform { get; }
+    /// <summary>
+    /// Отображаемое имя стола для логов и отладки.
+    /// </summary>
+    string TableName { get; }
     /// <summary>Занят ли стол игроком в данный момент.</summary>
     bool IsOccupied { get; }
 

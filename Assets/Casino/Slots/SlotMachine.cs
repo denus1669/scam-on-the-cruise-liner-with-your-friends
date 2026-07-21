@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using Blocks.Gameplay.Core;
+using System.Collections;
 
 /// <summary>
 /// Выигрышная комбинация для слот-машины.
@@ -23,13 +24,12 @@ public struct SlotCombo
 /// </summary>
 public class SlotMachine : GameTable
 {
-
     [Header("Игровая логика спина")]
     [Tooltip("Шанс выигрыша (0.10 = 10%)")]
     [SerializeField] private float winChance = 0.10f;
 
     [Tooltip("Длительность анимации спина в секундах")]
-    [SerializeField] private float spinDuration = 2f;
+    [SerializeField] private float spinDuration = 4f;
 
     [Tooltip("Выигрышные комбинации")]
     [SerializeField] private SlotCombo[] winningCombos;
@@ -55,43 +55,31 @@ public class SlotMachine : GameTable
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
-    // Сетевая переменная времени до взрыва. Обновляется сервером.
-    private readonly NetworkVariable<float> _timeToExplode = new NetworkVariable<float>(
-        0f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);
+    // [ИСПРАВЛЕНО] Время до взрыва теперь обычная переменная только для сервера
+    private float _serverTimeToExplode;
 
     private SlotMachineBreakdownManager manager;
 
     // Свойства для проверки состояния автомата
     public bool IsBroken => _isBroken.Value;
     public bool IsExploded => _isExploded.Value;
-
-    // Свойство для доступа
-    public float TimeToExplode => _timeToExplode.Value;
-
+    public float TimeToExplode => _serverTimeToExplode; // Актуально только на сервере
     public override string TableType => "SlotMachine";
-
-    // Публичное свойство для проверки
     public bool IsSpinning => _isSpinning.Value;
 
     // Событие для подписки ботом и другими системами
+    public event Action<float> OnSpinStarted; // duration
     public event Action<bool, int> OnSpinCompleted; // (isWin, comboIndex или -1)
 
-    // Событие для визуальных компонентов (обратный отсчет прогресс-бара)
-    public event Action<float> OnTimeToExplodeChanged;
+    // [ИСПРАВЛЕНО] Событие для таймера. Передаем double (ServerTime), чтобы клиент сам тикал локально
+    public event Action<double> OnTimeToExplodeStarted;
 
-    // Событие для визуалов (лампочки, анимации поломки)
+    // События для визуалов (лампочки, анимации поломки)
     public event Action<bool> OnSlotMachineBreakdownChanged; // true = сломан, false = исправен
     public event Action<bool> OnSlotMachineExplosionChanged; // true = взорван, false = исправен
 
-    private void BotOnPlace()
-    {
-
-        StartGame();
-    }
-
     #region GameTable Overrides
+
     public override void StartGame()
     {
         if (!IsServer)
@@ -107,47 +95,46 @@ public class SlotMachine : GameTable
         }
 
         gameInProgress.Value = true;
-
         Debug.Log($"[SlotMachine] Игра на автомате '{slotMachineName}' началась. Бот: {currentBot?.name}");
     }
 
     protected override bool CanStartGame()
     {
-        // Базовая проверка: есть ли игрок и бот
         if (!IsBotOccupied)
         {
             Debug.LogWarning($"[SlotMachine] Невозможно начать игру: Бот не назначен.");
             return false;
         }
-
         return true;
     }
 
-    /// <summary>
-    /// Переопределение: автомат не должен быть сломан или взорван.
-    /// </summary>
     public override bool CanAssignBot()
-    {  
-        Debug.LogWarning($"[SlotMachine] CanAssignBot={base.CanAssignBot()}, isBroken={_isBroken.Value}, isExploded={_isExploded.Value}");
-        return base.CanAssignBot() && !_isBroken.Value && !_isExploded.Value;
+    {
+        // [УЛУЧШЕНО] Заменил Warning на Log, чтобы не спамить в консоль при каждом поиске стола
+        bool canAssign = base.CanAssignBot() && !_isBroken.Value && !_isExploded.Value;
+        return canAssign;
     }
 
     #endregion
 
-    //  метод-обработчик:
-    private void HandleTimeToExplodeChanged(float previousValue, float newValue)
-    {
-        OnTimeToExplodeChanged?.Invoke(newValue);
-    }
-
-    // Добавьте метод для установки времени (вызывается менеджером):
     /// <summary>
     /// Устанавливает оставшееся время до взрыва. Вызывается только сервером.
     /// </summary>
     public void SetTimeToExplode(float time)
     {
         if (!IsServer) return;
-        _timeToExplode.Value = Mathf.Max(0f, time);
+        _serverTimeToExplode = Mathf.Max(0f, time);
+
+        // [ИСПРАВЛЕНО] Используем NetworkManager.ServerTime (встроенное свойство NetworkBehaviour)
+        double endTime = NetworkManager.ServerTime.Time + time;
+        StartExplosionTimerClientRpc(endTime);
+    }
+
+    [ClientRpc]
+    private void StartExplosionTimerClientRpc(double serverEndTime)
+    {
+        // Клиент получает точное серверное время окончания и сам запускает локальный таймер
+        OnTimeToExplodeStarted?.Invoke(serverEndTime);
     }
 
     public override void OnNetworkSpawn()
@@ -155,37 +142,47 @@ public class SlotMachine : GameTable
         base.OnNetworkSpawn();
         _isBroken.OnValueChanged += HandleSlotMachineBreakdownChanged;
         _isExploded.OnValueChanged += HandleExplosionStateChanged;
-        _timeToExplode.OnValueChanged += HandleTimeToExplodeChanged;
+        _isSpinning.OnValueChanged += HandleSpinningStateChanged;
 
-        _isSpinning.OnValueChanged += HandleSpinningStateChanged; // НОВОЕ
-
-        OnTimeToExplodeChanged?.Invoke(_timeToExplode.Value);
-        // Синхронизируем состояние визуалов при спавне для всех клиентов
+        // Синхронизируем состояние визуалов при спавне для всех клиентов (включая опоздавших)
         OnSlotMachineBreakdownChanged?.Invoke(_isBroken.Value);
+        OnSlotMachineExplosionChanged?.Invoke(_isExploded.Value);
+
+        // [ИСПРАВЛЕНО] Синхронизируем таймер взрыва для опоздавших клиентов
+        if (_serverTimeToExplode > 0)
+        {
+            double endTime = NetworkManager.ServerTime.Time + _serverTimeToExplode;
+            OnTimeToExplodeStarted?.Invoke(endTime);
+        }
     }
 
     public override void OnNetworkDespawn()
     {
+        // [ИСПРАВЛЕНО] Убраны старые подписки на _timeToExplode, которых больше нет
         _isBroken.OnValueChanged -= HandleSlotMachineBreakdownChanged;
         _isExploded.OnValueChanged -= HandleExplosionStateChanged;
-        _timeToExplode.OnValueChanged -= HandleTimeToExplodeChanged;
-
-        _isSpinning.OnValueChanged -= HandleSpinningStateChanged; // НОВОЕ
-
+        _isSpinning.OnValueChanged -= HandleSpinningStateChanged;
 
         base.OnNetworkDespawn();
     }
 
     private void HandleSlotMachineBreakdownChanged(bool previousValue, bool current)
     {
-        Debug.LogWarning($"[SlotMachine] Состояние поломки изменилось: {previousValue} → {current}");
+        Debug.Log($"[SlotMachine] Автомат сломался");
         OnSlotMachineBreakdownChanged?.Invoke(current);
     }
 
     private void HandleExplosionStateChanged(bool previousValue, bool current)
     {
-        Debug.LogWarning($"[SlotMachine] Состояние взрыва изменилось: {previousValue} → {current}");
+        Debug.Log($"[SlotMachine] Автомат взорвался");
         OnSlotMachineExplosionChanged?.Invoke(current);
+    }
+
+    private void HandleSpinningStateChanged(bool previousValue, bool current)
+    {
+        if(current)
+            OnSpinStarted?.Invoke(spinDuration);
+        Debug.Log($"[SlotMachine] Рулетка вращается");
     }
 
     /// <summary>
@@ -201,15 +198,9 @@ public class SlotMachine : GameTable
         }
     }
 
-    /// <summary>
-    /// Вызывается менеджером, когда срабатывает таймер поломки.
-    /// Строго серверная логика.
-    /// </summary>
     public void BreakDown()
     {
         if (!IsServer) return;
-
-        // Не ломаем уже сломанные или взорванные автоматы
         if (_isBroken.Value || _isExploded.Value) return;
 
         _isBroken.Value = true;
@@ -217,26 +208,17 @@ public class SlotMachine : GameTable
         Debug.Log($"<color=red>[ПОЛОМКА]</color> Игровой автомат '{slotMachineName}' сломался! Требуется починка.");
     }
 
-    /// <summary>
-    /// Вызывается менеджером, когда автомат не починили вовремя и он взрывается.
-    /// Строго серверная логика. Это финальное состояние - автомат больше не работает.
-    /// </summary>
     public void Explode()
     {
         if (!IsServer) return;
         if (_isExploded.Value) return;
 
-        
         _isExploded.Value = true;
-        _isBroken.Value = false; // Снимаем состояние поломки, теперь он взорван
-        RemoveBot();
+        _isBroken.Value = false;
 
         Debug.Log($"<color=red>[ВЗРЫВ]</color> Игровой автомат '{slotMachineName}' взорвался! Все боты в локации получили раздражение.");
     }
 
-    /// <summary>
-    /// RPC для запроса починки от клиента. Вызывается из SlotMachineInteractable.
-    /// </summary>
     [Rpc(SendTo.Server)]
     public void TryFixMachineServerRpc(ulong clientId)
     {
@@ -248,73 +230,45 @@ public class SlotMachine : GameTable
 
         if (!_isBroken.Value) return;
 
-        // Занимаем стол игроком на время починки
         Occupy(clientId);
         Debug.Log($"[SlotMachine] Игрок {clientId} начал починку автомата '{slotMachineName}'");
 
-        // Успешная починка
         _isBroken.Value = false;
         Debug.Log($"<color=green>[ПОЧИНКА]</color> Игровой автомат '{slotMachineName}' успешно починен игроком (Client ID: {clientId})!");
 
-        // Освобождаем стол после починки
         Leave(clientId);
         Debug.Log($"[SlotMachine] Игрок {clientId} завершил починку, стол освобождён");
-
     }
 
-    /// <summary>
-    /// Восстанавливает автомат после взрыва.
-    /// Сбрасывает состояние взрыва и время до взрыва.
-    /// Вызывается только на сервере после завершения всех эффектов.
-    /// </summary>
     public void Restore()
     {
         if (!IsServer) return;
         if (!_isExploded.Value) return;
 
         _isExploded.Value = false;
-        _timeToExplode.Value = 0f;
+        // [ИСПРАВЛЕНО] Обращаемся к локальной переменной сервера
+        _serverTimeToExplode = 0f;
 
         Debug.Log($"<color=cyan>[ВОССТАНОВЛЕНИЕ]</color> Игровой автомат '{slotMachineName}' восстановлен и готов к работе.");
-
     }
 
-    /// <summary>
-    /// Сброс всех состояний автомата (для начала нового раунда или перезапуска).
-    /// Вызывается только на сервере.
-    /// </summary>
     public void Reset()
     {
         if (!IsServer) return;
 
         _isBroken.Value = false;
         _isExploded.Value = false;
-        _timeToExplode.Value = 0f;
-        _isSpinning.Value = false; 
+        // [ИСПРАВЛЕНО] Обращаемся к локальной переменной сервера
+        _serverTimeToExplode = 0f;
+        _isSpinning.Value = false;
 
         Debug.Log($"[СБРОС] Игровой автомат '{slotMachineName}' сброшен в исходное состояние.");
-
     }
 
-    public override void RemoveBot()
-    {
-        if (!IsServer) return;
-
-        currentBot = null;
-        botNetworkObjectRef.Value = default;
-        isBotOccupied.Value = false;
-        Debug.Log($"[GameTable] Бот убран из-за стола.");
-    }
-
-    /// <summary>
-    /// Запускает спин автомата. Вызывается ботом из SlotsBotBehaviour.
-    /// Только серверная логика.
-    /// </summary>
     public void Spin()
     {
         if (!IsServer) return;
 
-        // Проверки состояния
         if (_isBroken.Value || _isExploded.Value)
         {
             Debug.LogWarning($"[SlotMachine] Автомат '{slotMachineName}' сломан/взорван, спин невозможен");
@@ -333,7 +287,6 @@ public class SlotMachine : GameTable
             return;
         }
 
-        // Генерируем результат ЗАРАНЕЕ
         float roll = UnityEngine.Random.value;
         bool isWin = roll < winChance;
 
@@ -343,48 +296,27 @@ public class SlotMachine : GameTable
             comboIndex = UnityEngine.Random.Range(0, winningCombos.Length);
         }
 
-        Debug.Log($"[SlotMachine] Автомат '{slotMachineName}' начинает спин. Результат: {(isWin ? "ПОБЕДА" : "ПРОИГРЫШ")}");
-
-        // Запускаем корутину спина
+        Debug.LogError($"[SlotMachine] Автомат '{slotMachineName}' начинает спин. Результат: {(isWin ? "ПОБЕДА" : "ПРОИГРЫШ")}");
         StartCoroutine(SpinRoutine(isWin, comboIndex));
     }
 
-    /// <summary>
-    /// Корутина спина: устанавливает состояние, ждёт анимацию, вызывает результат.
-    /// </summary>
-    private System.Collections.IEnumerator SpinRoutine(bool isWin, int comboIndex)
+    private IEnumerator SpinRoutine(bool isWin, int comboIndex)
     {
         _isSpinning.Value = true;
-
-        // Отправляем ClientRpc для визуализации анимации
         PlaySpinAnimationClientRpc(isWin, comboIndex, spinDuration);
 
-        // Ждём пока анимация завершится
         yield return new WaitForSeconds(spinDuration);
 
-        // Интерпретируем результат
         InterpretResult(isWin, comboIndex);
-
         _isSpinning.Value = false;
     }
 
-    /// <summary>
-    /// Интерпретирует результат спина и вызывает Win() или Lose().
-    /// </summary>
     private void InterpretResult(bool isWin, int comboIndex)
     {
-        if (isWin)
-        {
-            Win(comboIndex);
-        }
-        else
-        {
-            Lose();
-        }
+        if (isWin) Win(comboIndex);
+        else Lose();
     }
-    /// <summary>
-    /// Обработка выигрыша. Излучает событие с индексом комбинации.
-    /// </summary>
+
     private void Win(int comboIndex)
     {
         string comboName = "Неизвестно";
@@ -394,22 +326,13 @@ public class SlotMachine : GameTable
         }
 
         Debug.Log($"<color=green>[ПОБЕДА]</color> Автомат '{slotMachineName}' выиграл комбинацию: {comboName}");
-
-        // VFX джекпота (опционально)
         PlayJackpotVFXClientRpc();
-
-        // Излучаем событие
         OnSpinCompleted?.Invoke(true, comboIndex);
     }
 
-    /// <summary>
-    /// Обработка проигрыша.
-    /// </summary>
     private void Lose()
     {
         Debug.Log($"<color=red>[ПРОИГРЫШ]</color> Автомат '{slotMachineName}' проиграл");
-
-        // Излучаем событие
         OnSpinCompleted?.Invoke(false, -1);
     }
 
@@ -417,35 +340,13 @@ public class SlotMachine : GameTable
     private void PlaySpinAnimationClientRpc(bool isWin, int comboIndex, float duration)
     {
         Debug.Log($"[SlotMachine Client] Анимация спина: isWin={isWin}, combo={comboIndex}, duration={duration}");
-
-        // Здесь будет вызов визуального компонента (шейдер, анимация барабанов)
-        // Например: slotMachineVisuals.PlaySpin(isWin, comboIndex, duration);
+        // slotMachineVisuals.PlaySpin(isWin, comboIndex, duration);
     }
 
     [ClientRpc]
     private void PlayJackpotVFXClientRpc()
     {
         Debug.Log($"[SlotMachine Client] VFX джекпота!");
-
-        // Здесь будет вызов VFX (частицы, звук, тряска камеры)
-        // Например: slotMachineVisuals.PlayJackpot();
-    }
-
-    /// <summary>
-    /// Обработчик изменения состояния спина.
-    /// </summary>
-    private void HandleSpinningStateChanged(bool previousValue, bool current)
-    {
-        Debug.Log($"[SlotMachine] Состояние спина: {previousValue} → {current}");
-
-        // Можно добавить событие для UI или других систем
-        //OnSpinningStateChanged?.Invoke(current);
-    }
-
-
-
-    [ClientRpc]
-    private void NotifySlotMachineStateChangedClientRpc()
-    {
+        // slotMachineVisuals.PlayJackpot();
     }
 }

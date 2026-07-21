@@ -27,8 +27,11 @@ public class BotAgent : NetworkBehaviour
     private NavMeshAgent navAgent;
     private Coroutine movementCoroutine;
 
+    // КЭШИРУЕМ поведения, чтобы не искать их каждый раз
+    private BaseBotBehavior[] _cachedBehaviors;
+    BaseBotBehavior selectedBehavior = null;
+
     private bool isWaitingForTable;
-    private List<IGameTable> subscribedTables = new List<IGameTable>();
 
     // Текущий стол, с которым взаимодействует бот
     private IGameTable currentTable;
@@ -41,6 +44,9 @@ public class BotAgent : NetworkBehaviour
     {
         navAgent = GetComponent<NavMeshAgent>();
         navAgent.stoppingDistance = stoppingDistance;
+
+        // [ИЗМЕНЕНО] Один раз получаем все поведения при создании бота
+        _cachedBehaviors = GetComponents<BaseBotBehavior>();
     }
 
     public override void OnNetworkSpawn()
@@ -61,13 +67,40 @@ public class BotAgent : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         _isArrived.OnValueChanged -= HandleOnArrivedChanged;
+
+        // Освобождаем стол при сетевом деспавне
+        // Если бота кикнули или он "крашнулся", стол не должен остаться занятым навсегда
+        if (IsServer && currentTable != null)
+        {
+            currentTable.RemoveBot();
+            currentTable = null;
+        }
     }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        if (IsServer && currentTable != null)
+        {
+            currentTable.RemoveBot();
+            currentTable = null;
+        }
+
+        // Гарантированная отписка от Менеджера, если бот был в ожидании
+        if (isWaitingForTable && GameTableManager.Instance != null)
+        {
+            GameTableManager.Instance.OnAnyTableFreed -= OnAnyTableFreed;
+        }
+    }
+
 
     public void HandleOnArrivedChanged(bool previousValue, bool newValue)
     {
         Debug.Log($"[BotAgent] OnArrivedChanged: {previousValue} -> {newValue}");
         OnArrivedChanged?.Invoke(newValue);
     }
+
     #region Public Navigation Methods
 
     /// <summary>
@@ -78,26 +111,21 @@ public class BotAgent : NetworkBehaviour
     {
         if (!IsServer) return null;
 
-        List<IGameTable> freeTables = new List<IGameTable>();
-
-        MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-
-        foreach (var behaviour in allBehaviours)
+        // [ИЗМЕНЕНО] Используем Менеджер вместо тяжелого поиска по сцене
+        if (GameTableManager.Instance == null)
         {
-            if (behaviour is IGameTable table && table.CanAssignBot())
-            {
-                freeTables.Add(table);
-            }
-        }
-
-        if (freeTables.Count == 0)
-        {
-            Debug.Log($"[BotAgent] Нет свободных столов для бота {gameObject.name}");
+            Debug.LogError("[BotAgent] GameTableManager не найден на сцене!");
             return null;
         }
 
-        int randomIndex = UnityEngine.Random.Range(0, freeTables.Count);
-        return freeTables[randomIndex];
+        IGameTable freeTable = GameTableManager.Instance.GetRandomFreeTable();
+
+        if (freeTable == null)
+        {
+            Debug.Log($"[BotAgent] Нет свободных столов для бота {gameObject.name}");
+        }
+
+        return freeTable;
     }
 
     /// <summary>
@@ -124,10 +152,12 @@ public class BotAgent : NetworkBehaviour
         if (netObj != null)
         {
             currentTable.AssignBot(netObj);
-            Debug.Log($"[BotAgent] Бот {gameObject.name} зарезервировал стол '{((MonoBehaviour)table).name}'");
+            // [ИЗМЕНЕНО] Используем свойство TableName вместо каста к MonoBehaviour
+            Debug.Log($"[BotAgent] Бот {gameObject.name} зарезервировал стол '{table.TableName}'");
         }
 
-        Transform targetTransform = table.BotWaitPoint ?? ((MonoBehaviour)table).transform;
+        // [ИЗМЕНЕНО] Используем TableTransform и BotWaitPoint (если есть)
+        Transform targetTransform = table.BotWaitPoint ?? table.TableTransform;
         MoveToTarget(targetTransform, OnReachedTable);
     }
 
@@ -212,69 +242,175 @@ public class BotAgent : NetworkBehaviour
         if (!IsServer || target == null) yield break;
 
         navAgent.isStopped = false;
+        navAgent.SetDestination(target.position);
 
-        while (Vector3.Distance(transform.position, target.position) > navAgent.stoppingDistance)
+        // 5. Возвращаем управление NavMeshAgent
+        
+        navAgent.updatePosition = true;
+        navAgent.updateRotation = true;
+        
+        // 1. Ждем, пока путь построится (с таймаутом на случай зависания)
+        float pathBuildTimeout = 2f;
+        while (navAgent.pathPending && pathBuildTimeout > 0)
         {
-            navAgent.SetDestination(target.position);
-            yield return new WaitForSeconds(pathUpdateInterval);
-
-            if (target == null)
-            {
-                Debug.LogWarning($"[BotAgent] Цель исчезла во время движения. Бот {gameObject.name} останавливается.");
-                navAgent.isStopped = true;
-                movementCoroutine = null;
-                yield break;
-            }
+            pathBuildTimeout -= Time.deltaTime;
+            yield return null;
         }
 
+        // 2. Проверка: удалось ли вообще построить путь? 
+        // (Например, стол может стоять внутри collider'а, где нет NavMesh)
+        if (navAgent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            Debug.LogWarning($"[BotAgent] Невозможно построить путь к {target.name}. Путь невалиден.");
+            CancelMovement();
+            yield break;
+        }
+
+        // 3. Переменные для детектора застревания (Stuck Detection)
+        Vector3 lastPosition = transform.position;
+        float stuckTimer = 0f;
+        const float STUCK_THRESHOLD = 3f; // Секунд без движения, чтобы считать бота застрявшим
+        const float MOVE_EPSILON = 0.05f; // Минимальное смещение, чтобы считать, что бот движется
+
+        // 4. Основной цикл движения
+        // ИСПРАВЛЕНО: Используем remainingDistance вместо Vector3.Distance
+        while (navAgent.remainingDistance > navAgent.stoppingDistance)
+        {
+            // Обновляем путь, только если цель сдвинулась больше чем на 0.5 метра
+            if (Vector3.Distance(navAgent.destination, target.position) > 0.5f)
+            {
+                navAgent.SetDestination(target.position);
+            }
+            // Если цель уничтожена во время пути
+            if (target == null)
+            {
+                CancelMovement();
+                yield break;
+            }
+
+            // Если на пути внезапно выросло препятствие (например, закрылась дверь)
+            if (navAgent.pathStatus == NavMeshPathStatus.PathInvalid)
+            {
+                Debug.LogWarning($"[BotAgent] Путь к {target.name} стал недействительным во время движения.");
+                CancelMovement();
+                yield break;
+            }
+
+            // [STUCK DETECTION] Проверяем, движется ли бот
+            if (Vector3.Distance(transform.position, lastPosition) < MOVE_EPSILON)
+            {
+                stuckTimer += pathUpdateInterval;
+                if (stuckTimer >= STUCK_THRESHOLD)
+                {
+                    Debug.LogWarning($"[BotAgent] Бот {gameObject.name} застрял! Пытаемся пересчитать путь.");
+                    stuckTimer = 0f;
+
+                    // Пытаемся пересчитать путь (иногда помогает найти обходной маршрут)
+                    navAgent.SetDestination(target.position);
+                    yield return null; // Ждем 1 кадр
+
+                    // Если после пересчета путь все еще невалиден - сдаемся
+                    if (navAgent.pathStatus == NavMeshPathStatus.PathInvalid)
+                    {
+                        CancelMovement();
+                        yield break;
+                    }
+                }
+            }
+            else
+            {
+                stuckTimer = 0f; // Бот движется, сбрасываем таймер
+                lastPosition = transform.position;
+            }
+
+            // Экономим ресурсы сервера, проверяя статус не каждый кадр, а с интервалом
+            yield return new WaitForSeconds(pathUpdateInterval);
+        }
+
+        // 5. Успешное прибытие
         navAgent.isStopped = true;
         movementCoroutine = null;
-
         onArrived?.Invoke();
     }
-
-    /// <summary>
-    /// Поворачивает бота лицом к текущему столу (игнорируя наклон по вертикали).
-    /// </summary>
-    private void FaceCurrentTable()
-    {
-        if (currentTable == null) return;
-
-        Transform tableTransform = ((MonoBehaviour)currentTable).transform;
-        Vector3 direction = tableTransform.position - transform.position;
-        direction.y = 0f;
-
-        if (direction != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(direction);
-    }
-
     #endregion
 
-    #region Arrival Callbacks
+    #region Arrival Callbacksw
 
     private void OnReachedTable()
     {
         if (currentTable == null) return;
 
-            // Проверка: стол мог стать недоступным (сломался, взорвался)
-            /*
-        if (!currentTable.CanAssignBot())
-        {   
-            Debug.LogWarning($"[BotAgent] Стол '{((MonoBehaviour)currentTable).name}' стал недоступен после прибытия. Ищем новый.");
-            currentTable = null;
-            GoToRandomFreeTable();
-            return;
-        }*/
+        // Запускаем плавное выравнивание вместо мгновенной установки
+        StartCoroutine(SmoothAlignToTable());
+    }
+
+    private IEnumerator SmoothAlignToTable()
+    {
+        // 1. Определяем целевые позицию и ротацию
+        Transform waitPoint = currentTable.BotWaitPoint;
+        Vector3 targetPosition;
+        Quaternion targetRotation;
+
+        if (waitPoint != null)
+        {
+            // Идеальный случай: есть заготовленная точка с правильной ротацией
+            targetPosition = waitPoint.position;
+            targetRotation = waitPoint.rotation;
+        }
+        else
+        {
+            // Fallback: BotWaitPoint не назначен.
+            // Оставляем бота на текущей позиции, но поворачиваем лицом к столу.
+            targetPosition = transform.position;
+            Vector3 direction = currentTable.TableTransform.position - transform.position;
+            direction.y = 0f;
+            targetRotation = direction != Vector3.zero
+                ? Quaternion.LookRotation(direction)
+                : transform.rotation;
+        }
+
+        // 2. Отключаем NavMeshAgent от управления на время анимации.
+        // Иначе агент будет пытаться "тянуть" бота обратно к своему рассчитанному положению.
+        bool wasUpdatingPosition = navAgent.updatePosition;
+        bool wasUpdatingRotation = navAgent.updateRotation;
+        navAgent.updatePosition = false;
+        navAgent.updateRotation = false;
+
+        // 3. Плавная анимация (1 секунда)
+        float duration = 1f;
+        float elapsed = 0f;
+        Vector3 startPos = transform.position;
+        Quaternion startRot = transform.rotation;
+
+        while (elapsed < duration)
+        {
+            // Если во время анимации стол исчез или бота позвали в другое место
+            if (currentTable == null) yield break;
+
+            elapsed += Time.deltaTime;
+
+            // SmoothStep дает красивую кривую с ускорением в начале и замедлением в конце
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+            transform.rotation = Quaternion.Slerp(startRot, targetRotation, t);
+
+            yield return null;
+        }
+
+        // 4. Финальная точная установка (на случай микро-погрешностей)
+        transform.position = targetPosition;
+        transform.rotation = targetRotation;
 
 
-        // Только поворот лицом к столу
-        FaceCurrentTable();
-
-        // Включаем нужный behavior под тип стола
+        // 6. Запускаем игровую логику
         ActivateBehaviorForTable(currentTable);
 
-        _isArrived.Value = true;
+        if (currentTable.TableType == "SlotMachine")
+            currentTable.StartGame();
+        if (currentTable.TableType == "BlackGreg")
 
+        _isArrived.Value = true;
     }
 
     private void OnReachedExit()
@@ -302,45 +438,25 @@ public class BotAgent : NetworkBehaviour
         if (isWaitingForTable) return;
         isWaitingForTable = true;
 
-        MonoBehaviour[] allBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-        foreach (var behaviour in allBehaviours)
+        // [ИЗМЕНЕНО] Подписываемся только на ОДИН глобальный ивент Менеджера
+        if (GameTableManager.Instance != null)
         {
-            if (behaviour is IGameTable table)
-            {
-                table.OnBotOccupancyChanged += OnTableBotOccupancyChanged;
-                subscribedTables.Add(table);
-            }
+            GameTableManager.Instance.OnAnyTableFreed += OnAnyTableFreed;
         }
     }
 
-    private void OnTableBotOccupancyChanged(bool isOccupied)
+    private void OnAnyTableFreed()
     {
-        if (!isOccupied)
+        // Отписываемся, чтобы не реагировать на следующие освобождения, 
+        // так как мы уже пошли искать стол
+        if (GameTableManager.Instance != null)
         {
-            foreach (var table in subscribedTables)
-            {
-                table.OnBotOccupancyChanged -= OnTableBotOccupancyChanged;
-            }
-            subscribedTables.Clear();
-            isWaitingForTable = false;
-
-            GoToRandomFreeTable();
+            GameTableManager.Instance.OnAnyTableFreed -= OnAnyTableFreed;
         }
-    }
 
-    public override void OnDestroy()
-    {
-        base.OnDestroy();
-        if (IsServer)
-        {
-            foreach (var table in subscribedTables)
-            {
-                table.OnBotOccupancyChanged -= OnTableBotOccupancyChanged;
-            }
-            subscribedTables.Clear();
-        }
+        isWaitingForTable = false;
+        GoToRandomFreeTable();
     }
-
     #endregion
 
     #region Utility
@@ -371,15 +487,12 @@ public class BotAgent : NetworkBehaviour
     /// </summary>
     private void ActivateBehaviorForTable(IGameTable table)
     {
-        // Получаем все behaviors на боте
-        var allBehaviors = GetComponents<BaseBotBehavior>();
+        selectedBehavior = null;
 
-        BaseBotBehavior selectedBehavior = null;
-        foreach (var behavior in allBehaviors)
+        // [ИЗМЕНЕНО] Используем кэшированный массив
+        foreach (var behavior in _cachedBehaviors)
         {
-            // Выключаем все
             behavior.enabled = false;
-            // Проверяем совместимость с текущим столом
             if (IsBehaviorCompatible(behavior, table))
             {
                 selectedBehavior = behavior;
@@ -388,16 +501,15 @@ public class BotAgent : NetworkBehaviour
 
         if (selectedBehavior == null)
         {
-            Debug.LogError($"[BotAgent] Нет подходящего behavior для стола {table.TableType}");
             GoToExit();
             return;
         }
 
-        // Включаем выбранный
         selectedBehavior.enabled = true;
         selectedBehavior.InitializeGame(table);
 
-        Debug.Log($"[BotAgent] Активирован {selectedBehavior.GetType().Name} для стола {table.TableType}");
+        // [ИЗМЕНЕНО] Используем TableName
+        Debug.Log($"[BotAgent] Активирован {selectedBehavior.GetType().Name} для стола {table.TableName}");
     }
 
     /// <summary>
@@ -410,4 +522,6 @@ public class BotAgent : NetworkBehaviour
     }
 
     #endregion
+
+    
 }

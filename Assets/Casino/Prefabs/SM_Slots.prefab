@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 68572375489499178}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.43}
+  m_LocalPosition: {x: 0, y: 0, z: -1.517}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -342,6 +342,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4080150168697894344}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9162682974747400534}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5277537753022767718}
   m_SourcePrefab: {fileID: 100100000, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
 --- !u!1 &8087864717487773554 stripped
 GameObject:
@@ -407,12 +413,12 @@ MonoBehaviour:
   botWaitPoint: {fileID: 4262319595558650338}
   casinoBank: {fileID: 0}
   anteAmount: 0
-  machineName: Slot Machine
-  winChance: 0.1
-  spinDuration: 2
+  winChance: 0.5
+  spinDuration: 4
   winningCombos:
   - comboId: 1
     displayName: 1
+  slotMachineName: "\u0421\u041B\u041E\u0422\u042B"
 --- !u!114 &4080150168697894344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -436,6 +442,124 @@ MonoBehaviour:
   shakeDuration: 0.3
   hideModelAfterExplosion: 1
   machineModel: {fileID: 8087864717487773554}
+--- !u!82 &9162682974747400534
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8371449471237639755}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 24300000, guid: fddb343a82968524eb1e9a6f65433d7e, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 5e7fd8a2da88913449051b82c9354c19, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &5277537753022767718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8371449471237639755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baecbb8d2df26e042b082776b1634fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.SlotMachineAnimationAudio
+  wheelAnimator: {fileID: 0}
+  audioSource: {fileID: 9162682974747400534}
+  spinSound: {fileID: 8300000, guid: 5e7fd8a2da88913449051b82c9354c19, type: 3}
+  winSound: {fileID: 8300000, guid: def7840aded0c6b4c91f973da5b03866, type: 3}
+  loseSound: {fileID: 8300000, guid: 39d4d20edac0c024bb82b190e4afa0c4, type: 3}
+  breakdownSound: {fileID: 8300000, guid: 414ad7ca7d36aa94d88eced81873c30b, type: 3}
+  explosionSound: {fileID: 8300000, guid: 093ce1938db37184e826a7ab5c6d2e38, type: 3}
+  fixSound: {fileID: 8300000, guid: a5d79be5ed1e84342aabcd40e7c66d12, type: 3}
+  slotMachine: {fileID: 6936879655637228433}
 --- !u!4 &9180179217993700593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}

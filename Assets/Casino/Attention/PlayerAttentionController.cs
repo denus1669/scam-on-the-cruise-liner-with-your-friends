@@ -25,6 +25,7 @@ namespace Blocks.Gameplay.Core
 
         public bool IsAttentionActive => _isAttention.Value;
 
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
