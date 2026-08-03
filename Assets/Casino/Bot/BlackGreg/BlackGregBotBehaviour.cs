@@ -2,10 +2,10 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Специфичное поведение бота для игры BlackGreg (Блэкджек).
+/// Специфичное поведение бота для игры BlackGreg (БлэкГрэг).
 /// Наследует универсальную логику от BaseBotBehavior.
 /// </summary>
-public class BlackGregBotBehavior : BaseBotBehavior
+public class BlackGregBotBehavior : BaseBotBehaviour
 {
     [Header("Специфичные настройки BlackGreg")]
     [Range(0f, 1f)]

@@ -5,7 +5,7 @@ using UnityEngine;
 public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
 {
     public bool CanSlap(BotSlapContext context) =>
-        context.BotBehavior != null && context.BluffController.IsBluffing;
+        context.BotBehaviour != null && context.BluffController.IsBluffing;
 
     public void Slap(ulong slapperClientId, BotSlapContext context)
     {

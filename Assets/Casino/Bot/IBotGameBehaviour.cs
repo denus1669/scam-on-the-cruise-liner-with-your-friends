@@ -3,7 +3,7 @@ using Unity.Netcode;
 /// <summary>
 /// Интерфейс для любого игрового поведения бота.
 /// </summary>
-public interface IBotGameBehavior
+public interface IBotGameBehaviour
 {
     /// <summary>
     /// Инициализирует бота для работы с конкретным столом.

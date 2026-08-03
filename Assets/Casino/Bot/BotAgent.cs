@@ -28,8 +28,8 @@ public class BotAgent : NetworkBehaviour
     private Coroutine movementCoroutine;
 
     // КЭШИРУЕМ поведения, чтобы не искать их каждый раз
-    private BaseBotBehavior[] _cachedBehaviors;
-    BaseBotBehavior selectedBehavior = null;
+    private BaseBotBehaviour[] _cachedBehaviors;
+    BaseBotBehaviour selectedBehavior = null;
 
     private bool isWaitingForTable;
 
@@ -46,7 +46,7 @@ public class BotAgent : NetworkBehaviour
         navAgent.stoppingDistance = stoppingDistance;
 
         // [ИЗМЕНЕНО] Один раз получаем все поведения при создании бота
-        _cachedBehaviors = GetComponents<BaseBotBehavior>();
+        _cachedBehaviors = GetComponents<BaseBotBehaviour>();
     }
 
     public override void OnNetworkSpawn()
@@ -516,7 +516,7 @@ public class BotAgent : NetworkBehaviour
     /// Проверяет, подходит ли behavior для данного типа стола.
     /// Каждый behavior сам декларирует какие столы поддерживает.
     /// </summary>
-    private bool IsBehaviorCompatible(BaseBotBehavior behavior, IGameTable table)
+    private bool IsBehaviorCompatible(BaseBotBehaviour behavior, IGameTable table)
     {
         return behavior.SupportedTableType.IsInstanceOfType(table);
     }

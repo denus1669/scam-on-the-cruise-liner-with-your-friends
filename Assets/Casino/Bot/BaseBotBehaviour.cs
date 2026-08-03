@@ -7,7 +7,7 @@ using UnityEngine;
 /// Базовый класс для ИИ бота. Содержит универсальную логику: 
 /// жизненный цикл сессии, мухлеж, блеф и реакции на игрока.
 /// </summary>
-public abstract class BaseBotBehavior : NetworkBehaviour, IBotGameBehavior
+public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
 {
     [Header("Универсальные настройки ИИ")]
     [SerializeField] protected BotPersonality personality = BotPersonality.Balanced;

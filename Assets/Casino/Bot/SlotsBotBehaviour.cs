@@ -8,7 +8,7 @@ using System.Collections;
 /// Бот просто крутит автомат, не принимая сложных решений.
 /// При поломке/взрыве ищет новый свободный стол или уходит.
 /// </summary>
-public class SlotsBotBehaviour : BaseBotBehavior
+public class SlotsBotBehaviour : BaseBotBehaviour
 {
     [Header("Слот-машина")]
     [Tooltip("Текущий автомат, за которым играет бот")]

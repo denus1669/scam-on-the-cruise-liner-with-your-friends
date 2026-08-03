@@ -110,6 +110,50 @@ public class CheatController : NetworkBehaviour
         cheatCoroutine = StartCoroutine(CheatRoutine(cheatToExecute, context));
         return true;
     }
+    public IEnumerator BotCheatRoutine(CheatAction cheat, CheatContext context)
+    {
+
+        // Бот просто ждёт AnimationDuration — это окно для обвинения игроком
+        float timer = cheat.AnimationDuration;
+        while (timer > 0)
+        {
+            timer -= Time.deltaTime;
+
+            if (context.Table == null || !context.Table.IsGameStarted)
+            {
+                CancelCheat();
+                yield break;
+            }
+            yield return null;
+        }
+
+        // Мухлеж бота удался (игрок его не поймал)
+        CompleteCheat(cheat, context);
+    }
+    public IEnumerator PlayerCheatRoutine(CheatAction cheat, CheatContext context)
+    {
+        //Даем команду локальному клиенту открыть UI мини - игры
+        StartPlayerMinigameClientRpc(cheat.name);
+
+        // Сервер включает тайм-аут (AnimationDuration + 5 секунд форы), 
+        // чтобы игрок не держал окно открытым вечно.
+        float maxWaitTime = cheat.AnimationDuration + 5f;
+        while (maxWaitTime > 0)
+        {
+            maxWaitTime -= Time.deltaTime;
+
+            if (context.Table == null || !context.Table.IsGameStarted)
+            {
+                CancelCheat();
+                yield break;
+            }
+            yield return null; // Ждем ответа от FinishPlayerCheatServerRpc
+        }
+
+        // Если время вышло, а игрок так и не прислал результат - наказываем
+        Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} не завершил мини-игру вовремя.");
+        HandleCheatCaught(ulong.MaxValue); // Игрок "выдал" сам себя
+    }
 
     private IEnumerator CheatRoutine(CheatAction cheat, CheatContext context)
     {
@@ -124,53 +168,19 @@ public class CheatController : NetworkBehaviour
 
         if (isBot)
         {
-            // ЛОГИКА ДЛЯ БОТА: Ждем фиксированное время (окно для обвинения)
-            float timer = cheat.AnimationDuration;
-            while (timer > 0)
-            {
-                timer -= Time.deltaTime;
+            yield return BotCheatRoutine(cheat, context);
 
-                if (context.Table == null || !context.Table.IsGameStarted)
-                {
-                    CancelCheat();
-                    yield break;
-                }
-                yield return null;
-            }
-
-            // Мухлеж бота удался (игрок его не поймал)
-            CompleteCheat(cheat, context, actorName);
         }
         else
         {
-            // ЛОГИКА ДЛЯ ИГРОКА: Даем команду локальному клиенту открыть UI мини-игры
-            StartPlayerMinigameClientRpc(cheat.name);
-
-            // Сервер включает тайм-аут (AnimationDuration + 5 секунд форы), 
-            // чтобы игрок не держал окно открытым вечно.
-            float maxWaitTime = cheat.AnimationDuration + 5f;
-            while (maxWaitTime > 0)
-            {
-                maxWaitTime -= Time.deltaTime;
-
-                if (context.Table == null || !context.Table.IsGameStarted)
-                {
-                    CancelCheat();
-                    yield break;
-                }
-                yield return null; // Ждем ответа от FinishPlayerCheatServerRpc
-            }
-
-            // Если время вышло, а игрок так и не прислал результат - наказываем
-            Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} не завершил мини-игру вовремя.");
-            HandleCheatCaught(ulong.MaxValue); // Игрок "выдал" сам себя
+            yield return PlayerCheatRoutine(cheat, context);
         }
     }
 
 
-    private void CompleteCheat(CheatAction cheat, CheatContext context, string actorName)
+    private void CompleteCheat(CheatAction cheat, CheatContext context)
     {
-        Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для {actorName}!");
+        Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для !");
         cheat.ApplyCheatResult(context);
 
         isCheating.Value = false;
@@ -207,7 +217,7 @@ public class CheatController : NetworkBehaviour
 
         if (isSuccess)
         {
-            CompleteCheat(currentCheatAction, activeContext, $"Игрок {OwnerClientId}");
+            CompleteCheat(currentCheatAction, activeContext);
         }
         else
         {

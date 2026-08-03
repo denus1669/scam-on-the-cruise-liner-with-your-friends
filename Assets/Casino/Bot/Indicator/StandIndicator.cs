@@ -2,24 +2,24 @@ using UnityEngine;
 
 public class StandIndicator : NetworkObjectVisibilityIndicator
 {
-    [SerializeField] private BaseBotBehavior botBehavior;
+    [SerializeField] private BaseBotBehaviour botBehaviour;
 
     protected override void Awake()
     {
         base.Awake();
-        if (botBehavior == null) botBehavior = GetComponent<BaseBotBehavior>();
+        if (botBehaviour == null) botBehaviour = GetComponent<BaseBotBehaviour>();
     }
 
     private void OnEnable()
     {
-        if (botBehavior != null)
-            botBehavior.OnBotStoodChanged += HandleBotStoodChanged;
+        if (botBehaviour != null)
+            botBehaviour.OnBotStoodChanged += HandleBotStoodChanged;
     }
 
     private void OnDisable()
     {
-        if (botBehavior != null)
-            botBehavior.OnBotStoodChanged -= HandleBotStoodChanged;
+        if (botBehaviour != null)
+            botBehaviour.OnBotStoodChanged -= HandleBotStoodChanged;
     }
 
     private void HandleBotStoodChanged(bool hasStood)
