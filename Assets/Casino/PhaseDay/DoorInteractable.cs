@@ -15,7 +15,7 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
 
     // Кэш для оптимизации обновления текста подсказки
     private string m_CachedPrompt;
-    private GameSessionManager.SessionPhase m_LastPhase;
+    private GameState m_LastPhase;
 
     public InteractionTriggerMode TriggerMode => triggerMode;
     public int Priority => priority;
@@ -29,7 +29,7 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
         get
         {
             var manager = GameSessionManager.Instance;
-            var currentPhase = manager != null ? manager.CurrentPhase : GameSessionManager.SessionPhase.Preparation;
+            var currentPhase = manager != null ? manager.CurrentState : GameState.Preparing;
 
             if (currentPhase != m_LastPhase || m_CachedPrompt == null)
             {
@@ -37,8 +37,8 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
 
                 m_CachedPrompt = currentPhase switch
                 {
-                    GameSessionManager.SessionPhase.Preparation => promptText,
-                    GameSessionManager.SessionPhase.GamePhase => "Идёт игровой день...",
+                    GameState.Preparing => promptText,
+                    GameState.DayActive => "Идёт игровой день...",
                     _ => promptText
                 };
             }
@@ -62,7 +62,7 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
         if (!netObj.IsPlayerObject) return false;
 
         // Только в фазе Preparation
-        return manager.CurrentPhase == GameSessionManager.SessionPhase.Preparation;
+        return manager.CurrentState == GameState.Preparing;
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
         if (manager == null) return;
 
         // Финальная проверка
-        if (manager.CurrentPhase != GameSessionManager.SessionPhase.Preparation)
+        if (manager.CurrentState != GameState.Preparing)
         {
             Debug.Log("[DoorInteractable] Попытка взаимодействия вне фазы Preparation");
             return;

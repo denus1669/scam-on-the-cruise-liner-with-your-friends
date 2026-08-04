@@ -72,10 +72,10 @@ public class ContinueListner : MonoBehaviour
             return;
         }
 
-        if (manager.CurrentPhase != GameSessionManager.SessionPhase.DayStatistics &&
-            manager.CurrentPhase != GameSessionManager.SessionPhase.SessionEnded)
+        if (manager.CurrentState != GameState.DayStatistic &&
+            manager.CurrentState != GameState.EndDay)
         {
-            Debug.Log($"[ContinueListner] Не в нужной фазе (текущая: {manager.CurrentPhase})");
+            Debug.Log($"[ContinueListner] Не в нужной фазе (текущая: {manager.CurrentState})");
             return;
         }
 

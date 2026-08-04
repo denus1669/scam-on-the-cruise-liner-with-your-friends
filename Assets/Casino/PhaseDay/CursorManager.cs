@@ -24,7 +24,7 @@ public class CursorManager : MonoBehaviour
         _manager = GameSessionManager.Instance;
         if (_manager != null)
         {
-            _manager.OnPhaseChanged += HandlePhaseChanged;
+            _manager.OnStateChanged += HandleStateChanged;
         }
     }
 
@@ -32,16 +32,16 @@ public class CursorManager : MonoBehaviour
     {
         if (_manager != null)
         {
-            _manager.OnPhaseChanged -= HandlePhaseChanged;
+            _manager.OnStateChanged -= HandleStateChanged;
         }
     }
 
-    private void HandlePhaseChanged(GameSessionManager.SessionPhase phase)
+    private void HandleStateChanged(GameState state)
     {
-        switch (phase)
+        switch (state)
         {
-            case GameSessionManager.SessionPhase.DayStatistics:
-            case GameSessionManager.SessionPhase.SessionEnded:
+            case GameState.DayStatistic:
+            case GameState.EndDay:
                 Cursor.visible = uiCursorVisible;
                 Cursor.lockState = uiLockMode;
                 break;

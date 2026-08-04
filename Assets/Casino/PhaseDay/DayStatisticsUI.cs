@@ -27,9 +27,9 @@ public class DayStatisticsUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged += HandlePhaseChanged;
+            manager.OnStateChanged += HandleStateChanged;
             manager.OnDayEnded += HandleDayEnded;
-            HandlePhaseChanged(manager.CurrentPhase);
+            HandleStateChanged(manager.CurrentState);
         }
 
         if (continueButton != null)
@@ -43,7 +43,7 @@ public class DayStatisticsUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged -= HandlePhaseChanged;
+            manager.OnStateChanged -= HandleStateChanged;
             manager.OnDayEnded -= HandleDayEnded;
         }
 
@@ -53,9 +53,9 @@ public class DayStatisticsUI : MonoBehaviour
         }
     }
 
-    private void HandlePhaseChanged(GameSessionManager.SessionPhase phase)
+    private void HandleStateChanged(GameState state)
     {
-        bool shouldShow = (phase == GameSessionManager.SessionPhase.DayStatistics);
+        bool shouldShow = (state == GameState.DayStatistic);
 
         if (DayStatisticsPanel != null)
         {
@@ -82,7 +82,7 @@ public class DayStatisticsUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null && continueButtonText != null)
         {
-            bool isLastDay = (finishedDay >= manager.TotalDays);
+            bool isLastDay = (finishedDay >= manager.DayConfiguration.daysCount);
             continueButtonText.text = isLastDay ? "Завершить сессию" : "Следующий день";
         }
     }

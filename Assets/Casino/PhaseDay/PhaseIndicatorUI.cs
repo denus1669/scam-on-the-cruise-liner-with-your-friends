@@ -11,11 +11,14 @@ public class PhaseIndicatorUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI dayText;
     [SerializeField] private TextMeshProUGUI phaseText;
 
-    [Header("Цвета фаз (опционально)")]
+    [Header("Цвета состояний (опционально)")]
+    [SerializeField] private Color lobbyColor = Color.gray;
     [SerializeField] private Color preparationColor = Color.yellow;
     [SerializeField] private Color gamePhaseColor = Color.green;
     [SerializeField] private Color dayEndingColor = Color.red;
     [SerializeField] private Color dayStatisticsColor = Color.cyan;
+    [SerializeField] private Color loseGameColor = new Color(0.6f, 0f, 0f);
+    [SerializeField] private Color winGameColor = new Color(1f, 0.84f, 0f);
     [SerializeField] private Color sessionEndedColor = Color.white;
 
     private void OnEnable()
@@ -23,12 +26,12 @@ public class PhaseIndicatorUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged += HandlePhaseChanged;
+            manager.OnStateChanged += HandleStateChanged;
             manager.OnDayStarted += HandleDayStarted;
 
             // Обновляем начальное состояние
-            UpdateDayText(manager.CurrentDay, manager.TotalDays);
-            HandlePhaseChanged(manager.CurrentPhase);
+            UpdateDayText(manager.CurrentDay, manager.DayConfiguration.daysCount);
+            HandleStateChanged(manager.CurrentState);
         }
     }
 
@@ -37,7 +40,7 @@ public class PhaseIndicatorUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged -= HandlePhaseChanged;
+            manager.OnStateChanged -= HandleStateChanged;
             manager.OnDayStarted -= HandleDayStarted;
         }
     }
@@ -47,16 +50,16 @@ public class PhaseIndicatorUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            UpdateDayText(dayNumber, manager.TotalDays);
+            UpdateDayText(dayNumber, manager.DayConfiguration.daysCount);
         }
     }
 
-    private void HandlePhaseChanged(GameSessionManager.SessionPhase phase)
+    private void HandleStateChanged(GameState state)
     {
         if (phaseText != null)
         {
-            phaseText.text = GetPhaseName(phase);
-            phaseText.color = GetPhaseColor(phase);
+            phaseText.text = GetStateName(state);
+            phaseText.color = GetStateColor(state);
         }
     }
 
@@ -68,28 +71,34 @@ public class PhaseIndicatorUI : MonoBehaviour
         }
     }
 
-    private string GetPhaseName(GameSessionManager.SessionPhase phase)
+    private string GetStateName(GameState state)
     {
-        return phase switch
+        return state switch
         {
-            GameSessionManager.SessionPhase.Preparation => "Подготовка",
-            GameSessionManager.SessionPhase.GamePhase => "Игровой день",
-            GameSessionManager.SessionPhase.DayEnding => "Завершение дня",
-            GameSessionManager.SessionPhase.DayStatistics => "Статистика дня",
-            GameSessionManager.SessionPhase.SessionEnded => "Сессия завершена",
+            GameState.Lobby => "Лобби",
+            GameState.Preparing => "Подготовка",
+            GameState.DayActive => "Игровой день",
+            GameState.EndDay => "Завершение дня",
+            GameState.DayStatistic => "Статистика дня",
+            GameState.LoseGame => "Поражение",
+            GameState.WinGame => "Победа",
+            GameState.GameStatistic => "Итоги сессии",
             _ => "Неизвестно"
         };
     }
 
-    private Color GetPhaseColor(GameSessionManager.SessionPhase phase)
+    private Color GetStateColor(GameState state)
     {
-        return phase switch
+        return state switch
         {
-            GameSessionManager.SessionPhase.Preparation => preparationColor,
-            GameSessionManager.SessionPhase.GamePhase => gamePhaseColor,
-            GameSessionManager.SessionPhase.DayEnding => dayEndingColor,
-            GameSessionManager.SessionPhase.DayStatistics => dayStatisticsColor,
-            GameSessionManager.SessionPhase.SessionEnded => sessionEndedColor,
+            GameState.Lobby => lobbyColor,
+            GameState.Preparing => preparationColor,
+            GameState.DayActive => gamePhaseColor,
+            GameState.EndDay => dayEndingColor,
+            GameState.DayStatistic => dayStatisticsColor,
+            GameState.LoseGame => loseGameColor,
+            GameState.WinGame => winGameColor,
+            GameState.GameStatistic => sessionEndedColor,
             _ => Color.white
         };
     }
