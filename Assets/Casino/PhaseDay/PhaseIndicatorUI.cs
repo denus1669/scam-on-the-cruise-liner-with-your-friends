@@ -12,11 +12,9 @@ public class PhaseIndicatorUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI phaseText;
 
     [Header("Цвета состояний (опционально)")]
-    [SerializeField] private Color lobbyColor = Color.gray;
     [SerializeField] private Color preparationColor = Color.yellow;
     [SerializeField] private Color gamePhaseColor = Color.green;
     [SerializeField] private Color dayEndingColor = Color.red;
-    [SerializeField] private Color dayStatisticsColor = Color.cyan;
     [SerializeField] private Color loseGameColor = new Color(0.6f, 0f, 0f);
     [SerializeField] private Color winGameColor = new Color(1f, 0.84f, 0f);
     [SerializeField] private Color sessionEndedColor = Color.white;
@@ -75,11 +73,9 @@ public class PhaseIndicatorUI : MonoBehaviour
     {
         return state switch
         {
-            GameState.Lobby => "Лобби",
             GameState.Preparing => "Подготовка",
             GameState.DayActive => "Игровой день",
             GameState.EndDay => "Завершение дня",
-            GameState.DayStatistic => "Статистика дня",
             GameState.LoseGame => "Поражение",
             GameState.WinGame => "Победа",
             GameState.GameStatistic => "Итоги сессии",
@@ -91,11 +87,9 @@ public class PhaseIndicatorUI : MonoBehaviour
     {
         return state switch
         {
-            GameState.Lobby => lobbyColor,
             GameState.Preparing => preparationColor,
             GameState.DayActive => gamePhaseColor,
             GameState.EndDay => dayEndingColor,
-            GameState.DayStatistic => dayStatisticsColor,
             GameState.LoseGame => loseGameColor,
             GameState.WinGame => winGameColor,
             GameState.GameStatistic => sessionEndedColor,

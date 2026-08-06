@@ -6,7 +6,7 @@ using UnityEngine;
 /// Интерактивный объект "Входная дверь казино".
 /// Работает только в фазе Preparation — запускает новый игровой день.
 /// </summary>
-public class DoorInteractable : NetworkBehaviour, IInteractable
+public class DayActiveInteractable : NetworkBehaviour, IInteractable
 {
     [Header("Настройки взаимодействия")]
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
@@ -15,7 +15,7 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
 
     // Кэш для оптимизации обновления текста подсказки
     private string m_CachedPrompt;
-    private GameState m_LastPhase;
+    private GameState m_LastState;
 
     public InteractionTriggerMode TriggerMode => triggerMode;
     public int Priority => priority;
@@ -31,9 +31,9 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
             var manager = GameSessionManager.Instance;
             var currentPhase = manager != null ? manager.CurrentState : GameState.Preparing;
 
-            if (currentPhase != m_LastPhase || m_CachedPrompt == null)
+            if (currentPhase != m_LastState || m_CachedPrompt == null)
             {
-                m_LastPhase = currentPhase;
+                m_LastState = currentPhase;
 
                 m_CachedPrompt = currentPhase switch
                 {
@@ -78,11 +78,11 @@ public class DoorInteractable : NetworkBehaviour, IInteractable
         // Финальная проверка
         if (manager.CurrentState != GameState.Preparing)
         {
-            Debug.Log("[DoorInteractable] Попытка взаимодействия вне фазы Preparation");
+            Debug.Log("[DayActiveInteractable] Попытка взаимодействия вне фазы Preparation");
             return;
         }
 
-        Debug.Log("[DoorInteractable] Игрок начинает новый день!");
+        Debug.Log("[DayActiveInteractable] Игрок начинает новый день!");
         manager.StartDayServerRpc();
     }
 }

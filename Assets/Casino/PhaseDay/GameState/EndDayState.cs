@@ -18,7 +18,7 @@ public sealed class EndDayState : GameStateBase
         if ((_elapsed += dt) >= 5f)
         {
             gameSessionManager.NotifyDayEnded(gameSessionManager.CurrentDay);
-            gameSessionManager.SetGameState(GameState.DayStatistic);
+            gameSessionManager.SetGameState(GameState.Preparing);
         }
     }
 }

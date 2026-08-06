@@ -12,6 +12,7 @@ public sealed class DayActiveState : GameStateBase
 
     public override void Enter()
     {
+        gameSessionManager.AdvanceDay();
         var dayConfig = gameSessionManager.DayConfiguration;
         _timeRemaining = dayConfig.gamePhaseDuration;
         _tickAccum = 0f;

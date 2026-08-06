@@ -16,9 +16,9 @@ public class GameSessionManager : NetworkBehaviour
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private GameTable[] gameTables;
 
-    private readonly NetworkVariable<GameState> _gameState = new(GameState.Lobby,
+    private readonly NetworkVariable<GameState> _gameState = new(GameState.Preparing,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private readonly NetworkVariable<int> _currentDay = new(1,
+    private readonly NetworkVariable<int> _currentDay = new(0,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private readonly NetworkVariable<float> _timeRemaining = new(0f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -61,8 +61,7 @@ public class GameSessionManager : NetworkBehaviour
 
         _states = new GameStateBase[]
         {
-            new LobbyState(this), new PreparingState(this), new DayActiveState(this),
-            new EndDayState(this), new DayStatisticState(this),
+            new PreparingState(this), new DayActiveState(this), new EndDayState(this),
             new LoseGameState(this), new WinGameState(this), new GameStatisticState(this),
         }.ToDictionary(s => s.Type);
 
@@ -87,6 +86,12 @@ public class GameSessionManager : NetworkBehaviour
     }
 
     // ---------- RPC: внешний API не меняется, DoorInteractable и UI не трогаем ----------
+    /// <summary>
+    /// Запускает сессию из лобби. Вызывается из LobbyInteractable.
+    /// </summary>
+    [Rpc(SendTo.Server)]
+    public void StartSessionServerRpc() => _active?.OnStartSessionRequested();
+
     [Rpc(SendTo.Server)]
     public void StartDayServerRpc() => _active?.OnStartDayRequested();
 
