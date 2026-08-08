@@ -77,6 +77,7 @@ public class BotArrivalIndicator : NetworkObjectVisibilityIndicator
         {
             // Подписываемся на начало игры
             _subscribedTable.OnGameStarted += HandleGameStarted;
+            _subscribedTable.OnGameEnded += HandleGameEnded; 
         }
         else
         {
@@ -92,6 +93,7 @@ public class BotArrivalIndicator : NetworkObjectVisibilityIndicator
         if (_subscribedTable != null)
         {
             _subscribedTable.OnGameStarted -= HandleGameStarted;
+            _subscribedTable.OnGameEnded -= HandleGameEnded; 
             _subscribedTable = null;
         }
     }
@@ -100,6 +102,11 @@ public class BotArrivalIndicator : NetworkObjectVisibilityIndicator
     /// Срабатывает при начале игры на конкретном столе.
     /// </summary3>
     private void HandleGameStarted()
+    {
+        HideIndicator();
+    }
+    
+    private void HandleGameEnded()
     {
         HideIndicator();
     }

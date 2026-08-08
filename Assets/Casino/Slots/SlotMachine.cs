@@ -256,13 +256,27 @@ public class SlotMachine : GameTable
     {
         if (!IsServer) return;
 
+        bool wasBroken = _isBroken.Value;
+        bool wasExploded = _isExploded.Value;
+
         _isBroken.Value = false;
         _isExploded.Value = false;
-        // [ИСПРАВЛЕНО] Обращаемся к локальной переменной сервера
         _serverTimeToExplode = 0f;
-        _isSpinning.Value = false;
 
-        Debug.Log($"[СБРОС] Игровой автомат '{slotMachineName}' сброшен в исходное состояние.");
+        if (_isSpinning.Value)
+        {
+            _isSpinning.Value = false;
+        }
+
+        // Принудительно сбрасываем таймер взрыва на клиентах
+        SetTimeToExplode(0f);
+
+        // Дублируем вызовы событий, чтобы клиенты точно скрыли индикаторы 
+        // (NetworkVariable сам вызовет их при изменении, но для надежности не помешает)
+        if (wasBroken) OnSlotMachineBreakdownChanged?.Invoke(false);
+        if (wasExploded) OnSlotMachineExplosionChanged?.Invoke(false);
+
+        Debug.Log($"<color=cyan>[СБРОС]</color> Игровой автомат '{slotMachineName}' сброшен в исходное состояние.");
     }
 
     public void Spin()

@@ -20,3 +20,4 @@ MonoBehaviour:
   initialBotCount: 1
   spawnDelayMin: 10
   spawnDelayMax: 10
+  dailyChipThresholds: 0a0000000a0000000a0000000a0000000a000000

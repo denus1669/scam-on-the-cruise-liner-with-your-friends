@@ -115,6 +115,7 @@ public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
 
     private void OnGameEnded()
     {
+        Debug.Log("ONBOTFIFNFFSDSDS");
         EndSession();
         _hasBotStood.Value = false;
         NotifyBotStoodChangedClientRpc(false);

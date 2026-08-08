@@ -259,15 +259,15 @@ namespace Blocks.Gameplay.Core
         private void DistributeDispleasureToAllBots()
         {
 
-                // Если кэш пуст, пытаемся обновить его
-                CacheAllBots();
+            // Если кэш пуст, пытаемся обновить его
+            CacheAllBots();
 
-                if (m_CachedBots.Count == 0)
-                {
-                    Debug.LogWarning("[Менеджер поломок] Не найдено ни одного бота для распределения раздражения!");
-                    return;
-                }
-            
+            if (m_CachedBots.Count == 0)
+            {
+                Debug.LogWarning("[Менеджер поломок] Не найдено ни одного бота для распределения раздражения!");
+                return;
+            }
+
 
             int affectedBots = 0;
             foreach (var bot in m_CachedBots)
@@ -303,6 +303,52 @@ namespace Blocks.Gameplay.Core
             if (machine != null && machine.IsSpawned)
             {
                 machine.Restore();
+            }
+        }
+    
+
+        /// <summary>
+        /// Останавливает текущую сессию поломок. 
+        /// Вызывается при завершении игрового дня.
+        /// </summary>
+        public void StopBreakdownSession()
+        {
+            if (!IsServer) return;
+
+            m_IsRunning = false;
+            m_ActiveTimers.Clear();
+            m_PendingExplosions.Clear();
+
+            // Сбрасываем таймеры взрыва на клиентах, чтобы UI исчез
+            foreach (var machine in slotMachines)
+            {
+                if (machine != null && machine.IsSpawned)
+                {
+                    machine.SetTimeToExplode(0f);
+                }
+            }
+
+            Debug.Log("<color=green>[Менеджер поломок]</color> Сессия поломок остановлена.");
+        }
+
+        /// <summary>
+        /// Принудительно чинит все автоматы (возвращает в исходное состояние).
+        /// Вызывается при завершении игрового дня.
+        /// </summary>
+        public void RepairAllMachines()
+        {
+            if (!IsServer) return;
+            if (slotMachines == null) return;
+
+            foreach (var machine in slotMachines)
+            {
+                if (machine == null || !machine.IsSpawned) continue;
+
+                // Чиним и сломанные, и взорванные автоматы
+                if (machine.IsBroken || machine.IsExploded)
+                {
+                    machine.Reset(); 
+                }
             }
         }
     }

@@ -14,7 +14,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private Transform botHandParent;
     [SerializeField] private Transform cardTablePosition; // точка для сброшенных/нераспределённых карт
     [Header("Reveal Settings")]
-    [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (центр стола)
+    [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (це    нтр стола)
     [SerializeField] private Transform revealPlayerPosition; // Куда выкладывать карты игроку (центр стола)
 
 
@@ -234,12 +234,14 @@ public class BlackGregTable : GameTable, ICardGameTable
         }
     }
 
+    /*
     [Rpc(SendTo.Server)]
     public void RequestFinishGameServerRpc(ulong clientId)
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
             FinishGame();
     }
+    */
 
     // ---------- Сетевая синхронизация рук ----------
 

@@ -13,6 +13,7 @@ public class GameSessionManager : NetworkBehaviour
 
     [SerializeField] private DayConfiguration dayConfiguration;
     [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
+    [SerializeField] private CasinoBank casinoBank; 
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private GameTable[] gameTables;
 
@@ -26,10 +27,13 @@ public class GameSessionManager : NetworkBehaviour
     public GameState CurrentState => _gameState.Value;
     public int CurrentDay => _currentDay.Value;
     public float TimeRemaining => _timeRemaining.Value;
+    public int TotalDays => dayConfiguration.daysCount;
     public bool IsLastDay => _currentDay.Value >= dayConfiguration.daysCount;
     public bool IsSessionWon => false; // TODO: условие победы (например, по прибыли)
 
     // API для состояний
+    /// <summary>Касса казино (для состояний и будущей статистики).</summary>
+    public CasinoBank Bank => casinoBank;
     public DayConfiguration DayConfiguration => dayConfiguration;
     public BotSpawner BotSpawner => botSpawner;
     public SlotMachineBreakdownManager BreakdownManager => slotMachineBreakdownManager;
@@ -45,6 +49,8 @@ public class GameSessionManager : NetworkBehaviour
 
     private void Awake()
     {
+        ValidateReferences();
+
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         OnInstanceReady?.Invoke();
@@ -78,11 +84,11 @@ public class GameSessionManager : NetworkBehaviour
     public void SetGameState(GameState next)
     {
         if (!IsServer) return;
-        _active?.Exit();
         Debug.Log($"[GameSessionManager] {_gameState.Value} → {next}");
         _gameState.Value = next;
         _active = _states[next];
         _active.Enter();
+        _active?.Exit();
     }
 
     // ---------- RPC: внешний API не меняется, DoorInteractable и UI не трогаем ----------
@@ -105,14 +111,42 @@ public class GameSessionManager : NetworkBehaviour
     public void ForceStopAllGames()
     {
         foreach (var table in gameTables)
-            if (table != null && table.IsGameStarted)
+        {
+            if (table == null) continue; // <-- защита от уничтоженных столов
+            if (table.IsGameStarted)
+            {
                 table.ForceStopGame(ulong.MaxValue, false, "DayEnded");
+            }
+        }
     }
 
     public void SendBotsToExit()
     {
-        foreach (var bot in botSpawner.GetSpawnedBots())
-            bot?.GetComponent<BotAgent>()?.GoToExit();
+        if (botSpawner == null) return;
+
+        var bots = botSpawner.GetSpawnedBots();
+        foreach (var bot in bots)
+        {
+            // Проверяем, жив ли ещё объект в Unity
+            if (bot == null) continue;
+
+            if (bot.TryGetComponent<BotAgent>(out var botAgent))
+            {
+                botAgent.GoToExit();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Условие проигрыша: баланс кассы ниже порога текущего дня.
+    /// </summary>
+    public bool CheckLoseCondition()
+    {
+        if (!IsServer) return false;
+        if (casinoBank == null || dayConfiguration == null) return false;
+
+        int threshold = dayConfiguration.GetChipThresholdForDay(_currentDay.Value);
+        return casinoBank.CurrentBalance < threshold;
     }
 
     public void NotifyDayEnded(int day) => NotifyDayEndedClientRpc(day);
@@ -120,4 +154,31 @@ public class GameSessionManager : NetworkBehaviour
 
     [ClientRpc] private void NotifyDayEndedClientRpc(int day) => OnDayEnded?.Invoke(day);
     [ClientRpc] private void NotifySessionEndedClientRpc() => OnSessionEnded?.Invoke();
+
+
+    private void ValidateReferences()
+    {
+        if (dayConfiguration == null)
+            Debug.LogError($"{name}: dayConfiguration is not assigned!");
+
+        if (slotMachineBreakdownManager == null)
+            Debug.LogError($"{name}: slotMachineBreakdownManager is not assigned!");
+
+        if (casinoBank == null)
+            Debug.LogError($"{name}: casinoBank is not assigned!");
+
+        if (botSpawner == null)
+            Debug.LogError($"{name}: botSpawner is not assigned!");
+
+        if (gameTables == null || gameTables.Length == 0)
+            Debug.LogError($"{name}: gameTables is not assigned or empty!");
+        else
+        {
+            for (int i = 0; i < gameTables.Length; i++)
+            {
+                if (gameTables[i] == null)
+                    Debug.LogError($"{name}: gameTables[{i}] is not assigned!");
+            }
+        }
+    }
 }

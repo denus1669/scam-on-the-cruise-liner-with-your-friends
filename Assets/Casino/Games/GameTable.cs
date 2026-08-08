@@ -212,12 +212,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             return;
         }
 
-        // Если шла игра – принудительно завершаем
-        if (gameInProgress.Value)
-        {
-            Debug.LogWarning($"[GameTable] Попытка убрать бота, но идет игра.");
-            return;
-        }
+
 
         gameInProgress.Value = false;
         currentBot = null;
@@ -265,10 +260,19 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         if (!IsServer || !gameInProgress.Value) return;
 
-        Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}. Победитель: {winnerClientId}. Читер бот? {isCheaterBot}");
-
+        Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}.");
+        // ВОЗВРАТ СТАВКИ: Если игра прервана извне (конец дня), возвращаем анте игроку
+        if (casinoBank != null && IsOccupied && occupiedByClientId.Value != ulong.MaxValue)
+        {
+            bool refunded = casinoBank.TryDeposit(anteAmount, occupiedByClientId.Value, "Возврат ставки день завершен", TableType);
+            if (refunded)
+            {
+                Debug.Log($"[GameTable] Ставка ({anteAmount}) возвращена игроку {occupiedByClientId.Value} из-за конца дня.");
+                // Можно добавить ClientRpc, чтобы показать игроку всплывающий текст "+1 фишка (возврат)"
+            }
+        }
         // Переводим состояние игры в "не активна"
-        gameInProgress.Value = false;
+        EndGame();
     }
 
     /// <summary>

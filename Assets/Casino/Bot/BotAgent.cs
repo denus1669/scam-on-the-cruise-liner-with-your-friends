@@ -188,6 +188,7 @@ public class BotAgent : NetworkBehaviour
     public void GoToExit()
     {
         if (!IsServer) return;
+        SetArrived(false);
 
         CancelMovement();
 
@@ -206,6 +207,14 @@ public class BotAgent : NetworkBehaviour
         {
             Debug.LogWarning($"[BotAgent] Точка выхода не назначена. Бот {gameObject.name} остановлен.");
         }
+    }
+    private void SetArrived(bool arrived)
+    {
+        if (!IsServer) return;
+        if (_isArrived.Value == arrived) return;
+
+        _isArrived.Value = arrived;
+        OnArrivedChanged?.Invoke(arrived);
     }
 
     /// <summary>
