@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e054b220bbb1f41878dce45956c949, type: 3}
   m_Name: DefaultDayConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::DayConfiguration
-  daysCount: 5
-  gamePhaseDuration: 20
+  daysCount: 2
+  gamePhaseDuration: 10
   botCount: 1
   botPrefabs:
   - {fileID: 5497669901684611537, guid: d007726a2e85d26429152e0348dec952, type: 3}

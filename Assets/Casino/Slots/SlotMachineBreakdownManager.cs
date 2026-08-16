@@ -347,7 +347,7 @@ namespace Blocks.Gameplay.Core
                 // Чиним и сломанные, и взорванные автоматы
                 if (machine.IsBroken || machine.IsExploded)
                 {
-                    machine.Reset(); 
+                    machine.Reset();    
                 }
             }
         }

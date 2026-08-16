@@ -3,8 +3,8 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Универсальный базовый класс для любого вида мухлежа.
-/// Подходит и для ботов, и для игроков.
+/// Базовый класс для любого вида мухлежа.
+/// Подходит для ботов.
 /// </summary>
 public abstract class CheatAction : ScriptableObject
 {
@@ -24,11 +24,11 @@ public abstract class CheatAction : ScriptableObject
     /// Проверяет, можно ли сейчас выполнить этот мухлеж.
     /// Вызывается только на СЕРВЕРЕ.
     /// </summary>
-    public abstract bool CanExecute(CheatContext context);
+    public abstract bool CanExecute(IGameTable table);
 
     /// <summary>
     /// Применяет фактический результат мухлежа (подмена карт, изменение счета).
     /// Вызывается на СЕРВЕРЕ, если мухлеж не был прерван/раскрыт.
     /// </summary>
-    public abstract void ApplyCheatResult(CheatContext context);
+    public abstract void ApplyCheatResult(IGameTable table);
 }

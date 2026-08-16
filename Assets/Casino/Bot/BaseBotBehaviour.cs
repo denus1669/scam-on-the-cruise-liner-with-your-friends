@@ -157,7 +157,7 @@ public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
         if (randomRoll < currentCheatChance)
         {
             // МУХЛЁЖ
-            if (cheatController.TryInitiateCheat(true, gameTable))
+            if (cheatController.TryInitiateCheat(gameTable))
             {
                 while (cheatController.IsCheating) yield return null;
             }

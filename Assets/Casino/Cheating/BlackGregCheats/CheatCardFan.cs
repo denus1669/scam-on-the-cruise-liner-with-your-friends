@@ -6,14 +6,14 @@ using System.Collections.Generic;
 // ==========================================
 
 [CreateAssetMenu(fileName = "BG_CardFan", menuName = "Cheats/BlackGreg/2. Card Fan")]
-public class CheatCardFan : BlackGregCheatAction
+public class CheatCardFan : BlackGregBotCheatAction
 {
-    public override bool CanExecute(CheatContext context)
+    public override bool CanExecute(IGameTable table)
     {
-        return context.GetTableAs<ICardGameTable>() != null;
+        return table is ICardGameTable;
     }
 
-    protected override void ApplyBotCheat(BlackGregTable table, BotAgent bot)
+    protected override void ApplyBotCheat(BlackGregTable table)
     {
         // Абсурдная рука: 9 двоек и одна тройка = 21 очко
         List<CardData> absurdHand = new List<CardData>();
@@ -25,10 +25,5 @@ public class CheatCardFan : BlackGregCheatAction
 
         table.OverwriteBotHand(absurdHand);
         Debug.Log("[BlackGreg Cheats] Бот применил 'Веер карт'. Вывалена куча макулатуры на 21 очко.");
-    }
-
-    protected override void ApplyPlayerCheat(BlackGregTable table, ulong playerId)
-    {
-        // TODO: Логика для игрока
     }
 }

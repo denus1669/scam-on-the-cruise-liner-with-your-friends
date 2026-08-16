@@ -5,16 +5,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "BG_OverShoulderDrop", menuName = "Cheats/BlackGreg/5. Over Shoulder Drop")]
-public class CheatOverShoulderDrop : BlackGregCheatAction
+public class CheatOverShoulderDrop : BlackGregBotCheatAction
 {
-    public override bool CanExecute(CheatContext context)
+    public override bool CanExecute(IGameTable table)
     {
-        var table = context.GetTableAs<ICardGameTable>();
-        // Доступен ТОЛЬКО если у бота перебор
-        return table != null && table.GetBotScore() > 21;
+        return table is ICardGameTable cardTable && cardTable.GetBotScore() > 21;
     }
 
-    protected override void ApplyBotCheat(BlackGregTable table, BotAgent bot)
+    protected override void ApplyBotCheat(BlackGregTable table)
     {
         // Поскольку у бота БЫЛ перебор, мы делаем вид, что он выкинул лишнее, 
         // и генерируем ему безопасную руку (например, 20 очков).
@@ -26,10 +24,5 @@ public class CheatOverShoulderDrop : BlackGregCheatAction
 
         table.OverwriteBotHand(safeHand);
         Debug.Log("[BlackGreg Cheats] Бот применил 'Сброс через плечо'. Перебор устранен.");
-    }
-
-    protected override void ApplyPlayerCheat(BlackGregTable table, ulong playerId)
-    {
-        // TODO: Логика для игрока. Физически удалить выбранную карту из руки.
     }
 }

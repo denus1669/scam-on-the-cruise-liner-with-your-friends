@@ -9,7 +9,7 @@ using UnityEngine;
 /// </summary>
 public class PlayerCheatUIManager : NetworkBehaviour
 {
-    [SerializeField] private CheatController playerCheatController;
+    [SerializeField] private PlayerCheatController playerCheatController;
 
     [Header("Список доступных мини-игр")]
     [Tooltip("Ссылки на компоненты мини-игр, которые лежат в Canvas")]
@@ -26,7 +26,7 @@ public class PlayerCheatUIManager : NetworkBehaviour
             return;
         }
 
-        playerCheatController = GetComponent<CheatController>();
+        playerCheatController = GetComponent<PlayerCheatController>();
         if (playerCheatController != null)
         {
             // Подписываемся на приказ от сервера открыть интерфейс

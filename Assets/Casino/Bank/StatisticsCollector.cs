@@ -1,29 +1,39 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-    /// <summary>
-    /// Агрегированная статистика по одному игроку-сотруднику казино.
-    /// </summary>
-    [Serializable]
-    public struct PlayerStatistics
+/// <summary>
+/// Агрегированная статистика по одному игроку-сотруднику казино.
+/// </summary>
+[Serializable]
+public struct PlayerStatistics : INetworkSerializable
+{
+    public ulong PlayerId;
+    public int TotalDeposits;      // Сколько игрок принёс в кассу
+    public int TotalWithdraws;     // Сколько игрок забрал из кассы
+    public int TransactionCount;   // Общее количество операций
+
+    /// <summary>Чистый вклад в кассу (может быть отрицательным).</summary>
+    public int NetContribution => TotalDeposits - TotalWithdraws;
+
+    // Реализация сетевой сериализации для NGO
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
-        public ulong PlayerId;
-        public int TotalDeposits;      // Сколько игрок принёс в кассу
-        public int TotalWithdraws;     // Сколько игрок забрал из кассы
-        public int TransactionCount;   // Общее количество операций
-
-        /// <summary>Чистый вклад в кассу (может быть отрицательным).</summary>
-        public int NetContribution => TotalDeposits - TotalWithdraws;
+        serializer.SerializeValue(ref PlayerId);
+        serializer.SerializeValue(ref TotalDeposits);
+        serializer.SerializeValue(ref TotalWithdraws);
+        serializer.SerializeValue(ref TransactionCount);
     }
+}
 
-    /// <summary>
-    /// Серверный сборщик статистики.
-    /// Слушает события кассы, ведёт сырой лог и агрегирует данные по игрокам.
-    /// НЕ занимается UI, графиками или VFX — только хранит и отдаёт данные.
-    /// </summary>
-    public class StatisticsCollector : NetworkBehaviour
+/// <summary>
+/// Серверный сборщик статистики.
+/// Слушает события кассы, ведёт сырой лог и агрегирует данные по игрокам.
+/// НЕ занимается UI, графиками или VFX — только хранит и отдаёт данные.
+/// </summary>
+public class StatisticsCollector : NetworkBehaviour
     {
         [Header("Зависимости")]
         [SerializeField] private CasinoBank casinoBank;
@@ -39,8 +49,41 @@ using UnityEngine;
         /// Будущие системы (достижения, отчеты) могут подписываться на это событие.
         /// </summary>
         public event Action<BankTransaction> OnTransactionRegistered;
+        /// <summary>
+        /// Событие на клиенте. Срабатывает при получении обновлённой статистики от сервера.
+        /// </summary>
+        public event Action<PlayerStatistics[]> OnClientStatsUpdated;
 
-        private void Reset()
+
+    [ClientRpc]
+    private void PushStatsToClientsClientRpc(PlayerStatistics[] statsArray)
+    {
+        OnClientStatsUpdated?.Invoke(statsArray);
+    }
+
+    /// <summary>
+    /// Клиент запрашивает актуальный снапшот статистики (например, при входе в лобби).
+    /// </summary>
+    [ServerRpc]
+    public void RequestCurrentStatsServerRpc(ServerRpcParams rpcParams = default)
+    {
+        var statsArray = _playerStats.Values.ToArray();
+
+        // Отправляем данные только тому клиенту, который их запросил
+        ClientRpcParams clientParams = new ClientRpcParams
+        {
+            Send = { TargetClientIds = new[] { rpcParams.Receive.SenderClientId } }
+        };
+
+        PushStatsToClientClientRpc(statsArray, clientParams);
+    }
+
+    [ClientRpc]
+    private void PushStatsToClientClientRpc(PlayerStatistics[] statsArray, ClientRpcParams clientParams = default)
+    {
+        OnClientStatsUpdated?.Invoke(statsArray);
+    }
+    private void Reset()
         {
             casinoBank = GetComponentInParent<CasinoBank>();
         }
@@ -82,7 +125,17 @@ using UnityEngine;
             OnTransactionRegistered?.Invoke(transaction);
 
             Debug.Log($"[Statistics] Зарегистрирована транзакция: {transaction.Type} {transaction.Amount} от {transaction.OperatorClientId} ({transaction.Reason})");
-        }
+            _transactionLog.Add(transaction);
+            UpdatePlayerStats(transaction);
+            OnTransactionRegistered?.Invoke(transaction);
+            Debug.Log($"[Statistics] Зарегистрирована транзакция: {transaction.Type} {transaction.Amount} от {transaction.OperatorClientId} ({transaction.Reason})");
+
+            // 4. ПУШИМ ОБНОВЛЕНИЯ ВСЕМ КЛИЕНТАМ
+            if (IsServer)
+            {
+                PushStatsToClientsClientRpc(_playerStats.Values.ToArray());
+            }
+    }
 
         private void UpdatePlayerStats(BankTransaction transaction)
         {
@@ -137,7 +190,7 @@ using UnityEngine;
             Debug.Log($"[Statistics] (заглушка) Зарегистрирован шлепок: игрок {slapperId}, состояние бота {botState}, стол {tableType}");
         }
 
-        /// <summary>
+        /// <summary> 
         /// Будущий метод для регистрации исхода раунда (заглушка для расширяемости).
         /// </summary>
         public void RegisterRoundOutcome(ulong playerId, string tableType, string outcome, bool wasCheatInvolved)

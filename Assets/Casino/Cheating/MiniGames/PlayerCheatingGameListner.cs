@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerCheatingGameListner : MonoBehaviour
 {
     [SerializeField] private GameEvent onAttentionEvent;
-    [SerializeField] private CheatController playerCheatController;
+    [SerializeField] private PlayerCheatController playerCheatController;
 
 
 
@@ -14,6 +14,6 @@ public class PlayerCheatingGameListner : MonoBehaviour
 
     private void OnCheatingActivated()
     {
-        playerCheatController?.RequestCheatServerRpc(false, "");
+        playerCheatController?.RequestCheatServerRpc("");
     }
 }

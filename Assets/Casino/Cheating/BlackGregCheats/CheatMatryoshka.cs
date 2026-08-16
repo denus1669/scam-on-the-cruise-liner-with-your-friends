@@ -5,16 +5,15 @@ using UnityEngine;
 // 4. Матрешка
 // ==========================================
 [CreateAssetMenu(fileName = "BG_Matryoshka", menuName = "Cheats/BlackGreg/4. Matryoshka")]
-public class CheatMatryoshka : BlackGregCheatAction
+public class CheatMatryoshka : BlackGregBotCheatAction
 {
-    public override bool CanExecute(CheatContext context)
+    public override bool CanExecute(IGameTable table)
     {
-        var table = context.GetTableAs<ICardGameTable>();
         // Доступен только если у бота ровно 2 карты
-        return table != null && table.GetBotCardCount() == 2;
+        return table is ICardGameTable cardTable && cardTable.GetBotCardCount() == 2;
     }
 
-    protected override void ApplyBotCheat(BlackGregTable table, BotAgent bot)
+    protected override void ApplyBotCheat(BlackGregTable table)
     {
         // Бот делает вид, что у него 2 карты, но одна из них "Толстая" (CardType.ThickDeck)
         List<CardData> fakeHand = new List<CardData>
@@ -25,10 +24,5 @@ public class CheatMatryoshka : BlackGregCheatAction
 
         table.OverwriteBotHand(fakeHand);
         Debug.Log("[BlackGreg Cheats] Бот применил 'Матрешку'.");
-    }
-
-    protected override void ApplyPlayerCheat(BlackGregTable table, ulong playerId)
-    {
-        // TODO: Логика для игрока
     }
 }
