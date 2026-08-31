@@ -7,6 +7,7 @@ using UnityEngine;
 /// <summary>
 /// Абстрактный базовый класс для всех игровых столов.
 /// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
+/// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
 /// Конкретные игры наследуют этот класс и добавляют свою механику.
 /// </summary>
 public abstract class GameTable : NetworkBehaviour, IGameTable
@@ -38,6 +39,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    protected readonly NetworkVariable<bool> isBotReachedTable = new NetworkVariable<bool>(
+    false,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
+
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
     protected NetworkObject currentBot;
 
@@ -54,6 +60,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public bool IsGameStarted => gameInProgress.Value;
 
+    public bool IsBotReachedTable => isBotReachedTable.Value;
     public abstract string TableType { get; }
 
     /// <inheritdoc />
@@ -201,6 +208,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         Debug.Log($"[GameTable] Бот {bot.GetEntityId()} занял место за столом.");
     }
 
+    public void BotReachedTable(bool reached)
+    {
+        isBotReachedTable.Value = reached;
+    }
+
     /// <inheritdoc />
     public virtual void RemoveBot()
     {
@@ -218,6 +230,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         currentBot = null;
         botNetworkObjectRef.Value = default;
         isBotOccupied.Value = false;
+        isBotReachedTable.Value = false;
         GameTableManager.Instance?.NotifyTableFreed();
 
         Debug.Log($"[GameTable] Бот убран из-за стола.");
@@ -366,5 +379,5 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             Leave(clientId);
         }
     }
-    
+
 }

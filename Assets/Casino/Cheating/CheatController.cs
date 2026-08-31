@@ -80,10 +80,10 @@ public abstract class CheatController : NetworkBehaviour
     }
 
 
-    protected void CompleteCheat(CheatAction cheat)
+    protected void CompleteCheat(CheatAction cheat, string who)
     {
         Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для !");
-        cheat.ApplyCheatResult(currentTable);
+        cheat.ApplyCheatResult(currentTable, who);
         isCheating.Value = false;
         currentCheatAction = null;
     }
@@ -127,8 +127,10 @@ public abstract class CheatController : NetworkBehaviour
         GameInterruptedClientRpc(accuserClientId);
 
         // 2. Делегируем столу решение (форс-стоп, списание денег, уход бота)
-        //activeContext.Table.OnCheaterCaught(accuserClientId, isBot);
-
+        currentTable?.OnCheaterCaught(
+            accuserClientId,
+            isCheaterBot: this is BotCheatController
+        );
         // 3. Сбрасываем состояние мухлежа
         CancelCheat();
     }

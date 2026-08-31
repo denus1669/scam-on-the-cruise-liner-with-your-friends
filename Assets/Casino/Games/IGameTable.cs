@@ -84,4 +84,6 @@ public interface IGameTable
     void OnCheaterCaught(ulong accuserClientId, bool isCheaterBot);
 
     bool CanAssignBot();
+
+    void BotReachedTable(bool reached);
 }

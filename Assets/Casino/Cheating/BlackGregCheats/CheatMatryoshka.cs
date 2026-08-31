@@ -5,15 +5,17 @@ using UnityEngine;
 // 4. Матрешка
 // ==========================================
 [CreateAssetMenu(fileName = "BG_Matryoshka", menuName = "Cheats/BlackGreg/4. Matryoshka")]
-public class CheatMatryoshka : BlackGregBotCheatAction
+public class CheatMatryoshka : BlackGregCheatAction
 {
-    public override bool CanExecute(IGameTable table)
+    public override bool CanExecute(IGameTable table, string who)
     {
         // Доступен только если у бота ровно 2 карты
-        return table is ICardGameTable cardTable && cardTable.GetBotCardCount() == 2;
+        if(who == "BOT") return table is ICardGameTable cardTable && cardTable.GetBotCardCount() == 2;
+        if(who == "Player") return table is ICardGameTable cardTable && cardTable.GetPlayerCardCount() == 2;
+        return false;
     }
 
-    protected override void ApplyBotCheat(BlackGregTable table)
+    protected override void ApplyCheat(BlackGregTable table, string who)
     {
         // Бот делает вид, что у него 2 карты, но одна из них "Толстая" (CardType.ThickDeck)
         List<CardData> fakeHand = new List<CardData>
@@ -22,7 +24,15 @@ public class CheatMatryoshka : BlackGregBotCheatAction
             //new CardData(CardSuit.Hearts, CardRank.King, CardType.ThickDeck) // Метка для толстой модели карты
         };
 
-        table.OverwriteBotHand(fakeHand);
-        Debug.Log("[BlackGreg Cheats] Бот применил 'Матрешку'.");
+        if (who == "BOT")
+        {
+            table.OverwriteBotHand(fakeHand);
+            Debug.Log("[BlackGreg Cheats] Бот применил 'Матрешку'.");
+        }
+        if (who == "Player")
+        {
+            table.OverwritePlayerHand(fakeHand);
+            Debug.Log("[BlackGreg Cheats] Игрок применил 'Матрешку'.");
+        }
     }
 }

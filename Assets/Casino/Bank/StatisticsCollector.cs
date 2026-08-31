@@ -125,10 +125,6 @@ public class StatisticsCollector : NetworkBehaviour
             OnTransactionRegistered?.Invoke(transaction);
 
             Debug.Log($"[Statistics] Зарегистрирована транзакция: {transaction.Type} {transaction.Amount} от {transaction.OperatorClientId} ({transaction.Reason})");
-            _transactionLog.Add(transaction);
-            UpdatePlayerStats(transaction);
-            OnTransactionRegistered?.Invoke(transaction);
-            Debug.Log($"[Statistics] Зарегистрирована транзакция: {transaction.Type} {transaction.Amount} от {transaction.OperatorClientId} ({transaction.Reason})");
 
             // 4. ПУШИМ ОБНОВЛЕНИЯ ВСЕМ КЛИЕНТАМ
             if (IsServer)

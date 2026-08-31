@@ -85,10 +85,11 @@ public class GameSessionManager : NetworkBehaviour
     {
         if (!IsServer) return;
         Debug.Log($"[GameSessionManager] {_gameState.Value} → {next}");
+        _active?.Exit();
+
         _gameState.Value = next;
         _active = _states[next];
         _active.Enter();
-        _active?.Exit();
     }
 
     // ---------- RPC: внешний API не меняется, DoorInteractable и UI не трогаем ----------

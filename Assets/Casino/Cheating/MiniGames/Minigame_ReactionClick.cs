@@ -1,46 +1,50 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Простая мини-игра: нужно нажать кнопку в момент, когда ползунок находится в "зеленой зоне".
+/// Мини-игра: нажать кнопку, когда ползунок в зеленой зоне.
 /// </summary>
-public class Minigame_ReactionClick : CheatMinigameBase
+public class Minigame_ReactionClick : MinigameBase
 {
     [Header("Настройки Реакции")]
     [SerializeField] private Slider progressSlider;
     [SerializeField] private float speed = 2f;
-    [SerializeField] private float targetMin = 0.4f;
-    [SerializeField] private float targetMax = 0.6f;
+    [SerializeField] private float targetMin = 0.2f;
+    [SerializeField] private float targetMax = 0.8f;
 
-    // UI элементы для визуализации "зеленой зоны" (настраивается в инспекторе)
-    [SerializeField] private RectTransform successZoneVisual;
+    [Header("Visuals")]
+    [SerializeField] private RectTransform successZoneVisual; // Опционально: маркер зоны
 
-    private bool isPlaying = false;
-    private bool movingRight = true;
+    private bool _movingRight = true;
 
     protected override void OnGameStarted()
     {
-        progressSlider.value = 0f;
-        movingRight = true;
-        isPlaying = true;
+        _isPlaying = true;
+        _movingRight = true;
 
-        // В зависимости от "веса" мухлежа (SelectionWeight) можно менять сложность (скорость)
-        // float difficultyModifier = currentCheatContext.SelectionWeight * 0.1f;
+        if (progressSlider != null)
+            progressSlider.value = 0f;
+
+        // Можно использовать _contextData для изменения сложности, если нужно
+        // Например: if (_contextData == "HardCheat") speed *= 1.5f;
     }
 
     private void Update()
     {
-        if (!isPlaying) return;
+        if (!_isPlaying) return;
 
-        // Движение ползунка туда-сюда
-        float step = speed * Time.deltaTime;
-        progressSlider.value += movingRight ? step : -step;
+        if (progressSlider != null)
+        {
+            float step = speed * Time.deltaTime;
+            progressSlider.value += _movingRight ? step : -step;
 
-        if (progressSlider.value >= 1f) movingRight = false;
-        if (progressSlider.value <= 0f) movingRight = true;
+            if (progressSlider.value >= 1f) _movingRight = false;
+            if (progressSlider.value <= 0f) _movingRight = true;
+        }
 
-        // Игрок нажимает Space или кликает мышью
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        // Ввод: Пробел или Клик мышью
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             CheckResult();
         }
@@ -48,18 +52,17 @@ public class Minigame_ReactionClick : CheatMinigameBase
 
     private void CheckResult()
     {
-        isPlaying = false;
-        float finalValue = progressSlider.value;
+        float val = progressSlider != null ? progressSlider.value : 0f;
 
-        if (finalValue >= targetMin && finalValue <= targetMax)
+        if (val >= targetMin && val <= targetMax)
         {
-            Debug.Log("[Minigame] Идеальный тайминг! Мухлеж удался.");
-            WinMinigame();
+            Debug.Log("[Minigame] Победа! (Реакция)");
+            _isPlaying = false;
+            WinGame();
         }
         else
         {
-            Debug.Log("[Minigame] Промах! Игрок спалился.");
-            LoseMinigame();
+            Debug.Log("[Minigame] Промах! (Реакция)");
         }
     }
 }

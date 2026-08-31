@@ -124,20 +124,7 @@ public class BotDispleasureController : NetworkBehaviour
 
     private IGameTable GetCurrentTable()
     {
-        if (botAgent != null && TryGetComponent<IBotGameBehaviour>(out var behavior))
-        {
-            // ВАЖНО: В будущем лучше закэшировать текущий стол внутри BotAgent, 
-            // чтобы не искать его через FindObjectsByType в Update!
-            var allTables = FindObjectsByType<GameTable>(FindObjectsSortMode.None);
-            foreach (var table in allTables)
-            {
-                if (table.IsBotOccupied && table.botNetworkObjectRef.Value.TryGet(out NetworkObject botObj))
-                {
-                    if (botObj.gameObject == gameObject) return table;
-                }
-            }
-        }
-        return null;
+        return botAgent != null ? botAgent.CurrentTable : null;
     }
 
 }

@@ -24,7 +24,7 @@ public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
     // Ссылки на универсальные компоненты бота
     protected BotAgent botAgent;
     protected IGameTable gameTable;
-    protected CheatController cheatController;
+    protected BotCheatController cheatController;
     protected BotBluffController bluffController;          
     protected BotDispleasureController displeasureController;
 
@@ -47,7 +47,7 @@ public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
     protected virtual void Awake()
     {
         botAgent = GetComponent<BotAgent>();
-        cheatController = GetComponent<CheatController>();
+        cheatController = GetComponent<BotCheatController>();
         bluffController = GetComponent<BotBluffController>(); 
         displeasureController = GetComponent<BotDispleasureController>();
     }
@@ -144,32 +144,77 @@ public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
 
     protected virtual IEnumerator SuspiciousActionPhase()
     {
-        if (cheatController == null) yield break;
+        if (cheatController == null)
+        {
+            Debug.LogError($"[SuspiciousAction] Пропуск: cheatController == null ({name})");
+            yield break;
+        }
 
-        float currentCheatChance = baseCheatChance * GetPersonalityCheatModifier();
-        float currentBluffChance = baseBluffChance * GetPersonalityBluffModifier();
+        float personalityCheatMod = GetPersonalityCheatModifier();
+        float personalityBluffMod = GetPersonalityBluffModifier();
+
+        float currentCheatChance = baseCheatChance * personalityCheatMod;
+        float currentBluffChance = baseBluffChance * personalityBluffMod;
 
         bool isBeingWatched = CheckIfPlayerIsWatching();
-        if (isBeingWatched) currentCheatChance *= watchedCheatMultiplier;
+        if (isBeingWatched)
+        {
+            float oldChance = currentCheatChance;
+            currentCheatChance *= watchedCheatMultiplier;
+            Debug.Log($"[SuspiciousAction] Игрок смотрит! Чит-шанс: {oldChance:F3} -> {currentCheatChance:F3} (x{watchedCheatMultiplier})");
+        }
 
         float randomRoll = UnityEngine.Random.value;
+        float totalThreshold = currentCheatChance + currentBluffChance;
+
+        Debug.Log($"[SuspiciousAction] Roll: {randomRoll:F3} | Cheat: {currentCheatChance:F3} | Bluff: {currentBluffChance:F3} | Watched: {isBeingWatched} | Name: {name}");
 
         if (randomRoll < currentCheatChance)
         {
-            // МУХЛЁЖ
-            if (cheatController.TryInitiateCheat(gameTable))
+            Debug.Log($"[SuspiciousAction] >>> ВЫБРАН МУХЛЁЖ (roll {randomRoll:F3} < {currentCheatChance:F3})");
+
+            bool initiated = cheatController.TryInitiateCheat(gameTable);
+            Debug.Log($"[SuspiciousAction] TryInitiateCheat результат: {initiated}");
+
+            if (initiated)
             {
-                while (cheatController.IsCheating) yield return null;
+                int frames = 0;
+                while (cheatController.IsCheating)
+                {
+                    frames++;
+                    yield return null;
+                }
+                Debug.Log($"[SuspiciousAction] Мухлёж завершён за {frames} кадров");
             }
         }
-        else if (randomRoll < currentCheatChance + currentBluffChance)
+        else if (randomRoll < totalThreshold)
         {
-            // БЛЕФ — делегируем в контроллер
-            if (bluffController != null && bluffController.TryBluff())
+            Debug.Log($"[SuspiciousAction] >>> ВЫБРАН БЛЕФ (roll {randomRoll:F3} < {totalThreshold:F3})");
+
+            if (bluffController == null)
             {
-                // Ждём окончания блефа (аналогично мухлежу)
-                while (bluffController.IsBluffing) yield return null;
+                Debug.LogWarning("[SuspiciousAction] bluffController == null, блеф пропущен!");
             }
+            else
+            {
+                bool bluffStarted = bluffController.TryBluff();
+                Debug.Log($"[SuspiciousAction] TryBluff результат: {bluffStarted}");
+
+                if (bluffStarted)
+                {
+                    int frames = 0;
+                    while (bluffController.IsBluffing)
+                    {
+                        frames++;
+                        yield return null;
+                    }
+                    Debug.Log($"[SuspiciousAction] Блеф завершён за {frames} кадров");
+                }
+            }
+        }
+        else
+        {
+            Debug.Log($"[SuspiciousAction] >>> НИЧЕГО (roll {randomRoll:F3} >= {totalThreshold:F3})");
         }
 
         yield break;

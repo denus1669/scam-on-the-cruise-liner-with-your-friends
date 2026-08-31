@@ -52,11 +52,14 @@ namespace Blocks.Gameplay.Core
             ToggleAttention(!_isAttention.Value);
         }
 
-        //[Rpc(SendTo.Server)]
+        /// <summary>
+        /// Меняет сетевое состояние внимания на сервере. Благодаря этому режим
+        /// одинаково работает у хоста и у подключённых клиентов.
+        /// </summary>
         public void ToggleAttention(bool newState)
         {
 
-                _isAttention.Value = newState;
+            _isAttention.Value = newState;
         }
 
         private void HandleAttentionStateChanged(bool previous, bool current)

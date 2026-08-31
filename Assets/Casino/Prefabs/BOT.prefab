@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StandIndicator
   targetObject: {fileID: 1972026076234249946}
-  botBehavior: {fileID: 8071987795693044403}
+  botBehaviour: {fileID: 603416445241012076}
 --- !u!114 &3282282439339540694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheatAnimationIndicator
   targetObject: {fileID: 2963750233750049523}
-  cheatController: {fileID: 7379306246688572654}
+  cheatController: {fileID: 5227721383909466426}
 --- !u!1 &3214826041473833782
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f22318778721246800c144e6a96bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BotCheatingReactionHandler
-  cheatController: {fileID: 7379306246688572654}
+  cheatController: {fileID: 5227721383909466426}
   attentionReceiver: {fileID: 4782374077190005773}
   cheatIndicator: {fileID: 1196171496923494744}
 --- !u!1 &3475600998146616932
@@ -648,13 +648,13 @@ GameObject:
   - component: {fileID: 6842799615643788085}
   - component: {fileID: 8196544063121929526}
   - component: {fileID: 7170024236539094336}
-  - component: {fileID: 7379306246688572654}
   - component: {fileID: 4877028851096292619}
   - component: {fileID: 4033332491983689499}
   - component: {fileID: 7481189763816370423}
   - component: {fileID: 430125305976542530}
   - component: {fileID: 603416445241012076}
   - component: {fileID: 8071987795693044403}
+  - component: {fileID: 5227721383909466426}
   m_Layer: 10
   m_Name: BOT
   m_TagString: Bot
@@ -816,26 +816,6 @@ MonoBehaviour:
   stoppingDistance: 1.5
   pathUpdateInterval: 0.2
   exitPoint: {fileID: 0}
---- !u!114 &7379306246688572654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5497669901684611537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43452ba6339e4874d8198853c02651c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheatController
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableCheats:
-  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
-  - {fileID: 11400000, guid: 756d6a29ed5958540ad156098b9e5c96, type: 2}
-  - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
-  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
-  - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
-  casinoBank: {fileID: 0}
 --- !u!114 &4877028851096292619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -938,6 +918,29 @@ MonoBehaviour:
   baseBluffChance: 0.25
   watchedCheatMultiplier: 0.1
   stupidityChance: 0.08
+--- !u!114 &5227721383909466426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e0db110ef3eb24ba6da5bd04e35078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotCheatController
+  ShowTopMostFoldoutHeaderGroup: 1
+  availableCheats:
+  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
+  - {fileID: 11400000, guid: 756d6a29ed5958540ad156098b9e5c96, type: 2}
+  - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
+  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+  - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
+  currentCheatAction: {fileID: 0}
+  characterAnimator: {fileID: 0}
+  botAgent: {fileID: 0}
+  displeasureController: {fileID: 0}
 --- !u!1001 &3905408004520809531
 PrefabInstance:
   m_ObjectHideFlags: 0

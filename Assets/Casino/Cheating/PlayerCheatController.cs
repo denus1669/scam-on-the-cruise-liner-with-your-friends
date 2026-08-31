@@ -1,68 +1,70 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 
 public class PlayerCheatController : CheatController
 {
-    // --- СОБЫТИЯ ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ИГРОКА (Владельца) ---
-    public event Action<CheatAction> OnLocalPlayerCheatUIRequested;
+    [Header("Minigame Integration")]
+    [Tooltip("Ссылка на менеджер мини-игр на этом же игроке")]
+    [SerializeField] private PlayerMinigameManager _minigameManager;
+
+    private void Awake()
+    {
+        if (_minigameManager == null)
+        {
+            _minigameManager = GetComponent<PlayerMinigameManager>();
+            if (_minigameManager == null)
+                Debug.LogError("[PlayerCheatController] PlayerMinigameManager не найден на объекте игрока!");
+        }
+    }
 
     /// <summary>
-    /// Вызывается локальным игроком, чтобы запросить запуск мухлежа.
-    /// Сервер сам определит, за каким столом сидит игрок, используя GameTableManager.
+    /// Запрос от клиента на сервер о начале мухлежа.
     /// </summary>
     [Rpc(SendTo.Server)]
     public void RequestCheatServerRpc(string specificCheatName = "")
     {
-        Debug.Log($"[CheatController] Игрок {OwnerClientId} запросил мухлеж. specificCheat={specificCheatName}");
-        if (!CanCheat()) return;
-        Debug.Log($"[CheatController] Сервер обрабатывает запрос мухлежа от {OwnerClientId}.");
-        if (!IsServer || isCheating.Value) return;
+        if (!IsServer) return;
 
-        // 1. Ищем стол игрока через кешированный список менеджера 
-        IGameTable currentTable = null;
-        if (GameTableManager.Instance != null)
-        {
-            currentTable = GameTableManager.Instance.GetTableOccupiedByPlayer(OwnerClientId);
-        }
+        // Проверка CanCheat() теперь внутри TryInitiateCheat или перед вызовом, 
+        // но здесь мы просто принимаем запрос.
+        if (isCheating.Value) return; // Уже мухлюет
 
-        // Если игрок нажал "мухлевать", но он не за столом — игнорируем
+        Debug.Log($"[CheatController] Игрок {OwnerClientId} запросил мухлеж: {specificCheatName}");
+
+        IGameTable currentTable = GameTableManager.Instance?.GetTableOccupiedByPlayer(OwnerClientId);
+
         if (currentTable == null)
         {
-            Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} пытается мухлевать, но он не сидит за столом!");
+            Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} не сидит за столом.");
             return;
         }
 
-        // 2. Определяем конкретный чит
         CheatAction cheatToExecute = null;
         if (!string.IsNullOrEmpty(specificCheatName))
             cheatToExecute = availableCheats.Find(c => c.name == specificCheatName);
+        else Debug.LogError("!string.IsNullOrEmpty(specificCheatName)");
 
 
-        if (cheatToExecute == null) return;
-
-        // 3. Запускаем серверную логику мухлежа
-        TryInitiateCheat(currentTable, cheatToExecute);
+        if (cheatToExecute != null)
+        {
+            TryInitiateCheat(currentTable, cheatToExecute);
+        }
+        else Debug.LogError("cheatToExecute == null");
     }
 
-    /// <summary>
-    /// Пытается начать мухлеж. 
-    /// Бот будет передавать specificCheat = null, чтобы выбрать случайный мухлеж.
-    /// Игрок может передавать конкретный specificCheat, выбранный через UI.
-    /// </summary>
     public override bool TryInitiateCheat(IGameTable table, CheatAction specificCheat)
     {
         if (!IsServer || isCheating.Value) return false;
+
+        if (!specificCheat.CanExecute(table, "Player"))
+        {
+            Debug.LogWarning($"[CheatController] Чит {specificCheat.name} нельзя выполнить за этим столом.");
+            return false;
+        }
+
         currentTable = table;
-
-        // 1. Формируем правильный контекст
-
-        if (!specificCheat.CanExecute(currentTable)) return false;
-
-        // 3. Запускаем процесс
         CheatRoutine(specificCheat);
         return true;
     }
@@ -75,52 +77,81 @@ public class PlayerCheatController : CheatController
 
     private void PlayerCheatRoutine(CheatAction cheat)
     {
-        Debug.Log($"[CheatController] Игрок начинает мухлевать: {cheat.CheatName}");
+        Debug.Log($"[CheatController] Сервер запустил рутину мухлежа: {cheat.CheatName}");
 
-        // Оповещаем всех клиентов (запуск подозрительной анимации и звуков на клиентах)
+        // Уведомляем клиентов об анимации
         NotifyCheatStartedClientRpc(cheat.AnimationTriggerName);
 
-        //Даем команду локальному клиенту открыть UI мини - игры
+        // Запускаем мини-игру у владельца
+        // Передаем имя чита как контекст, чтобы мини-игра знала, что именно отображать/проверять
         StartPlayerMinigameClientRpc(cheat.name);
     }
 
     [ClientRpc]
     private void StartPlayerMinigameClientRpc(string cheatActionName)
     {
-        // Открываем UI только у владельца этого персонажа
         if (!IsOwner) return;
 
-        Debug.Log("[CheatController] Получен запрос от сервера: Открыть UI мини-игры.");
-
-        // Находим нужный SO по имени в нашем локальном списке, чтобы передать его в UI
-        CheatAction match = availableCheats.Find(c => c.name == cheatActionName);
-        if (match != null)
+        if (_minigameManager == null)
         {
-            OnLocalPlayerCheatUIRequested?.Invoke(match);
+            Debug.LogError("[PlayerCheatController] MinigameManager отсутствует, невозможно запустить UI.");
+            return;
         }
+
+        // Ключ типа игры жестко задан для читов, либо можно сделать маппинг имен читов на типы игр
+        string minigameTypeKey = "CheatCardGame";
+
+        Debug.Log($"[PlayerCheatController] Запрос мини-игры '{minigameTypeKey}' через менеджер. Контекст: {cheatActionName}");
+
+        // Передаем только тип игры и коллбэк. 
+        // Если мини-игре нужны данные (например, имя чита), она может получить их через свойство ContextData или аналогичное,
+        // которое мы установим в менеджере или передадим отдельным параметром, если изменим сигнатуру.
+        // Для простоты пока передаем только тип, а мини-игра сама разберется (или мы ей скажем через публичное свойство).
+
+        _minigameManager.RequestStartGame(minigameTypeKey, cheatActionName, HandleMinigameResult);
     }
 
-    /// <summary>
-    /// Вызывается клиентом (из UI Менеджера), когда он успешно прошел или завалил мини-игру.
-    /// </summary>
+    private void HandleMinigameResult(bool isSuccess)
+    {
+        //if (!IsOwner) return;
+
+        Debug.Log($"[PlayerCheatController] Мини-игра завершена локально. Успех: {isSuccess}. Отправка на сервер...");
+        FinishPlayerCheatServerRpc(isSuccess);
+    }
+
     [Rpc(SendTo.Server)]
     public void FinishPlayerCheatServerRpc(bool isSuccess)
     {
-        if (!IsServer || !isCheating.Value) return;
+        if (!IsServer) return;
 
-        // Останавливаем корутину ожидания (тайм-аут)
+        if (!isCheating.Value)
+        {
+            Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} прислал результат, но флаг isCheating = false (возможно таймаут).");
+            return;
+        }
+
+        Debug.Log($"[CheatController] Сервер получил результат от {OwnerClientId}: Успех={isSuccess}");
+
         if (cheatCoroutine != null) StopCoroutine(cheatCoroutine);
 
         if (isSuccess)
         {
-            CompleteCheat(currentCheatAction);
+            Debug.Log("[CheatController] Игрок успешно совершил чит");
+            CompleteCheat(currentCheatAction, "Player");
         }
         else
         {
-            Debug.Log($"[CheatController] Игрок {OwnerClientId} завалил мини-игру.");
-            // Игрок ошибся — это приравнивается к поимке за руку (побеждает казино/оппонент)
+            Debug.Log($"[CheatController] Игрок {OwnerClientId} провалил мини-игру.");
             HandleCheatCaught(ulong.MaxValue);
         }
     }
-
 }
+
+
+
+
+
+
+
+
+

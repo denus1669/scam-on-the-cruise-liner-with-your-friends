@@ -348,7 +348,6 @@ public class BotAgent : NetworkBehaviour
     private void OnReachedTable()
     {
         if (currentTable == null) return;
-
         // Запускаем плавное выравнивание вместо мгновенной установки
         StartCoroutine(SmoothAlignToTable());
     }
@@ -420,6 +419,7 @@ public class BotAgent : NetworkBehaviour
         if (currentTable.TableType == "BlackGreg")
 
         _isArrived.Value = true;
+        currentTable.BotReachedTable(true);
     }
 
     private void OnReachedExit()

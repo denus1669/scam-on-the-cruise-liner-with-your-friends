@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: BG_CardFan
   m_EditorClassIdentifier: Assembly-CSharp::CheatCardFan
   CheatName: "\u0412\u0435\u0435\u0440 \u043A\u0430\u0440\u0442"
+  CheatForCodeName: BG_CardFan
   AnimationTriggerName: Cheat_Generic
   AnimationDuration: 10
   SelectionWeight: 10

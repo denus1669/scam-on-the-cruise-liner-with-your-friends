@@ -35,7 +35,7 @@ public class BotCheatController : CheatController
         }
         else
         {
-            if (!cheatToExecute.CanExecute(currentTable)) return false;
+            if (!cheatToExecute.CanExecute(currentTable, "BOT")) return false;
         }
 
 
@@ -61,7 +61,7 @@ public class BotCheatController : CheatController
         }
 
         // Мухлеж бота удался (игрок его не поймал)
-        CompleteCheat(cheat);
+        CompleteCheat(cheat, "BOT");
     }
 
     private CheatAction GetRandomValidCheat()
@@ -71,7 +71,7 @@ public class BotCheatController : CheatController
 
         foreach (var cheat in availableCheats)
         {
-            if (cheat.CanExecute(currentTable))
+            if (cheat.CanExecute(currentTable, "BOT"))
             {
                 validCheats.Add(cheat);
                 totalWeight += cheat.SelectionWeight;

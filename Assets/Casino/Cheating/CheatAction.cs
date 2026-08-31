@@ -11,6 +11,8 @@ public abstract class CheatAction : ScriptableObject
     [Header("Базовые настройки мухлежа")]
     public string CheatName = "Неизвестный мухлеж";
 
+    public string CheatForCodeName = "";
+
     [Tooltip("ID анимации для Animator (должен быть на префабе и игрока, и бота)")]
     public string AnimationTriggerName = "Cheat_Generic";
 
@@ -24,11 +26,11 @@ public abstract class CheatAction : ScriptableObject
     /// Проверяет, можно ли сейчас выполнить этот мухлеж.
     /// Вызывается только на СЕРВЕРЕ.
     /// </summary>
-    public abstract bool CanExecute(IGameTable table);
+    public abstract bool CanExecute(IGameTable table, string who);
 
     /// <summary>
     /// Применяет фактический результат мухлежа (подмена карт, изменение счета).
     /// Вызывается на СЕРВЕРЕ, если мухлеж не был прерван/раскрыт.
     /// </summary>
-    public abstract void ApplyCheatResult(IGameTable table);
+    public abstract void ApplyCheatResult(IGameTable table, string who);
 }
