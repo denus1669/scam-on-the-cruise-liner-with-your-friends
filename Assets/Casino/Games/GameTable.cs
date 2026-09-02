@@ -274,8 +274,9 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         if (!IsServer || !gameInProgress.Value) return;
 
         Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}.");
+
         // ВОЗВРАТ СТАВКИ: Если игра прервана извне (конец дня), возвращаем анте игроку
-        if (casinoBank != null && IsOccupied && occupiedByClientId.Value != ulong.MaxValue)
+        if (casinoBank != null && IsOccupied && occupiedByClientId.Value != ulong.MaxValue && reason != "Cheating")
         {
             bool refunded = casinoBank.TryDeposit(anteAmount, occupiedByClientId.Value, "Возврат ставки день завершен", TableType);
             if (refunded)

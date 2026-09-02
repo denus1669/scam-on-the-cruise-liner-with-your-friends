@@ -91,4 +91,13 @@ public class PlayerMinigameManager : NetworkBehaviour
         }
         _currentActiveGame = null;
     }
+
+    public List<string> GetAllGameKeys()
+    {
+        return new List<string>(_gamesDictionary.Keys);
+    }
+    /// <summary>
+    /// Возвращает текущую запущенную мини-игру (или null).
+    /// </summary>
+    public MinigameBase GetActiveGame() => _currentActiveGame;
 }

@@ -17,6 +17,7 @@ public abstract class CheatController : NetworkBehaviour
     [SerializeField] protected CheatAction currentCheatAction;
     [SerializeField] protected Animator characterAnimator;
 
+
     protected IGameTable currentTable;
     protected Coroutine cheatCoroutine;
 
@@ -97,34 +98,15 @@ public abstract class CheatController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Вызывается, когда кто-то пытается поймать персонажа за руку (через нажатие E).
-    /// </summary>
-    [Rpc(SendTo.Server)]
-    public void AccuseServerRpc(ulong accuserClientId)
-    {
-        if (!IsServer) return;
-
-        if (isCheating.Value)
-        {
-            Debug.Log($"[CheatSystem] успешно поймал за руку: !");
-            HandleCheatCaught(accuserClientId);
-        }
-        else
-        {
-            Debug.Log($"[CheatSystem] ложно обвинил: .");
-            // Ложное обвинение (влияет на репутацию, штраф или раздражение бота)
-        }
-    }
-
-    /// <summary>
     /// Обработка последствий успешной поимки за руку.
     /// </summary>
     public virtual void HandleCheatCaught(ulong accuserClientId)
     {
-        Debug.Log($"[CheatSystem] Игрок ПОЙМАН ЗА РУКУ!");
+        Debug.Log($"[CheatSystem] ПОЙМАН ЗА РУКУ!");
 
         // 1. Оповещаем всех клиентов (для UI-эффектов, звуков)
         GameInterruptedClientRpc(accuserClientId);
+        ForceCloseMinigameClientRpc();
 
         // 2. Делегируем столу решение (форс-стоп, списание денег, уход бота)
         currentTable?.OnCheaterCaught(
@@ -133,6 +115,18 @@ public abstract class CheatController : NetworkBehaviour
         );
         // 3. Сбрасываем состояние мухлежа
         CancelCheat();
+
+        ExposureManager.Instance?.AddExposure();
+    }
+
+    [ClientRpc]
+    protected void ForceCloseMinigameClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        // Для ботов это не нужно, но метод универсальный
+        if (this is PlayerCheatController pcc)
+        {
+            pcc.ForceCloseActiveMinigame();
+        }
     }
 
     [ClientRpc]

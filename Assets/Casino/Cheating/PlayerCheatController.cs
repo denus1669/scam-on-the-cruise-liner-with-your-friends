@@ -98,8 +98,20 @@ public class PlayerCheatController : CheatController
             return;
         }
 
-        // Ключ типа игры жестко задан для читов, либо можно сделать маппинг имен читов на типы игр
-        string minigameTypeKey = "CheatCardGame";
+        // Получаем все зарегистрированные игры
+        var availableGames = _minigameManager.GetAllGameKeys();
+
+        if (availableGames.Count == 0)
+        {
+            Debug.LogError("[PlayerCheatController] Нет доступных мини-игр!");
+            return;
+        }
+
+        // Выбираем случайную
+        int randomIndex = UnityEngine.Random.Range(0, availableGames.Count);
+        string minigameTypeKey = availableGames[randomIndex];
+
+        Debug.Log($"[PlayerCheatController] Выбрана случайная мини-игра: '{minigameTypeKey}'");
 
         Debug.Log($"[PlayerCheatController] Запрос мини-игры '{minigameTypeKey}' через менеджер. Контекст: {cheatActionName}");
 
@@ -117,6 +129,22 @@ public class PlayerCheatController : CheatController
 
         Debug.Log($"[PlayerCheatController] Мини-игра завершена локально. Успех: {isSuccess}. Отправка на сервер...");
         FinishPlayerCheatServerRpc(isSuccess);
+    }
+    /// <summary>
+    /// Вызывается сервером через RPC, когда чит прерван инспектором или другим игроком.
+    /// </summary>
+    public void ForceCloseActiveMinigame()
+    {
+        if (_minigameManager == null) return;
+
+        // Получаем все ключи и закрываем активную игру
+        // MinigameBase.ForceClose() уже обрабатывает сброс состояния
+        var activeGame = _minigameManager.GetActiveGame();
+        if (activeGame != null)
+        {
+            Debug.Log("[PlayerCheatController] Мини-игра принудительно закрыта из-за поимки.");
+            activeGame.ForceClose();
+        }
     }
 
     [Rpc(SendTo.Server)]
