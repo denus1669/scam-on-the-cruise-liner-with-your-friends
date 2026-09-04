@@ -74,6 +74,8 @@ namespace Blocks.Gameplay.Core
             }
         }
 
+        public bool WaitForRelease => false;
+
         /// <summary>
         /// Может ли игрок взаимодействовать с инспектором.
         /// </summary>
@@ -120,6 +122,11 @@ namespace Blocks.Gameplay.Core
             if (!IsSpawned || inspector == null) return;
 
             Debug.Log($"[InspectorInteractable] Игрок отменил взаимодействие с инспектором (удержано {holdTime:F2}с)");
+        }
+
+        public void OnHoldStarted(GameObject interactor)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

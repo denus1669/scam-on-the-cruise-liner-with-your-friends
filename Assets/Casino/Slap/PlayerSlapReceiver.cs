@@ -24,67 +24,94 @@ namespace Blocks.Gameplay.Core
         [Range(0f, 1f)]
         [SerializeField] private float knockbackThreshold = 0.25f;
 
+        [Header("Настройки 'Дать пять'")]
+        [Tooltip("Максимальный угол (в градусах) между взглядами игроков для взаимного шлепка.")]
+        [SerializeField] private float highFiveMaxAngle = 45f;
+
         // События для визуального оформления (анимации, звуки, частицы)
         // Параметры: ID бьющего, нормализованная сила удара (0..1)
-        public event Action<ulong, float> OnSlapReceived;
+        public event Action<ulong, float, bool> OnSlapReceived;
 
         // Событие для атакующего: ID жертвы
-        public event Action<ulong> OnSlapAttacked;
+        public event Action<ulong, bool> OnSlapAttacked;
 
         // Оставляем на случай, если другие скрипты хотят знать об откидывании
         public event Action<Vector3> OnKnockbackApplied;
 
+        // Статус: игрок зажал кнопку и готов шлепнуть
+        public bool IsSlapReady { get; private set; }
+
+        // Вызывается из Interactable при нажатии кнопки
+        public void SetSlapReady(bool ready)
+        {
+            IsSlapReady = ready;
+        }
+
         /// <summary>
         /// Инициация шлепка от локального игрока (интерактора).
         /// </summary>
-        public void InitiateSlap(ulong slapperClientId, float chargeTime, Vector3 slapperPosition)
+        public void InitiateSlap(ulong slapperClientId, float chargeTime, Vector3 slapperPosition, Vector3 slapperForward)
         {
-            ReceiveSlapServerRpc(slapperClientId, chargeTime, slapperPosition);
+            ReceiveSlapServerRpc(slapperClientId, chargeTime, slapperPosition, slapperForward);
         }
 
+        // Измененный ReceiveSlapServerRpc
         [Rpc(SendTo.Server)]
-        private void ReceiveSlapServerRpc(ulong slapperClientId, float chargeTime, Vector3 slapperPosition)
+        private void ReceiveSlapServerRpc(ulong slapperClientId, float chargeTime, Vector3 slapperPosition, Vector3 slapperForward)
         {
+            // Проверка на "Дать пять"
+            bool isHighFive = false;
+            if (IsSlapReady)
+            {
+                // Проверяем, смотрят ли игроки друг на друга
+                Vector3 victimForward = transform.forward;
+                Vector3 toSlapper = (slapperPosition - transform.position).normalized;
+
+                float angleVictimToSlapper = Vector3.Angle(victimForward, toSlapper);
+                float angleSlapperToVictim = Vector3.Angle(slapperForward, -toSlapper);
+
+                if (angleVictimToSlapper < highFiveMaxAngle && angleSlapperToVictim < highFiveMaxAngle)
+                {
+                    isHighFive = true;
+                }
+            }
+
             float forceNormalized = Mathf.Clamp01(chargeTime / maxChargeTime);
 
-            // 1. Оповещаем всех клиентов, что жертва получила шлепок
-            NotifySlapReceivedClientRpc(slapperClientId, forceNormalized);
+            // 1. Оповещаем всех о результате (обычный шлепок или "Дать пять")
+            NotifySlapReceivedClientRpc(slapperClientId, forceNormalized, isHighFive);
+            NotifySlapAttackedClientRpc(slapperClientId, OwnerClientId, isHighFive);
 
-            // 2. Оповещаем всех клиентов, что атакующий совершил удар
-            NotifySlapAttackedClientRpc(slapperClientId, OwnerClientId);
-
-            // 3. Если удар достаточно заряжен, рассчитываем отбрасывание для пострадавшего
-            if (forceNormalized >= knockbackThreshold)
+            // 2. Отбрасывание применяется ТОЛЬКО если это НЕ "Дать пять" и заряд достаточен
+            if (!isHighFive && forceNormalized >= knockbackThreshold)
             {
-                // Направление от бьющего к жертве
                 Vector3 knockbackDir = (transform.position - slapperPosition).normalized;
-
-                // Добавляем подброс вверх для красивого отрыва от земли (настраивается)
                 knockbackDir.y = 0.6f;
                 knockbackDir.Normalize();
-
                 float appliedForce = Mathf.Lerp(minKnockbackForce, maxKnockbackForce, forceNormalized);
                 Vector3 finalKnockbackVector = knockbackDir * appliedForce;
 
-                // Передаем импульс только владельцу персонажа-жертвы
                 ApplyKnockbackClientRpc(finalKnockbackVector);
             }
+
+            // Сбрасываем готовность после удара
+            IsSlapReady = false;
         }
 
         [Rpc(SendTo.Everyone)]
-        private void NotifySlapReceivedClientRpc(ulong slapperClientId, float forceNormalized)
+        private void NotifySlapReceivedClientRpc(ulong slapperClientId, float forceNormalized, bool isHighFive)
         {
-            OnSlapReceived?.Invoke(slapperClientId, forceNormalized);
+            OnSlapReceived?.Invoke(slapperClientId, forceNormalized, isHighFive);
         }
 
         [Rpc(SendTo.Everyone)]
-        private void NotifySlapAttackedClientRpc(ulong slapperClientId, ulong victimClientId)
+        private void NotifySlapAttackedClientRpc(ulong slapperClientId, ulong victimClientId, bool isHighFive)
         {
             if (NetworkManager.Singleton.ConnectedClients.TryGetValue(slapperClientId, out var client))
             {
                 if (client.PlayerObject != null && client.PlayerObject.TryGetComponent<PlayerSlapReceiver>(out var slapperReceiver))
                 {
-                    slapperReceiver.TriggerSlapAttackedEvent(victimClientId);
+                    slapperReceiver.TriggerSlapAttackedEvent(victimClientId, isHighFive);
                 }
             }
         }
@@ -116,9 +143,9 @@ namespace Blocks.Gameplay.Core
             }
         }
 
-        public void TriggerSlapAttackedEvent(ulong victimClientId)
+        public void TriggerSlapAttackedEvent(ulong victimClientId, bool isHighFive)
         {
-            OnSlapAttacked?.Invoke(victimClientId);
+            OnSlapAttacked?.Invoke(victimClientId, isHighFive);
         }
     }
 }

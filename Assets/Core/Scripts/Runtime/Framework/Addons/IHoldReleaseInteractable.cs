@@ -15,5 +15,13 @@ namespace Blocks.Gameplay.Core
         /// <param name="interactor">Игрок, который отпустил кнопку</param>
         /// <param name="chargeTime">Время в секундах, которое кнопка была зажата</param>
         void OnHoldReleased(GameObject interactor, float chargeTime);
+
+        void OnHoldStarted(GameObject interactor);
+
+        /// <summary>
+        /// Если true, взаимодействие Interact() не вызовется автоматически по таймеру.
+        /// Система будет ждать отпускания кнопки (OnHoldReleased).
+        /// </summary>
+        bool WaitForRelease { get; }
     }
 }

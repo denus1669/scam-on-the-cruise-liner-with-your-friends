@@ -72,6 +72,8 @@ public class InspectorAgent : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (!IsOwner) return;
+
         base.OnNetworkDespawn();
 
         if (_stopCoroutine != null)

@@ -87,6 +87,8 @@ namespace Blocks.Gameplay.Core
             }
         }
 
+        public bool WaitForRelease => false;
+
         /// <summary>
         /// Определяет, может ли объект быть в фокусе и показывать текст подсказки.
         /// Возвращает true для сломанных И взорванных автоматов, чтобы текст показывался в обоих случаях.
@@ -152,6 +154,11 @@ namespace Blocks.Gameplay.Core
                     Debug.Log($"[SlotMachineInteractable] Игрок {clientId} отменил починку, стол освобождён");
                 }
             }
+        }
+
+        public void OnHoldStarted(GameObject interactor)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
