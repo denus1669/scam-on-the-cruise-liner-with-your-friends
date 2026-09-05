@@ -65,8 +65,7 @@ namespace Blocks.Gameplay.Core
             // VFX работают только на клиентах
             if (!IsServer)
             {
-                slotMachine.OnSlotMachineExploded += HandleExplosion;
-                slotMachine.OnSlotMachineRestored += HandleRestored;
+                slotMachine.OnSlotMachineExplosionChanged += HandleExplosionStateChanged;
 
                 // Проверяем текущее состояние при спавне
                 if (slotMachine.IsExploded)
@@ -83,11 +82,18 @@ namespace Blocks.Gameplay.Core
         {
             if (!IsServer && slotMachine != null)
             {
-                slotMachine.OnSlotMachineExploded -= HandleExplosion;
-                slotMachine.OnSlotMachineRestored -= HandleRestored;
+                slotMachine.OnSlotMachineExplosionChanged -= HandleExplosionStateChanged;
             }
 
             base.OnNetworkDespawn();
+        }
+
+        private void HandleExplosionStateChanged(bool isExploded)
+        {
+            if (isExploded)
+                HandleExplosion();
+            else
+                HandleRestored();
         }
 
         /// <summary>
@@ -96,7 +102,7 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         private void HandleExplosion()
         {
-            Debug.Log($"[VFX] Запуск эффектов взрыва для автомата '{slotMachine.machineName}'");
+            Debug.Log($"[VFX] Запуск эффектов взрыва для автомата '{slotMachine.slotMachineName}'");
 
             // Запускаем партиклы взрыва
             PlayExplosionParticles();
@@ -176,7 +182,7 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         private void HandleRestored()
         {
-            Debug.Log($"[VFX] Восстановление автомата '{slotMachine.machineName}'");
+            Debug.Log($"[VFX] Восстановление автомата '{slotMachine.slotMachineName}'");
 
             // Восстанавливаем модель автомата
             if (hideModelAfterExplosion && machineModel != null)

@@ -62,16 +62,22 @@ namespace Blocks.Gameplay.Core
                 progressBar.gameObject.SetActive(true);
             }
 
-            // Обновляем значение (цель target нам не нужна, используем только progress)
+            // Обновляем значение
             progressBar.SetFill(progress);
 
-            // Если заполнение достигло максимума — прячем шкалу
-            if (progress >= 1f)
+            // Проверяем, требуется ли ожидание отпускания кнопки
+            bool waitForRelease = false;
+            if (target is IHoldReleaseInteractable holdRelease)
+            {
+                waitForRelease = holdRelease.WaitForRelease;
+            }
+
+            // Если заполнение достигло максимума И не нужно ждать отпускания — прячем шкалу
+            if (progress >= 1f && !waitForRelease)
             {
                 HideProgressBar();
             }
         }
-
         private void HandleHoldCancelled()
         {
             HideProgressBar();

@@ -26,7 +26,7 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
     public bool CanInteract(GameObject interactor)
     {
 
-        if (blackjackTable == null || !blackjackTable.IsOccupied || !blackjackTable.IsBotOccupied)
+        if (blackjackTable == null || !blackjackTable.IsOccupied || !blackjackTable.IsBotReachedTable)
         {
             return false;
         }

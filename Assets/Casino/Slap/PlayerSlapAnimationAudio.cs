@@ -56,24 +56,22 @@ public class PlayerSlapAnimationAudio : MonoBehaviour
     /// </summary>
     /// <param name="interactorClientId">Кто ударил.</param>
     /// <param name="forceNormalized">Сила удара от 0 до 1.</param>
-    private void PlayPlayerSlapReceivedVisuals(ulong interactorClientId, float forceNormalized)
+    private void PlayPlayerSlapReceivedVisuals(ulong interactorClientId, float forceNormalized, bool isHighFive)
     {
-        Debug.Log($"[SlapVisuals] Игрок {gameObject.name} получил шлепок силой {forceNormalized:F2}");
-
-        if (animator != null)
+        if (isHighFive)
         {
-            animator.SetTrigger(playerRecieveSlapTrigger);
+            // 80% вялый, 20% крутой
+            float randomValue = UnityEngine.Random.value;
+            AudioClip highFiveClip = (randomValue < 0.8f) ? playerRecieveSlapSound : playerHeavySlapSound;
+            PlaySound(highFiveClip, 1f);
+            Debug.Log("[SlapVisuals] ДАТЬ ПЯТЬ!");
+            return;
         }
 
-        // Динамический выбор звука и громкости на основе силы заряда
-        if (forceNormalized > 0.5f && playerHeavySlapSound != null)
-        {
-            PlaySound(playerHeavySlapSound, forceNormalized);
-        }
-        else
-        {
-            PlaySound(playerRecieveSlapSound, Mathf.Max(0.3f, forceNormalized));
-        }
+        // Обычная логика...
+        if (animator != null) animator.SetTrigger(playerRecieveSlapTrigger);
+        if (forceNormalized > 0.5f && playerHeavySlapSound != null) PlaySound(playerHeavySlapSound, forceNormalized);
+        else PlaySound(playerRecieveSlapSound, Mathf.Max(0.3f, forceNormalized));
     }
 
     /// <summary>

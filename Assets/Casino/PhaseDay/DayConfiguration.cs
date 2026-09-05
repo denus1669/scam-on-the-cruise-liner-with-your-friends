@@ -27,6 +27,11 @@ public class DayConfiguration : ScriptableObject
     [Tooltip("Максимальная задержка между появлениями новых ботов (сек)")]
     [Min(0f)] public float spawnDelayMax = 155f;
 
+    [Header("Условия победы/поражения")]
+    [Tooltip("Минимальное количество фишек, которое должно быть в конце каждого дня. " +
+             "Если фишек меньше - проигрыш. Индекс 0 = день 1, индекс 1 = день 2 и т.д.")]
+    public int[] dailyChipThresholds = new int[] { 100, 150, 200, 300, 500 };
+
     private void OnValidate()
     {
         if (daysCount < 1) daysCount = 1;
@@ -41,5 +46,22 @@ public class DayConfiguration : ScriptableObject
         {
             Debug.LogWarning("[DayConfiguration] Не задан ни один префаб бота!");
         }
+    }
+
+    /// <summary>
+    /// Возвращает порог фишек для заданного дня (1-based).
+    /// Если массив короче или не задан, возвращает 0 (проигрыш только при отрицательном балансе).
+    /// </summary>
+    public int GetChipThresholdForDay(int day)
+    {
+        if (dailyChipThresholds == null || dailyChipThresholds.Length == 0)
+            return 0;
+
+        int index = day - 1; // day 1 -> index 0
+        if (index < 0) index = 0;
+        if (index >= dailyChipThresholds.Length)
+            return dailyChipThresholds[dailyChipThresholds.Length - 1]; // последнее значение для дней вне массива
+
+        return dailyChipThresholds[index];
     }
 }

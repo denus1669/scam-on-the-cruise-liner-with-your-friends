@@ -14,6 +14,8 @@ public interface ICardGameTable : IGameTable
 
     /// <summary>Количество карт в руке бота.</summary>
     int GetBotCardCount();
+    /// <summary>Количество карт в руке Игрока.</summary>
+    int GetPlayerCardCount();
 
     /// <summary>Безопасная копия списка карт бота (не даёт изменить оригинал).</summary>
     List<CardData> GetBotHandCopy();

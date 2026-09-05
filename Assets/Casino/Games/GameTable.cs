@@ -7,6 +7,7 @@ using UnityEngine;
 /// <summary>
 /// Абстрактный базовый класс для всех игровых столов.
 /// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
+/// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
 /// Конкретные игры наследуют этот класс и добавляют свою механику.
 /// </summary>
 public abstract class GameTable : NetworkBehaviour, IGameTable
@@ -16,7 +17,6 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     [Header("Экономика")]
     [SerializeField] protected CasinoBank casinoBank;
     [SerializeField] private int anteAmount = 1;
-
 
     public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
@@ -34,13 +34,21 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <summary>Синхронизируемый флаг, указывающий, идёт ли игра.</summary>
     protected readonly NetworkVariable<bool> gameInProgress = new NetworkVariable<bool>(false);
 
-    private readonly NetworkVariable<bool> isBotOccupied = new NetworkVariable<bool>(
+    protected readonly NetworkVariable<bool> isBotOccupied = new NetworkVariable<bool>(
         false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    protected readonly NetworkVariable<bool> isBotReachedTable = new NetworkVariable<bool>(
+    false,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
+
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
-    private NetworkObject currentBot;
+    protected NetworkObject currentBot;
+
+    public Transform TableTransform => transform;
+    public string TableName => gameObject.name; 
 
     // ---------- Реализация IGameTable ----------
     /// <inheritdoc />
@@ -52,6 +60,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public bool IsGameStarted => gameInProgress.Value;
 
+    public bool IsBotReachedTable => isBotReachedTable.Value;
     public abstract string TableType { get; }
 
     /// <inheritdoc />
@@ -73,6 +82,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         base.OnNetworkSpawn();
 
+        GameTableManager.Instance?.RegisterTable(this);
 
         isOccupied.OnValueChanged += OnIsOccupiedChanged;
         gameInProgress.OnValueChanged += OnGameProgressChanged;
@@ -87,6 +97,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+        GameTableManager.Instance?.UnregisterTable(this);
 
         isOccupied.OnValueChanged -= OnIsOccupiedChanged;
         gameInProgress.OnValueChanged -= OnGameProgressChanged;
@@ -108,7 +119,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         OnBotOccupancyChanged?.Invoke(current);
     }
 
-    private void OnGameProgressChanged(bool previous, bool current)
+    public void OnGameProgressChanged(bool previous, bool current)
     {
         if (current)
             OnGameStarted?.Invoke();
@@ -139,7 +150,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         if (!IsServer) return;
 
-        if (isOccupied.Value)
+        if (IsOccupied)
         {
             Debug.LogWarning($"[GameTable] Попытка занять уже занятый стол клиентом {clientId}");
             return;
@@ -167,12 +178,25 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     }
 
     // ---------- Управление ботом (сервер) ----------
+
+    /// <summary>
+    /// Проверяет, может ли бот быть назначен на этот стол.
+    /// Базовая проверка: стол не занят другим ботом.
+    /// Наследники могут переопределять для дополнительных проверок (например, сломан/взорван).
+    /// Вызывается на сервере.
+    /// </summary>
+    public virtual bool CanAssignBot()
+    {
+        // Базовое условие: бот уже не занимает это место
+        return !IsBotOccupied;
+    }
+
     /// <inheritdoc />
     public virtual void AssignBot(NetworkObject bot)
     {
         if (!IsServer) return;
 
-        if (isBotOccupied.Value)
+        if (!CanAssignBot())
         {
             Debug.LogWarning($"[GameTable] Попытка назначить бота, но место уже занято.");
             return;
@@ -181,7 +205,12 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         currentBot = bot;
         botNetworkObjectRef.Value = new NetworkObjectReference(bot);
         isBotOccupied.Value = true;
-        Debug.Log($"[GameTable] Бот {bot.name} занял место за столом.");
+        Debug.Log($"[GameTable] Бот {bot.GetEntityId()} занял место за столом.");
+    }
+
+    public void BotReachedTable(bool reached)
+    {
+        isBotReachedTable.Value = reached;
     }
 
     /// <inheritdoc />
@@ -195,16 +224,15 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             return;
         }
 
-        // Если шла игра – принудительно завершаем
-        if (gameInProgress.Value)
-        {
-            Debug.LogWarning($"[GameTable] Попытка убрать бота, но идет игра.");
-            return;
-        }
 
+
+        gameInProgress.Value = false;
         currentBot = null;
         botNetworkObjectRef.Value = default;
         isBotOccupied.Value = false;
+        isBotReachedTable.Value = false;
+        GameTableManager.Instance?.NotifyTableFreed();
+
         Debug.Log($"[GameTable] Бот убран из-за стола.");
     }
 
@@ -212,7 +240,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public virtual void StartGame()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+        {
+            Debug.LogWarning($"[SlotMachine] Попытка начать игру на клиенте. Игровая логика должна выполняться только на сервере.");
+            return;
+        }
 
         if (!CanStartGame())
         {
@@ -241,10 +273,20 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         if (!IsServer || !gameInProgress.Value) return;
 
-        Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}. Победитель: {winnerClientId}. Читер бот? {isCheaterBot}");
+        Debug.LogWarning($"[GameTable] Игра принудительно остановлена. Причина: {reason}.");
 
+        // ВОЗВРАТ СТАВКИ: Если игра прервана извне (конец дня), возвращаем анте игроку
+        if (casinoBank != null && IsOccupied && occupiedByClientId.Value != ulong.MaxValue && reason != "Cheating")
+        {
+            bool refunded = casinoBank.TryDeposit(anteAmount, occupiedByClientId.Value, "Возврат ставки день завершен", TableType);
+            if (refunded)
+            {
+                Debug.Log($"[GameTable] Ставка ({anteAmount}) возвращена игроку {occupiedByClientId.Value} из-за конца дня.");
+                // Можно добавить ClientRpc, чтобы показать игроку всплывающий текст "+1 фишка (возврат)"
+            }
+        }
         // Переводим состояние игры в "не активна"
-        gameInProgress.Value = false;
+        EndGame();
     }
 
     /// <summary>
@@ -338,5 +380,5 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             Leave(clientId);
         }
     }
-    
+
 }

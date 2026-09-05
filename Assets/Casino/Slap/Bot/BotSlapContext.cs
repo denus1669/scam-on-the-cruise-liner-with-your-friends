@@ -4,7 +4,7 @@ public struct BotSlapContext
 {
     public CheatController CheatController;
     public BotBluffController BluffController;
-    public BaseBotBehavior BotBehavior;
+    public BaseBotBehaviour BotBehaviour;
     public BotDispleasureController DispleasureController;
     public BotSlapRouter Router;
     public NetworkObject TargetNetworkObject;
