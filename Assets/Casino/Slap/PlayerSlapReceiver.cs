@@ -28,6 +28,16 @@ namespace Blocks.Gameplay.Core
         [Tooltip("Максимальный угол (в градусах) между взглядами игроков для взаимного шлепка.")]
         [SerializeField] private float highFiveMaxAngle = 45f;
 
+        [SerializeField, Min(1f)] private float _multiplicatorMin = 1f;
+        [SerializeField, Min(1f)] private float _multiplicatorMax = 5f;
+        [SerializeField] private float _weakSlap = 1;
+        [SerializeField] private float _strongSlap = 150;
+
+        [Header("Спец-удары (не зависят от chargeTime)")]
+        [SerializeField, Range(0f, 1f)] private float _weakSlapChance = 0.05f;   // 5%
+        [SerializeField, Range(0f, 1f)] private float _strongSlapChance = 0.03f; // 3%
+        [SerializeField, Range(0f, 1f)] private float _multiplicatorChance = 0.3f; // 30% шанс
+
         // События для визуального оформления (анимации, звуки, частицы)
         // Параметры: ID бьющего, нормализованная сила удара (0..1)
         public event Action<ulong, float, bool> OnSlapReceived;
@@ -63,7 +73,6 @@ namespace Blocks.Gameplay.Core
             bool isHighFive = false;
             if (IsSlapReady)
             {
-                // Проверяем, смотрят ли игроки друг на друга
                 Vector3 victimForward = transform.forward;
                 Vector3 toSlapper = (slapperPosition - transform.position).normalized;
 
@@ -71,31 +80,67 @@ namespace Blocks.Gameplay.Core
                 float angleSlapperToVictim = Vector3.Angle(slapperForward, -toSlapper);
 
                 if (angleVictimToSlapper < highFiveMaxAngle && angleSlapperToVictim < highFiveMaxAngle)
-                {
                     isHighFive = true;
-                }
             }
 
+            // === 1. ОПРЕДЕЛЕНИЕ ТИПА УДАРА И СИЛЫ ===
             float forceNormalized = Mathf.Clamp01(chargeTime / maxChargeTime);
+            bool isSpecialSlap = false;
+            float appliedForce;
 
-            // 1. Оповещаем всех о результате (обычный шлепок или "Дать пять")
+            float roll = UnityEngine.Random.value;
+            if (roll < _weakSlapChance)
+            {
+                appliedForce = _weakSlap;
+                forceNormalized = Mathf.Clamp01(_weakSlap / maxKnockbackForce); // Для анимации/звука
+                isSpecialSlap = true;
+                Debug.Log($"[Slap] WEAK SLAP! force={appliedForce:F1}");
+            }
+            else if (roll < _weakSlapChance + _strongSlapChance)
+            {
+                appliedForce = _strongSlap;
+                forceNormalized = 1f; // Для анимации/звука
+                isSpecialSlap = true;
+                Debug.Log($"[Slap] STRONG SLAP! force={appliedForce:F1}");
+            }
+            else
+            {
+                // Обычный удар: сила зависит от зарядки
+                appliedForce = Mathf.Lerp(minKnockbackForce, maxKnockbackForce, forceNormalized);
+            }
+
+            // === 2. СЛУЧАЙНЫЙ МНОЖИТЕЛЬ (после определения типа) ===
+            if (UnityEngine.Random.value < _multiplicatorChance)
+            {
+                float randomMult = UnityEngine.Random.Range(_multiplicatorMin, _multiplicatorMax);
+                appliedForce *= randomMult;
+                Debug.Log($"[Slap] MULTIPLIER x{randomMult:F2} -> force={appliedForce:F1}");
+            }
+
+            // Оповещаем клиентов (для анимаций/звуков)
             NotifySlapReceivedClientRpc(slapperClientId, forceNormalized, isHighFive);
             NotifySlapAttackedClientRpc(slapperClientId, OwnerClientId, isHighFive);
 
-            // 2. Отбрасывание применяется ТОЛЬКО если это НЕ "Дать пять" и заряд достаточен
-            if (!isHighFive && forceNormalized >= knockbackThreshold)
+            // === 3. ОТБРАСЫВАНИЕ ===
+            // Спец-удары всегда отбрасывают; обычные — только если заряд >= порога
+            bool shouldKnockback = !isHighFive && (isSpecialSlap || forceNormalized >= knockbackThreshold);
+
+            if (shouldKnockback)
             {
                 Vector3 knockbackDir = (transform.position - slapperPosition).normalized;
                 knockbackDir.y = 0.6f;
                 knockbackDir.Normalize();
-                float appliedForce = Mathf.Lerp(minKnockbackForce, maxKnockbackForce, forceNormalized);
-                Vector3 finalKnockbackVector = knockbackDir * appliedForce;
 
+                Vector3 finalKnockbackVector = knockbackDir * appliedForce;
                 ApplyKnockbackClientRpc(finalKnockbackVector);
             }
 
-            // Сбрасываем готовность после удара
             IsSlapReady = false;
+        }
+
+        private void GiveFive()
+        {
+
         }
 
         [Rpc(SendTo.Everyone)]
@@ -134,12 +179,6 @@ namespace Blocks.Gameplay.Core
                     // Добавляем скорость по Y напрямую (преодолевая гравитацию)
                     coreMovement.SetVerticalVelocity(knockbackVector.y);
                 }
-            }
-            // Фолбэк для классических объектов с Rigidbody (если вдруг шлепки будут применяться к физическим пропсам)
-            else if (TryGetComponent<Rigidbody>(out var rb) && !rb.isKinematic)
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.AddForce(knockbackVector, ForceMode.Impulse);
             }
         }
 

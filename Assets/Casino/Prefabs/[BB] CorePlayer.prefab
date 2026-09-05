@@ -30,6 +30,7 @@ GameObject:
   - component: {fileID: 4535699252747466436}
   - component: {fileID: 1073906307148899363}
   - component: {fileID: 1039719676754950626}
+  - component: {fileID: 3984287008321356846}
   - component: {fileID: 7814610562723482993}
   - component: {fileID: 9030635836983482947}
   - component: {fileID: 2291338215762006501}
@@ -507,6 +508,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerAttentionVisualSpawner
   visualPrefab: {fileID: 3084038740837860458}
+--- !u!114 &3984287008321356846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 921bea6461ca9e2409bd81627224fe93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSlapAnimationAudio
+  animator: {fileID: 178504057993001136}
+  audioSource: {fileID: 1130550962405701607}
+  playerRecieveSlapSound: {fileID: 8300000, guid: f423da0d336bf624b92525115dfc14db, type: 3}
+  playerHeavySlapSound: {fileID: 8300000, guid: bbc56d01708de524784dbd318418f70d, type: 3}
+  playerAttackSlapSound: {fileID: 8300000, guid: 5e7fd8a2da88913449051b82c9354c19, type: 3}
+  playerSlapReceiver: {fileID: 7814610562723482993}
 --- !u!114 &7814610562723482993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,6 +544,13 @@ MonoBehaviour:
   maxKnockbackForce: 30
   knockbackThreshold: 0.2
   highFiveMaxAngle: 45
+  _multiplicatorMin: 1
+  _multiplicatorMax: 5
+  _weakSlap: 1
+  _strongSlap: 50
+  _weakSlapChance: 0.05
+  _strongSlapChance: 0.03
+  _multiplicatorChance: 0.3
 --- !u!114 &9030635836983482947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,6 +637,8 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _skySphere: {fileID: 7579625314148395050}
   altitude: {fileID: 8250126903835358271}
+  _coreMovement: {fileID: 5924146909096204431}
+  _speedMultiplicator: 5
 --- !u!1 &336827370212964026
 GameObject:
   m_ObjectHideFlags: 0

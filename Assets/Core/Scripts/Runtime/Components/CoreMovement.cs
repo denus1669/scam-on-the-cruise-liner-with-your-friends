@@ -194,6 +194,11 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         public Transform RotationTransform => rotationTransform;
 
+        /// <summary>
+        /// Gets the current horizontal velocity vector (X, Z). Y is always 0.
+        /// </summary>
+        public Vector3 HorizontalVelocity => new Vector3(m_ArealVelocity.x, 0f, m_ArealVelocity.z);
+
         private CharacterController m_CharacterController;
         private List<IMovementAbility> m_Abilities = new List<IMovementAbility>();
         private float m_VerticalVelocity;

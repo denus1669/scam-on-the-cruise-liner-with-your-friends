@@ -10,6 +10,7 @@ public class AltitudeActive : MonoBehaviour
     [SerializeField] private float disableDelay = 10f;
 
     private bool _isActive;
+    private bool _isUpdateUI;
     private float _startTime;
     private float _maxHeight;
 
@@ -22,21 +23,29 @@ public class AltitudeActive : MonoBehaviour
     private void Enable()
     {
         _isActive = true;
+        _isUpdateUI = true;
         _startTime = Time.time;
         _maxHeight = 0f;
 
-        altitudeRoot.SetActive(true);
+        altitudeRoot.SetActive(_isActive);
         UpdateUI();
+    }
+
+    private void StopUpdateUI()
+    {
+        _isUpdateUI = false; 
     }
 
     private void StartDisableTimer()
     {
+        StopUpdateUI();
         Invoke(nameof(Disable), disableDelay);
     }
 
     private void Disable()
     {
-        
+        _isActive = false;
+        altitudeRoot.SetActive(_isActive);
     }
 
     private void Update()
@@ -47,7 +56,8 @@ public class AltitudeActive : MonoBehaviour
         if (currentY > _maxHeight)
             _maxHeight = currentY;
 
-        UpdateUI();
+        if (_isUpdateUI)
+            UpdateUI();
     }
 
     private void UpdateUI()
