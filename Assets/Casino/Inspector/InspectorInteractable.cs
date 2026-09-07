@@ -126,7 +126,7 @@ namespace Blocks.Gameplay.Core
 
         public void OnHoldStarted(GameObject interactor)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

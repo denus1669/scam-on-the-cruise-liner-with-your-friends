@@ -334,20 +334,30 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     // ---------- Обработка триггера ----------
     public virtual void OnTriggerExit(Collider other)
     {
-
+        // 1. Получаем NetworkObject вышедшего коллайдера
         NetworkObject netObj = other.GetComponent<NetworkObject>();
+
+        // Если это не сетевой объект или не игрок — игнорируем
         if (netObj == null || !netObj.IsPlayerObject) return;
 
+        ulong exitingClientId = netObj.OwnerClientId;
+
+        // 2. Проверяем, является ли вышедший игрок ТЕКУЩИМ владельцем стола
+        if (exitingClientId != occupiedByClientId.Value)
+        {
+            // Если вышел кто-то другой (второй игрок, зритель и т.д.), просто игнорируем
+            return;
+        }
+
+        // 3. Если вышел именно владелец, освобождаем стол
         if (IsServer)
         {
-            if (occupiedByClientId.Value == netObj.OwnerClientId)
-            {
-                Leave(netObj.OwnerClientId);
-            }
+            Leave(exitingClientId);
         }
         else if (netObj.IsLocalPlayer)
         {
-            LeaveServerRpc(netObj.OwnerClientId);
+            // Для клиентов в Distributed Authority отправляем RPC на сервер
+            LeaveServerRpc(exitingClientId);
         }
     }
 

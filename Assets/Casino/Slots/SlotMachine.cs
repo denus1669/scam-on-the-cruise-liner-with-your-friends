@@ -360,7 +360,9 @@ public class SlotMachine : GameTable
     [ClientRpc]
     private void PlayJackpotVFXClientRpc()
     {
-        Debug.Log($"[SlotMachine Client] VFX джекпота!");
-        // slotMachineVisuals.PlayJackpot();
+        // Находим VFX компонент и запускаем партиклы напрямую
+        var vfx = GetComponent<SlotMachineExplosionVFX>();
+        if (vfx != null)
+            vfx.TriggerWinParticles();
     }
 }

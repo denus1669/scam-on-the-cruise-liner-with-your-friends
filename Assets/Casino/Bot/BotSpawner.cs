@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 
 public class BotSpawner : NetworkBehaviour
 {
@@ -8,7 +9,7 @@ public class BotSpawner : NetworkBehaviour
     [SerializeField] private GameObject botPrefab;
 
     [Header("Позиции спавна")]
-    [SerializeField] private Vector3 spawnPosition;
+    [SerializeField] private List<GameObject> spawnPositions;
 
     [Header("Настройки личностей (опционально)")]
     [SerializeField] private BotPersonality[] forcedPersonalities;
@@ -34,8 +35,19 @@ public class BotSpawner : NetworkBehaviour
             Debug.LogError("[BotSpawner] botPrefab не назначен!");
             return null;
         }
-       
-        GameObject bot = Instantiate(botPrefab, spawnPosition, Quaternion.identity);
+        // Проверка наличия точек спавна
+        if (spawnPositions == null || spawnPositions.Count == 0)
+        {
+            Debug.LogError("[BotSpawner] Список spawnPositions пуст!");
+            return null;
+        }
+
+        // Выбираем случайную точку из списка
+        int randomIndex = Random.Range(0, spawnPositions.Count);
+        Vector3 position = spawnPositions[randomIndex].transform.position;
+        Quaternion rotation = spawnPositions[randomIndex].transform.rotation; // Берем поворот маркера
+
+        GameObject bot = Instantiate(botPrefab, position, rotation);
         NetworkObject netObj = bot.GetComponent<NetworkObject>();
         if (netObj == null)
         {

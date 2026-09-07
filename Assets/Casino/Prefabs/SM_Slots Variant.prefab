@@ -50,7 +50,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -4944,7 +4944,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -9836,9 +9836,9 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -14696,19 +14696,19 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 8299bb537af7656419e4e30437963fe8, type: 2}
     - target: {fileID: 1918482339981649447, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.39896
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1918482339981649447, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.39896
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1918482339981649447, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.39896
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1918482339981649447, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.311
+      value: 3.682
       objectReference: {fileID: 0}
     - target: {fileID: 2122072495037901665, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalRotation.y
@@ -14722,6 +14722,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.01
       objectReference: {fileID: 0}
+    - target: {fileID: 4080150168697894344, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: winParticles
+      value: 
+      objectReference: {fileID: 1392991504670140418}
+    - target: {fileID: 4080150168697894344, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: smokeParticles
+      value: 
+      objectReference: {fileID: 8175656406470828882}
+    - target: {fileID: 4080150168697894344, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: explosionParticles
+      value: 
+      objectReference: {fileID: 8385194422120086645}
+    - target: {fileID: 4080150168697894344, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: explosionAudioSource
+      value: 
+      objectReference: {fileID: 7955471977793913670}
     - target: {fileID: 4303774317041295173, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: slotMachine
       value: 
@@ -14738,6 +14754,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.01
       objectReference: {fileID: 0}
+    - target: {fileID: 5277537753022767718, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: wheelAnimator
+      value: 
+      objectReference: {fileID: 7831780719040811217}
     - target: {fileID: 6301616003033773180, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -14867,7 +14887,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3324746910
+  GlobalObjectIdHash: 1440146930
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -14905,6 +14925,11 @@ Animator:
 --- !u!4 &7937994976135057121 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9180179217993700593, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+  m_PrefabInstance: {fileID: 1247461928308939280}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &7955471977793913670 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 9162682974747400534, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
   m_PrefabInstance: {fileID: 1247461928308939280}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8145709116426912129 stripped

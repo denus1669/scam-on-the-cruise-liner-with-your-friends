@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 
 namespace Blocks.Gameplay.Core
 {
@@ -20,6 +21,8 @@ namespace Blocks.Gameplay.Core
 
         [Tooltip("Дополнительный эффект дыма после взрыва (опционально)")]
         [SerializeField] private ParticleSystem smokeParticles;
+
+        [SerializeField] private ParticleSystem winParticles;
 
         [Header("Звук")]
         [Tooltip("Источник звука для воспроизведения взрыва")]
@@ -96,6 +99,24 @@ namespace Blocks.Gameplay.Core
                 HandleRestored();
         }
 
+        public void TriggerWinParticles()
+        {
+            StartCoroutine(PlayWinParticlesTimed());
+        }
+
+        private IEnumerator PlayWinParticlesTimed()
+        {
+            if (winParticles == null) yield break;
+
+            winParticles.Play();
+
+            // Ждём несколько секунд (например, 3)
+            yield return new WaitForSeconds(3f);
+
+            winParticles.Stop();
+            winParticles.Clear(); // Очищаем оставшиеся частицы
+        }
+
         /// <summary>
         /// Обработчик события взрыва от ядра автомата.
         /// Запускает все визуальные и звуковые эффекты.
@@ -141,6 +162,14 @@ namespace Blocks.Gameplay.Core
             if (explosionAudioSource != null && explosionSound != null)
             {
                 explosionAudioSource.PlayOneShot(explosionSound);
+            }
+        }
+
+        private void PlayWinParticles()
+        {
+            if (winParticles != null)
+            {
+                winParticles.Play();
             }
         }
 
