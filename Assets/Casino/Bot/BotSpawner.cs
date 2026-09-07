@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEditor.FilePathAttribute;
+//using static UnityEditor.FilePathAttribute;
 
 public class BotSpawner : NetworkBehaviour
 {

@@ -14755,6 +14755,14 @@ PrefabInstance:
       value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 5277537753022767718, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: loseSound
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5277537753022767718, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: spinSound
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5277537753022767718, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: wheelAnimator
       value: 
       objectReference: {fileID: 7831780719040811217}
@@ -14887,7 +14895,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1440146930
+  GlobalObjectIdHash: 3639209583
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
