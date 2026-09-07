@@ -19,12 +19,12 @@ public class TimerUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged += HandlePhaseChanged;
+            manager.OnStateChanged += HandleStateChanged;
             manager.OnTimerTick += HandleTimerTick;
 
             // Обновляем начальное состояние
-            HandlePhaseChanged(manager.CurrentPhase);
-            if (manager.CurrentPhase == GameSessionManager.SessionPhase.GamePhase)
+            HandleStateChanged(manager.CurrentState);
+            if (manager.CurrentState == GameState.DayActive)
             {
                 HandleTimerTick(manager.TimeRemaining);
             }
@@ -36,15 +36,15 @@ public class TimerUI : MonoBehaviour
         var manager = GameSessionManager.Instance;
         if (manager != null)
         {
-            manager.OnPhaseChanged -= HandlePhaseChanged;
+            manager.OnStateChanged -= HandleStateChanged;
             manager.OnTimerTick -= HandleTimerTick;
         }
     }
 
-    private void HandlePhaseChanged(GameSessionManager.SessionPhase phase)
+    private void HandleStateChanged(GameState state)
     {
         // Показываем таймер только во время GamePhase
-        bool shouldShow = (phase == GameSessionManager.SessionPhase.GamePhase);
+        bool shouldShow = (state == GameState.DayActive);
 
         if (timerPanel != null)
         {

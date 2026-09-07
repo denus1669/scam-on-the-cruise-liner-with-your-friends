@@ -6,30 +6,16 @@ using UnityEngine;
 /// </summary>
 public abstract class BlackGregCheatAction : CheatAction
 {
-    public override void ApplyCheatResult(CheatContext context)
+    public override void ApplyCheatResult(IGameTable table, string who)
     {
-        var table = context.GetTableAs<BlackGregTable>();
-        if (table == null) return;
+        if (table is not BlackGregTable blackGregTable) return;
 
-        if (context.IsBot)
-        {
-            ApplyBotCheat(table, context.Bot);
-        }
-        else
-        {
-            ApplyPlayerCheat(table, context.ClientId);
-        }
+        ApplyCheat(blackGregTable, who);
     }
 
     /// <summary>
     /// Логика мухлежа для БОТА. 
     /// Здесь мы не считаем реальные карты, а просто подменяем руку на выигрышную заготовку.
     /// </summary>
-    protected abstract void ApplyBotCheat(BlackGregTable table, BotAgent bot);
-
-    /// <summary>
-    /// Логика мухлежа для ИГРОКА.
-    /// Здесь в будущем будет сложная логика реальной подмены карт в руке игрока.
-    /// </summary>
-    protected abstract void ApplyPlayerCheat(BlackGregTable table, ulong playerId);
+    protected abstract void ApplyCheat(BlackGregTable table, string who);
 }

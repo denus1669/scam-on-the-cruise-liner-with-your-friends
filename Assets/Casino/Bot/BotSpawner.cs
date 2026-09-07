@@ -83,7 +83,7 @@ public class BotSpawner : NetworkBehaviour
     /// </summary>
     private void ApplyPersonality(GameObject bot, int index)
     {
-        if (bot.TryGetComponent<BaseBotBehavior>(out var baseBotBehavior))
+        if (bot.TryGetComponent<BaseBotBehaviour>(out var baseBotBehavior))
         {
             BotPersonality personality = GetPersonalityForIndex(index);
             baseBotBehavior.SetPersonality(personality);

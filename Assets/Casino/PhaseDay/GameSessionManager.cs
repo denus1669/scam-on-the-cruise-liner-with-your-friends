@@ -1,382 +1,185 @@
+using Blocks.Gameplay.Core;
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using static GameSessionManager;
 
-/// <summary>
-/// Дирижёр игровой сессии: управляет фазами, днями и таймерами.
-/// Синглтон на сцене. Все решения принимаются только на сервере.
-/// </summary>
 public class GameSessionManager : NetworkBehaviour
 {
     public static GameSessionManager Instance { get; private set; }
-
     public static event Action OnInstanceReady;
     public static event Action OnInstanceDestroyed;
 
-
-    [Header("Ссылки")]
     [SerializeField] private DayConfiguration dayConfiguration;
+    [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
+    [SerializeField] private CasinoBank casinoBank; 
     [SerializeField] private BotSpawner botSpawner;
-    [SerializeField] private GameTable[] gameTables; // Массив всех столов в казино
+    [SerializeField] private GameTable[] gameTables;
 
+    private readonly NetworkVariable<GameState> _gameState = new(GameState.Preparing,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<int> _currentDay = new(0,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    private readonly NetworkVariable<float> _timeRemaining = new(0f,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    // ---------- Состояние сессии ----------
-    public enum SessionPhase
-    {
-        Preparation,     // Подготовка
-        GamePhase,       // Идёт игра, таймер тикает
-        DayEnding,       // Боты уходят, столы останавливаются
-        DayStatistics,   // Экран статистики дня
-        SessionEnded     // Финальная статистика за все дни
-    }
-
-    private readonly NetworkVariable<SessionPhase> _currentPhase = new(
-        SessionPhase.Preparation,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    private readonly NetworkVariable<int> _currentDay = new(
-        1,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    private readonly NetworkVariable<float> _timeRemaining = new(
-        0f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    // Публичные свойства для чтения клиентами
-    public SessionPhase CurrentPhase => _currentPhase.Value;
+    public GameState CurrentState => _gameState.Value;
     public int CurrentDay => _currentDay.Value;
     public float TimeRemaining => _timeRemaining.Value;
-    public int TotalDays => dayConfiguration != null ? dayConfiguration.daysCount : 0;
+    public int TotalDays => dayConfiguration.daysCount;
+    public bool IsLastDay => _currentDay.Value >= dayConfiguration.daysCount;
+    public bool IsSessionWon => false; // TODO: условие победы (например, по прибыли)
 
-    // Coroutine для таймера (только на сервере)
-    private Coroutine _gamePhaseCoroutine;
-    // Coroutine для поэтапного спавна ботов (только на сервере)
-    private Coroutine _spawnRoutine;
+    // API для состояний
+    /// <summary>Касса казино (для состояний и будущей статистики).</summary>
+    public CasinoBank Bank => casinoBank;
+    public DayConfiguration DayConfiguration => dayConfiguration;
+    public BotSpawner BotSpawner => botSpawner;
+    public SlotMachineBreakdownManager BreakdownManager => slotMachineBreakdownManager;
 
-    // Локальное время для Update (только сервер)
-    private float _lastTimerUpdate;
+    private Dictionary<GameState, GameStateBase> _states;
+    private GameStateBase _active;
 
-    // Счётчик игроков, нажавших "Продолжить" в DayStatistics
-    private int _continuePressesCount = 0;
-
-    // ---------- События для UI ----------
-    public event Action<SessionPhase> OnPhaseChanged;
+    public event Action<GameState> OnStateChanged;
     public event Action<int> OnDayStarted;
     public event Action<float> OnTimerTick;
-    public event Action<int> OnDayEnded;  // передаёт номер завершённого дня
+    public event Action<int> OnDayEnded;
     public event Action OnSessionEnded;
 
-    // ---------- Unity / NetworkBehaviour ----------
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        ValidateReferences();
+
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        OnInstanceReady?.Invoke(); // ← НОВОЕ
-    }
-
-    public override void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            Instance = null;
-            OnInstanceDestroyed?.Invoke(); // ← НОВОЕ
-        }
-
-        base.OnDestroy();
+        OnInstanceReady?.Invoke();
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+        _gameState.OnValueChanged += (previous, current) => OnStateChanged?.Invoke(current);
+        _currentDay.OnValueChanged += (previous, current) => { if (current > previous) OnDayStarted?.Invoke(current); };
+        _timeRemaining.OnValueChanged += (previous, current) => OnTimerTick?.Invoke(current);
 
-        // Подписка на изменения фазы для излучения локальных событий
-        _currentPhase.OnValueChanged += HandlePhaseChanged;
-        _currentDay.OnValueChanged += HandleDayChanged;
-        _timeRemaining.OnValueChanged += HandleTimeChanged;
+        if (!IsServer) return; // клиенты только читают состояние для UI
 
-        // Излучаем начальное состояние для поздних подписчиков (например, UI)
-        OnPhaseChanged?.Invoke(_currentPhase.Value);
-        OnDayStarted?.Invoke(_currentDay.Value);
+        _states = new GameStateBase[]
+        {
+            new PreparingState(this), new DayActiveState(this), new EndDayState(this),
+            new LoseGameState(this), new WinGameState(this), new GameStatisticState(this),
+        }.ToDictionary(s => s.Type);
+
+        _active = _states[_gameState.Value];
+        _active.Enter();
     }
 
-    public override void OnNetworkDespawn()
-    {
-        _currentPhase.OnValueChanged -= HandlePhaseChanged;
-        _currentDay.OnValueChanged -= HandleDayChanged;
-        _timeRemaining.OnValueChanged -= HandleTimeChanged;
-
-        if (Instance == this)
-            Instance = null;
-
-        base.OnNetworkDespawn();
-    }
-
-    // ---------- Update для таймера (только сервер) ----------
     private void Update()
     {
+        if (!IsServer || _active == null) return;
+        _active.Tick(Time.deltaTime);
+    }
+
+    public void SetGameState(GameState next)
+    {
         if (!IsServer) return;
-        if (_currentPhase.Value != SessionPhase.GamePhase) return;
+        Debug.Log($"[GameSessionManager] {_gameState.Value} → {next}");
+        _active?.Exit();
 
-        // Обновляем таймер раз в секунду
-        if (Time.time - _lastTimerUpdate >= 1f)
-        {
-            _lastTimerUpdate = Time.time;
-            _timeRemaining.Value = Mathf.Max(0, _timeRemaining.Value - 1f);
-
-            if (_timeRemaining.Value <= 0)
-            {
-                EndDay();
-            }
-        }
+        _gameState.Value = next;
+        _active = _states[next];
+        _active.Enter();
     }
 
-
-    // ---------- Обработчики изменений NetworkVariable ----------
-    private void HandlePhaseChanged(SessionPhase previous, SessionPhase current)
-    {
-        OnPhaseChanged?.Invoke(current);
-        Debug.Log($"[GameSessionManager] Фаза: {previous} → {current}");
-    }
-
-    private void HandleDayChanged(int previous, int current)
-    {
-        // Излучаем только при старте нового дня (когда day > previous)
-        if (current > previous)
-            OnDayStarted?.Invoke(current);
-    }
-
-    private void HandleTimeChanged(float previous, float current)
-    {
-        OnTimerTick?.Invoke(current);
-    }
-
-    // ---------- Управление фазами (только сервер) ----------
-
+    // ---------- RPC: внешний API не меняется, DoorInteractable и UI не трогаем ----------
     /// <summary>
-    /// Запускает игровой день. Вызывается из DoorInteractable.
+    /// Запускает сессию из лобби. Вызывается из LobbyInteractable.
     /// </summary>
     [Rpc(SendTo.Server)]
-    public void StartDayServerRpc()
+    public void StartSessionServerRpc() => _active?.OnStartSessionRequested();
+
+    [Rpc(SendTo.Server)]
+    public void StartDayServerRpc() => _active?.OnStartDayRequested();
+
+    [Rpc(SendTo.Server)]
+    public void RequestContinueServerRpc() => _active?.OnContinuePressed();
+
+    // ---------- Операции, которые состояния вызывают через контекст ----------
+    public void SetTimeRemaining(float v) => _timeRemaining.Value = v;
+    public void AdvanceDay() => _currentDay.Value++;
+
+    public void ForceStopAllGames()
     {
-        if (!IsServer) return;
-        if (_currentPhase.Value != SessionPhase.Preparation)
-        {
-            Debug.LogWarning($"[GameSessionManager] Нельзя начать день в фазе {_currentPhase.Value}");
-            return;
-        }
-        Debug.Log($"[GameSessionManager] Игрок инициировал старт дня {_currentDay.Value}");
-        StartCoroutine(StartDayRoutine());
-    }
-
-    private IEnumerator StartDayRoutine()
-    {
-        Debug.Log($"[GameSessionManager] === ДЕНЬ {_currentDay.Value} НАЧИНАЕТСЯ ===");
-
-        _currentPhase.Value = SessionPhase.GamePhase;
-
-        // Спавним ботов
-        _spawnRoutine = StartCoroutine(SpawnBotsGraduallyRoutine());
-
-        // Переход в GamePhase
-        _timeRemaining.Value = dayConfiguration.gamePhaseDuration;
-        _lastTimerUpdate = Time.time;
-
-        yield break;
-    }
-    /// <summary>
-    /// Этапный спавн ботов: сначала initialBotCount сразу, потом по одному с задержкой.
-    /// </summary>
-    private IEnumerator SpawnBotsGraduallyRoutine()
-    {
-        if (botSpawner == null)
-        {
-            Debug.LogError("[GameSessionManager] botSpawner не назначен!");
-            yield break;
-        }
-
-        Debug.Log($"[GameSessionManager] Начинаем этапный спавн: {dayConfiguration.initialBotCount} сразу, затем по одному");
-
-        int spawnedCount = 0;
-
-        // Фаза 1: Спавним initialBotCount ботов сразу
-        for (int i = 0; i < dayConfiguration.initialBotCount && spawnedCount < dayConfiguration.botCount; i++)
-        {
-            botSpawner.SpawnBot(spawnedCount);
-            spawnedCount++;
-            Debug.Log($"[GameSessionManager] Спавн бота {spawnedCount}/{dayConfiguration.botCount} (начальная пачка)");
-        }
-
-        // Фаза 2: Спавним остальных ботов по одному с задержкой
-        while (spawnedCount < dayConfiguration.botCount && _currentPhase.Value == SessionPhase.GamePhase)
-        {
-            float delay = UnityEngine.Random.Range(dayConfiguration.spawnDelayMin, dayConfiguration.spawnDelayMax);
-            Debug.Log($"[GameSessionManager] Ждём {delay:F1} сек перед спавном следующего бота...");
-
-            yield return new WaitForSeconds(delay);
-
-            // Проверяем, что мы всё ещё в GamePhase (день мог закончиться)
-            if (_currentPhase.Value != SessionPhase.GamePhase)
-            {
-                Debug.Log("[GameSessionManager] День закончился, останавливаем спавн");
-                yield break;
-            }
-
-            botSpawner.SpawnBot(spawnedCount);
-            spawnedCount++;
-            Debug.Log($"[GameSessionManager] Спавн бота {spawnedCount}/{dayConfiguration.botCount} (этапный)");
-        }
-
-        Debug.Log($"[GameSessionManager] Все {dayConfiguration.botCount} ботов заспавнены");
-    }
-
-    /// <summary>
-    /// Завершает текущий игровой день.
-    /// </summary>
-    private void EndDay()
-    {
-        if (!IsServer) return;
-        if (_currentPhase.Value != SessionPhase.GamePhase) return;
-
-
-        // Останавливаем спавн ботов (если ещё идёт)
-        if (_spawnRoutine != null)
-        {
-            StopCoroutine(_spawnRoutine);
-            _spawnRoutine = null;
-            Debug.Log("[GameSessionManager] Спавн ботов остановлен");
-        }
-
-        if (_gamePhaseCoroutine != null)
-        {
-            StopCoroutine(_gamePhaseCoroutine);
-            _gamePhaseCoroutine = null;
-        }
-
-        _currentPhase.Value = SessionPhase.DayEnding;
-        Debug.Log($"[GameSessionManager] День {_currentDay.Value} завершается...");
-
-        // 1. Принудительно останавливаем все игры на столах
-        ForceStopAllGames();
-
-        // 2. Командуем ботам идти к выходу
-        SendBotsToExit();
-
-        // Для MVP: просто через 5 секунд переход в DayStatistics
-        StartCoroutine(TransitionToDayStatsRoutine());
-    }
-
-    private void ForceStopAllGames()
-    {
-        if (gameTables == null || gameTables.Length == 0)
-        {
-            Debug.LogWarning("[GameSessionManager] Массив столов пуст!");
-            return;
-        }
-
         foreach (var table in gameTables)
         {
-            if (table != null && table.IsGameStarted)
+            if (table == null) continue; // <-- защита от уничтоженных столов
+            if (table.IsGameStarted)
             {
-                // winnerClientId = ulong.MaxValue (никто не выиграл)
-                // isCheaterBot = false (это не поимка читера, просто конец дня)
-                // reason = "DayEnded"
                 table.ForceStopGame(ulong.MaxValue, false, "DayEnded");
-                Debug.Log($"[GameSessionManager] Игра на столе {table.name} принудительно остановлена");
             }
         }
     }
 
-    private void SendBotsToExit()
+    public void SendBotsToExit()
     {
         if (botSpawner == null) return;
 
         var bots = botSpawner.GetSpawnedBots();
         foreach (var bot in bots)
         {
+            // Проверяем, жив ли ещё объект в Unity
             if (bot == null) continue;
 
-            var botAgent = bot.GetComponent<BotAgent>();
-            if (botAgent != null)
+            if (bot.TryGetComponent<BotAgent>(out var botAgent))
             {
                 botAgent.GoToExit();
-                Debug.Log($"[GameSessionManager] Бот {bot.name} отправлен к выходу");
             }
         }
     }
 
-    private IEnumerator TransitionToDayStatsRoutine()
-    {
-        yield return new WaitForSeconds(5f);
-
-        int finishedDay = _currentDay.Value;
-        _currentPhase.Value = SessionPhase.DayStatistics;
-        _continuePressesCount = 0;
-
-        // Уведомляем клиентов для показа статистики
-        NotifyDayEndedClientRpc(finishedDay);
-    }
-
     /// <summary>
-    /// Вызывается игроками в DayStatistics при нажатии "Продолжить".
+    /// Условие проигрыша: баланс кассы ниже порога текущего дня.
     /// </summary>
-    [Rpc(SendTo.Server)]
-    public void RequestContinueServerRpc()
+    public bool CheckLoseCondition()
     {
-        if (!IsServer) return;
-        if (_currentPhase.Value != SessionPhase.DayStatistics) return;
+        if (!IsServer) return false;
+        if (casinoBank == null || dayConfiguration == null) return false;
 
-        _continuePressesCount++;
-        Debug.Log($"[GameSessionManager] Игрок нажал 'Продолжить'. Всего: {_continuePressesCount}");
-
-        // TODO: Здесь нужно проверять количество игроков на сервере
-        // Для MVP: переход сразу после первого нажатия
-        if (_continuePressesCount >= 1)
-        {
-            StartCoroutine(TransitionToNextDayRoutine());
-        }
+        int threshold = dayConfiguration.GetChipThresholdForDay(_currentDay.Value);
+        return casinoBank.CurrentBalance < threshold;
     }
 
-    private IEnumerator TransitionToNextDayRoutine()
-    {
-        yield return new WaitForSeconds(2f); // Короткая пауза для UX
+    public void NotifyDayEnded(int day) => NotifyDayEndedClientRpc(day);
+    public void NotifySessionEnded() => NotifySessionEndedClientRpc();
 
-        if (_currentDay.Value >= dayConfiguration.daysCount)
-        {
-            // Сессия завершена
-            _currentPhase.Value = SessionPhase.SessionEnded;
-            NotifySessionEndedClientRpc();
-        }
+    [ClientRpc] private void NotifyDayEndedClientRpc(int day) => OnDayEnded?.Invoke(day);
+    [ClientRpc] private void NotifySessionEndedClientRpc() => OnSessionEnded?.Invoke();
+
+
+    private void ValidateReferences()
+    {
+        if (dayConfiguration == null)
+            Debug.LogError($"{name}: dayConfiguration is not assigned!");
+
+        if (slotMachineBreakdownManager == null)
+            Debug.LogError($"{name}: slotMachineBreakdownManager is not assigned!");
+
+        if (casinoBank == null)
+            Debug.LogError($"{name}: casinoBank is not assigned!");
+
+        if (botSpawner == null)
+            Debug.LogError($"{name}: botSpawner is not assigned!");
+
+        if (gameTables == null || gameTables.Length == 0)
+            Debug.LogError($"{name}: gameTables is not assigned or empty!");
         else
         {
-            // Переход к следующему дню
-            _currentDay.Value++;
-            _currentPhase.Value = SessionPhase.Preparation;
+            for (int i = 0; i < gameTables.Length; i++)
+            {
+                if (gameTables[i] == null)
+                    Debug.LogError($"{name}: gameTables[{i}] is not assigned!");
+            }
         }
-    }
-
-    // ---------- ClientRpc для уведомлений ----------
-
-    [ClientRpc]
-    private void NotifyDayEndedClientRpc(int finishedDay)
-    {
-        OnDayEnded?.Invoke(finishedDay);
-    }
-
-    [ClientRpc]
-    private void NotifySessionEndedClientRpc()
-    {
-        OnSessionEnded?.Invoke();
     }
 }

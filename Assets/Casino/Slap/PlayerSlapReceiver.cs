@@ -24,67 +24,139 @@ namespace Blocks.Gameplay.Core
         [Range(0f, 1f)]
         [SerializeField] private float knockbackThreshold = 0.25f;
 
+        [Header("Настройки 'Дать пять'")]
+        [Tooltip("Максимальный угол (в градусах) между взглядами игроков для взаимного шлепка.")]
+        [SerializeField] private float highFiveMaxAngle = 45f;
+
+        [SerializeField, Min(1f)] private float _multiplicatorMin = 1f;
+        [SerializeField, Min(1f)] private float _multiplicatorMax = 5f;
+        [SerializeField] private float _weakSlap = 1;
+        [SerializeField] private float _strongSlap = 150;
+
+        [Header("Спец-удары (не зависят от chargeTime)")]
+        [SerializeField, Range(0f, 1f)] private float _weakSlapChance = 0.05f;   // 5%
+        [SerializeField, Range(0f, 1f)] private float _strongSlapChance = 0.03f; // 3%
+        [SerializeField, Range(0f, 1f)] private float _multiplicatorChance = 0.3f; // 30% шанс
+
         // События для визуального оформления (анимации, звуки, частицы)
         // Параметры: ID бьющего, нормализованная сила удара (0..1)
-        public event Action<ulong, float> OnSlapReceived;
+        public event Action<ulong, float, bool> OnSlapReceived;
 
         // Событие для атакующего: ID жертвы
-        public event Action<ulong> OnSlapAttacked;
+        public event Action<ulong, bool> OnSlapAttacked;
 
         // Оставляем на случай, если другие скрипты хотят знать об откидывании
         public event Action<Vector3> OnKnockbackApplied;
 
+        // Статус: игрок зажал кнопку и готов шлепнуть
+        public bool IsSlapReady { get; private set; }
+
+        // Вызывается из Interactable при нажатии кнопки
+        public void SetSlapReady(bool ready)
+        {
+            IsSlapReady = ready;
+        }
+
         /// <summary>
         /// Инициация шлепка от локального игрока (интерактора).
         /// </summary>
-        public void InitiateSlap(ulong slapperClientId, float chargeTime, Vector3 slapperPosition)
+        public void InitiateSlap(ulong slapperClientId, float chargeTime, Vector3 slapperPosition, Vector3 slapperForward)
         {
-            ReceiveSlapServerRpc(slapperClientId, chargeTime, slapperPosition);
+            ReceiveSlapServerRpc(slapperClientId, chargeTime, slapperPosition, slapperForward);
         }
 
+        // Измененный ReceiveSlapServerRpc
         [Rpc(SendTo.Server)]
-        private void ReceiveSlapServerRpc(ulong slapperClientId, float chargeTime, Vector3 slapperPosition)
+        private void ReceiveSlapServerRpc(ulong slapperClientId, float chargeTime, Vector3 slapperPosition, Vector3 slapperForward)
         {
-            float forceNormalized = Mathf.Clamp01(chargeTime / maxChargeTime);
-
-            // 1. Оповещаем всех клиентов, что жертва получила шлепок
-            NotifySlapReceivedClientRpc(slapperClientId, forceNormalized);
-
-            // 2. Оповещаем всех клиентов, что атакующий совершил удар
-            NotifySlapAttackedClientRpc(slapperClientId, OwnerClientId);
-
-            // 3. Если удар достаточно заряжен, рассчитываем отбрасывание для пострадавшего
-            if (forceNormalized >= knockbackThreshold)
+            // Проверка на "Дать пять"
+            bool isHighFive = false;
+            if (IsSlapReady)
             {
-                // Направление от бьющего к жертве
-                Vector3 knockbackDir = (transform.position - slapperPosition).normalized;
+                Vector3 victimForward = transform.forward;
+                Vector3 toSlapper = (slapperPosition - transform.position).normalized;
 
-                // Добавляем подброс вверх для красивого отрыва от земли (настраивается)
+                float angleVictimToSlapper = Vector3.Angle(victimForward, toSlapper);
+                float angleSlapperToVictim = Vector3.Angle(slapperForward, -toSlapper);
+
+                if (angleVictimToSlapper < highFiveMaxAngle && angleSlapperToVictim < highFiveMaxAngle)
+                    isHighFive = true;
+            }
+
+            // === 1. ОПРЕДЕЛЕНИЕ ТИПА УДАРА И СИЛЫ ===
+            float forceNormalized = Mathf.Clamp01(chargeTime / maxChargeTime);
+            bool isSpecialSlap = false;
+            float appliedForce;
+
+            float roll = UnityEngine.Random.value;
+            if (roll < _weakSlapChance)
+            {
+                appliedForce = _weakSlap;
+                forceNormalized = Mathf.Clamp01(_weakSlap / maxKnockbackForce); // Для анимации/звука
+                isSpecialSlap = true;
+                Debug.Log($"[Slap] WEAK SLAP! force={appliedForce:F1}");
+            }
+            else if (roll < _weakSlapChance + _strongSlapChance)
+            {
+                appliedForce = _strongSlap;
+                forceNormalized = 1f; // Для анимации/звука
+                isSpecialSlap = true;
+                Debug.Log($"[Slap] STRONG SLAP! force={appliedForce:F1}");
+            }
+            else
+            {
+                // Обычный удар: сила зависит от зарядки
+                appliedForce = Mathf.Lerp(minKnockbackForce, maxKnockbackForce, forceNormalized);
+            }
+
+            // === 2. СЛУЧАЙНЫЙ МНОЖИТЕЛЬ (после определения типа) ===
+            if (UnityEngine.Random.value < _multiplicatorChance)
+            {
+                float randomMult = UnityEngine.Random.Range(_multiplicatorMin, _multiplicatorMax);
+                appliedForce *= randomMult;
+                Debug.Log($"[Slap] MULTIPLIER x{randomMult:F2} -> force={appliedForce:F1}");
+            }
+
+            // Оповещаем клиентов (для анимаций/звуков)
+            NotifySlapReceivedClientRpc(slapperClientId, forceNormalized, isHighFive);
+            NotifySlapAttackedClientRpc(slapperClientId, OwnerClientId, isHighFive);
+
+            // === 3. ОТБРАСЫВАНИЕ ===
+            // Спец-удары всегда отбрасывают; обычные — только если заряд >= порога
+            bool shouldKnockback = !isHighFive && (isSpecialSlap || forceNormalized >= knockbackThreshold);
+
+            if (shouldKnockback)
+            {
+                Vector3 knockbackDir = (transform.position - slapperPosition).normalized;
                 knockbackDir.y = 0.6f;
                 knockbackDir.Normalize();
 
-                float appliedForce = Mathf.Lerp(minKnockbackForce, maxKnockbackForce, forceNormalized);
                 Vector3 finalKnockbackVector = knockbackDir * appliedForce;
-
-                // Передаем импульс только владельцу персонажа-жертвы
                 ApplyKnockbackClientRpc(finalKnockbackVector);
             }
+
+            IsSlapReady = false;
         }
 
-        [Rpc(SendTo.Everyone)]
-        private void NotifySlapReceivedClientRpc(ulong slapperClientId, float forceNormalized)
+        private void GiveFive()
         {
-            OnSlapReceived?.Invoke(slapperClientId, forceNormalized);
+
         }
 
         [Rpc(SendTo.Everyone)]
-        private void NotifySlapAttackedClientRpc(ulong slapperClientId, ulong victimClientId)
+        private void NotifySlapReceivedClientRpc(ulong slapperClientId, float forceNormalized, bool isHighFive)
+        {
+            OnSlapReceived?.Invoke(slapperClientId, forceNormalized, isHighFive);
+        }
+
+        [Rpc(SendTo.Everyone)]
+        private void NotifySlapAttackedClientRpc(ulong slapperClientId, ulong victimClientId, bool isHighFive)
         {
             if (NetworkManager.Singleton.ConnectedClients.TryGetValue(slapperClientId, out var client))
             {
                 if (client.PlayerObject != null && client.PlayerObject.TryGetComponent<PlayerSlapReceiver>(out var slapperReceiver))
                 {
-                    slapperReceiver.TriggerSlapAttackedEvent(victimClientId);
+                    slapperReceiver.TriggerSlapAttackedEvent(victimClientId, isHighFive);
                 }
             }
         }
@@ -108,17 +180,11 @@ namespace Blocks.Gameplay.Core
                     coreMovement.SetVerticalVelocity(knockbackVector.y);
                 }
             }
-            // Фолбэк для классических объектов с Rigidbody (если вдруг шлепки будут применяться к физическим пропсам)
-            else if (TryGetComponent<Rigidbody>(out var rb) && !rb.isKinematic)
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.AddForce(knockbackVector, ForceMode.Impulse);
-            }
         }
 
-        public void TriggerSlapAttackedEvent(ulong victimClientId)
+        public void TriggerSlapAttackedEvent(ulong victimClientId, bool isHighFive)
         {
-            OnSlapAttacked?.Invoke(victimClientId);
+            OnSlapAttacked?.Invoke(victimClientId, isHighFive);
         }
     }
 }

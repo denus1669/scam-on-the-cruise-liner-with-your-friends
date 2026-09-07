@@ -149,15 +149,20 @@ namespace Blocks.Gameplay.Core
                 // Сообщаем UI о прогрессе
                 OnHoldProgress?.Invoke(m_CurrentFocusedInteractable, progress);
 
-                // Удержание завершено!
-                if (m_HoldTimer >= m_CurrentFocusedInteractable.HoldDuration)
+                // Проверяем флаг бесконечного удержания
+                bool isWaitForRelease = false;
+                if (m_CurrentFocusedInteractable is IHoldReleaseInteractable holdRelease)
+                {
+                    isWaitForRelease = holdRelease.WaitForRelease;
+                }
+
+                // Удержание завершено И не требуется ожидание отпускания кнопки
+                if (!isWaitForRelease && m_HoldTimer >= m_CurrentFocusedInteractable.HoldDuration)
                 {
                     m_IsHolding = false;
                     m_HoldTimer = 0f;
                     m_CurrentFocusedInteractable.Interact(gameObject);
                     m_CooldownTimer = interactionCooldown;
-
-                    // Можно также сообщить UI о завершении (progress = 1f уже был отправлен выше)
                 }
             }
         }
@@ -294,6 +299,8 @@ namespace Blocks.Gameplay.Core
             {
                 // Начинаем удержание
                 m_IsHolding = true;
+                if (m_CurrentFocusedInteractable is IHoldReleaseInteractable hr)
+                    hr.OnHoldStarted(gameObject);
                 m_HoldTimer = 0f;
             }
         }

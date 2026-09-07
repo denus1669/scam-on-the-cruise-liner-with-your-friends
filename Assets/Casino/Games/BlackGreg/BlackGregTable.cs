@@ -14,7 +14,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private Transform botHandParent;
     [SerializeField] private Transform cardTablePosition; // точка для сброшенных/нераспределённых карт
     [Header("Reveal Settings")]
-    [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (центр стола)
+    [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (це    нтр стола)
     [SerializeField] private Transform revealPlayerPosition; // Куда выкладывать карты игроку (центр стола)
 
 
@@ -56,6 +56,7 @@ public class BlackGregTable : GameTable, ICardGameTable
 
     // Копия руки бота до мухлежа. Хранится только пока активен мухлеж в текущем раунде.
     private List<CardData> _originalBotHand;
+    private List<CardData> _originalPlayerHand;
 
     public override string TableType => "BlackGreg";
 
@@ -63,6 +64,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     public int GetBotScore() => CalculateHandValue(botHandData);
     public int GetPlayerScore() => CalculateHandValue(playerHandData);
     public int GetBotCardCount() => botHandData.Count;
+    public int GetPlayerCardCount() => playerHandData.Count;
 
     public List<CardData> GetBotHandCopy()
     {
@@ -127,6 +129,21 @@ public class BlackGregTable : GameTable, ICardGameTable
         botHandData = _originalBotHand;
         _originalBotHand = null;
         Debug.Log($"[BlackGregTable] Рука бота откачена до оригинальной ({botHandData.Count} карт)");
+        SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+    }
+
+    public void OverwritePlayerHand(List<CardData> newHand)
+    {
+        if (!IsServer) return;
+
+        // Сохраняем копию перед первым мухлежом в раунде
+        if (_originalPlayerHand == null)
+        {
+            _originalPlayerHand = new List<CardData>(playerHandData);
+            Debug.Log($"[BlackGregTable] Сохранена оригинальная рука игрока ({_originalPlayerHand.Count} карт)");
+        }
+
+        playerHandData = new List<CardData>(newHand);
         SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
     }
 
@@ -234,12 +251,14 @@ public class BlackGregTable : GameTable, ICardGameTable
         }
     }
 
+    /*
     [Rpc(SendTo.Server)]
     public void RequestFinishGameServerRpc(ulong clientId)
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
             FinishGame();
     }
+    */
 
     // ---------- Сетевая синхронизация рук ----------
 

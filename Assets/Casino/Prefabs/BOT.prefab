@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6948536227940424866}
   - component: {fileID: 8275067853041348298}
   - component: {fileID: 6504689443907165755}
+  - component: {fileID: 3282282439339540694}
   m_Layer: 0
   m_Name: StandIndicatorMesh
   m_TagString: Untagged
@@ -28,13 +29,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1972026076234249946}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.01, z: 0}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: 0, y: 3.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4376745090154585811}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!33 &6145191537461378672
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -42,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1972026076234249946}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -6958480527047035371, guid: 453a5d6638062ea40a9a87a73585a588, type: 3}
 --- !u!23 &6948536227940424866
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -68,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b57e0bcee6d44943900c84308b325f7, type: 2}
+  - {fileID: 2100000, guid: 8e40a72bc4e53d648bd76b776a9a70bf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -128,7 +129,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StandIndicator
   targetObject: {fileID: 1972026076234249946}
-  botBehavior: {fileID: 8071987795693044403}
+  botBehaviour: {fileID: 603416445241012076}
+--- !u!114 &3282282439339540694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972026076234249946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 392eac1f13599c246a2144825812314d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotArrivalIndicator
+  targetObject: {fileID: 1972026076234249946}
+  botAgent: {fileID: 7170024236539094336}
 --- !u!1 &2963750233750049523
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheatAnimationIndicator
   targetObject: {fileID: 2963750233750049523}
-  cheatController: {fileID: 7379306246688572654}
+  cheatController: {fileID: 5227721383909466426}
 --- !u!1 &3214826041473833782
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,7 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f22318778721246800c144e6a96bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BotCheatingReactionHandler
-  cheatController: {fileID: 7379306246688572654}
+  cheatController: {fileID: 5227721383909466426}
   attentionReceiver: {fileID: 4782374077190005773}
   cheatIndicator: {fileID: 1196171496923494744}
 --- !u!1 &3475600998146616932
@@ -632,13 +647,14 @@ GameObject:
   - component: {fileID: 3532437686027925456}
   - component: {fileID: 6842799615643788085}
   - component: {fileID: 8196544063121929526}
-  - component: {fileID: 8071987795693044403}
   - component: {fileID: 7170024236539094336}
-  - component: {fileID: 7379306246688572654}
   - component: {fileID: 4877028851096292619}
   - component: {fileID: 4033332491983689499}
   - component: {fileID: 7481189763816370423}
   - component: {fileID: 430125305976542530}
+  - component: {fileID: 603416445241012076}
+  - component: {fileID: 8071987795693044403}
+  - component: {fileID: 5227721383909466426}
   m_Layer: 10
   m_Name: BOT
   m_TagString: Bot
@@ -784,26 +800,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &8071987795693044403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5497669901684611537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d1c49454578f1e4fa50cb1e6e582d5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BlackGregBotBehavior
-  ShowTopMostFoldoutHeaderGroup: 1
-  personality: 0
-  delayBetweenActionsMin: 1.5
-  delayBetweenActionsMax: 3
-  baseCheatChance: 0.15
-  baseBluffChance: 0.25
-  watchedCheatMultiplier: 0.1
-  stupidityChance: 0.08
 --- !u!114 &7170024236539094336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -820,26 +816,6 @@ MonoBehaviour:
   stoppingDistance: 1.5
   pathUpdateInterval: 0.2
   exitPoint: {fileID: 0}
---- !u!114 &7379306246688572654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5497669901684611537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43452ba6339e4874d8198853c02651c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheatController
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableCheats:
-  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
-  - {fileID: 11400000, guid: 756d6a29ed5958540ad156098b9e5c96, type: 2}
-  - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
-  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
-  - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
-  casinoBank: {fileID: 0}
 --- !u!114 &4877028851096292619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -902,6 +878,69 @@ MonoBehaviour:
   bluffDuration: 1
   bluffAnimationTriggers:
   - Bluff_Generic
+--- !u!114 &603416445241012076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb68a6803468f4e4489971926b4b674c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotsBotBehaviour
+  ShowTopMostFoldoutHeaderGroup: 1
+  personality: 0
+  delayBetweenActionsMin: 1.5
+  delayBetweenActionsMax: 3
+  baseCheatChance: 0.15
+  baseBluffChance: 0.25
+  watchedCheatMultiplier: 0.1
+  spinCooldown: 0.5
+--- !u!114 &8071987795693044403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d1c49454578f1e4fa50cb1e6e582d5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackGregBotBehavior
+  ShowTopMostFoldoutHeaderGroup: 1
+  personality: 0
+  delayBetweenActionsMin: 1.5
+  delayBetweenActionsMax: 3
+  baseCheatChance: 0.15
+  baseBluffChance: 0.25
+  watchedCheatMultiplier: 0.1
+  stupidityChance: 0.08
+--- !u!114 &5227721383909466426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e0db110ef3eb24ba6da5bd04e35078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotCheatController
+  ShowTopMostFoldoutHeaderGroup: 1
+  availableCheats:
+  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
+  - {fileID: 11400000, guid: 756d6a29ed5958540ad156098b9e5c96, type: 2}
+  - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
+  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+  - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
+  currentCheatAction: {fileID: 0}
+  characterAnimator: {fileID: 0}
+  botAgent: {fileID: 0}
+  displeasureController: {fileID: 0}
 --- !u!1001 &3905408004520809531
 PrefabInstance:
   m_ObjectHideFlags: 0
