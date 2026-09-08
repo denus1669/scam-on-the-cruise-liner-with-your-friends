@@ -26,10 +26,7 @@ public class PlayerCheatController : CheatController
     public void RequestCheatServerRpc(string specificCheatName = "")
     {
         if (!IsServer) return;
-
-        // Проверка CanCheat() теперь внутри TryInitiateCheat или перед вызовом, 
-        // но здесь мы просто принимаем запрос.
-        if (isCheating.Value) return; // Уже мухлюет
+        if (isCheating.Value) return;
 
         Debug.Log($"[CheatController] Игрок {OwnerClientId} запросил мухлеж: {specificCheatName}");
 
@@ -43,15 +40,17 @@ public class PlayerCheatController : CheatController
 
         CheatAction cheatToExecute = null;
         if (!string.IsNullOrEmpty(specificCheatName))
+            // ИСПРАВЛЕНИЕ 1: Ищем по CheatName, а не по name ассета
             cheatToExecute = availableCheats.Find(c => c.name == specificCheatName);
-        else Debug.LogError("!string.IsNullOrEmpty(specificCheatName)");
-
+        else
+            Debug.LogError("specificCheatName is null or empty!");
 
         if (cheatToExecute != null)
         {
             TryInitiateCheat(currentTable, cheatToExecute);
         }
-        else Debug.LogError("cheatToExecute == null");
+        else
+            Debug.LogError($"cheatToExecute == null for name: {specificCheatName}");
     }
 
     public override bool TryInitiateCheat(IGameTable table, CheatAction specificCheat)

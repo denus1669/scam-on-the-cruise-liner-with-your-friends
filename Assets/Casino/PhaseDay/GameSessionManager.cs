@@ -13,7 +13,7 @@ public class GameSessionManager : NetworkBehaviour
 
     [SerializeField] private DayConfiguration dayConfiguration;
     [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
-    [SerializeField] private CasinoBank casinoBank; 
+    [SerializeField] private CasinoBank casinoBank;
     [SerializeField] private BotSpawner botSpawner;
     [SerializeField] private GameTable[] gameTables;
 
@@ -22,7 +22,7 @@ public class GameSessionManager : NetworkBehaviour
     private readonly NetworkVariable<int> _currentDay = new(0,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private readonly NetworkVariable<float> _timeRemaining = new(0f,
-        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     public GameState CurrentState => _gameState.Value;
     public int CurrentDay => _currentDay.Value;
@@ -106,7 +106,25 @@ public class GameSessionManager : NetworkBehaviour
     public void RequestContinueServerRpc() => _active?.OnContinuePressed();
 
     // ---------- Операции, которые состояния вызывают через контекст ----------
-    public void SetTimeRemaining(float v) => _timeRemaining.Value = v;
+    [Rpc(SendTo.Server)]
+
+    public void SetTimeRemainingServerRpc(float v)
+    {
+        if (!IsServer) return;
+        SetTimeRemaining(v);
+    }
+    public void SetTimeRemaining(float v)
+    {
+        if (!IsServer)
+        {
+            Debug.Log($"[GameSessionManager] SetTimeRemaining !IsServer");
+            return;
+        }
+        _timeRemaining.Value = v;
+        Debug.Log($"[GameSessionManager] SetTimeRemaining {_timeRemaining.Value}, = {v}");
+
+    }
+
     public void AdvanceDay() => _currentDay.Value++;
 
     public void ForceStopAllGames()

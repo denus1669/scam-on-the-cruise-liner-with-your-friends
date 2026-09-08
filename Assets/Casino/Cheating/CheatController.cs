@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Qos.V2.Models;
 using UnityEngine;
 
 /// <summary>
@@ -65,7 +66,7 @@ public abstract class CheatController : NetworkBehaviour
     /// </summary>
     public virtual bool TryInitiateCheat(IGameTable table, CheatAction specificCheat = null)
     {
-        if (!IsServer || isCheating.Value) return false;
+        if (!IsServer || isCheating.Value || !IsOwner) return false;
         currentTable = table;
         CheatRoutine(specificCheat);
 
@@ -74,8 +75,28 @@ public abstract class CheatController : NetworkBehaviour
 
     protected virtual void CheatRoutine(CheatAction cheat)
     {
+        Debug.Log($"[Cheat] ДИАГНОСТИКА | IsServer:{IsServer} | IsClient:{IsClient} | IsHost:{IsHost} | IsOwner:{IsOwner} | OwnerClientId:{OwnerClientId} | NM.IsServer:{NetworkManager.Singleton.IsServer} | NM.IsHost:{NetworkManager.Singleton.IsHost} | WritePerm:{isCheating.WritePerm} | Тип:{GetType().Name} | База:{GetType().BaseType?.Name}");
+
+        // Проверяем, есть ли скрытая переменная
+        var fields = GetType().GetFields(System.Reflection.BindingFlags.NonPublic |
+                                          System.Reflection.BindingFlags.Instance |
+                                          System.Reflection.BindingFlags.FlattenHierarchy);
+        // Проверяем все поля в иерархии
+        var allFields = GetType().GetFields(System.Reflection.BindingFlags.NonPublic |
+                                             System.Reflection.BindingFlags.Instance |
+                                             System.Reflection.BindingFlags.FlattenHierarchy);
+
+        foreach (var field in allFields)
+        {
+            if (field.FieldType == typeof(NetworkVariable<bool>) && field.Name == "isCheating")
+            {
+                var variable = field.GetValue(this) as NetworkVariable<bool>;
+                Debug.Log($"Найдено поле: {field.Name} в классе {field.DeclaringType?.Name}, Права: {variable?.WritePerm}");
+            }
+        }
         isCheating.Value = true;
         currentCheatAction = cheat;
+
         // Оповещаем всех клиентов (запуск подозрительной анимации и звуков на клиентах)
         NotifyCheatStartedClientRpc(cheat.AnimationTriggerName);
     }

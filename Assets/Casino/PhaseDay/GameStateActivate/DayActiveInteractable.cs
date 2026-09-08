@@ -90,13 +90,18 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
 
         Debug.Log("[DayActiveInteractable] Игрок начинает новый день!");
         manager.StartDayServerRpc();
-        if (_firstDoorPart != null) _firstDoorPart.SetActive(false);
-        if (_doorOpenPart != null) OpenDoor();
+        if (_firstDoorPart != null) FirstDoorPartInactiveRpc();
+        if (_doorOpenPart != null) OpenDoorRpc();
             
     }
-
-    private void OpenDoor()
+    [Rpc(SendTo.Everyone)]
+    private void OpenDoorRpc()
     {
         _doorOpenPart.transform.localEulerAngles = new Vector3(0, _pivotPoint, 0);
+    }
+    [Rpc(SendTo.Everyone)]
+    private void FirstDoorPartInactiveRpc()
+    {
+        _firstDoorPart.SetActive(false);
     }
 }

@@ -22,7 +22,7 @@ public sealed class DayActiveState : GameStateBase
             gameSessionManager.BotSpawner.SpawnBot(_spawned++);
 
         _nextSpawnIn = Random.Range(dayConfig.spawnDelayMin, dayConfig.spawnDelayMax);
-        gameSessionManager.SetTimeRemaining(_timeRemaining);
+        gameSessionManager.SetTimeRemainingServerRpc(_timeRemaining);
         gameSessionManager.BreakdownManager.StartBreakdownSession();
     }
 
@@ -35,7 +35,7 @@ public sealed class DayActiveState : GameStateBase
         if (_tickAccum >= 1f) // синхронизируем таймер раз в секунду
         {
             _tickAccum -= 1f;
-            gameSessionManager.SetTimeRemaining(Mathf.Max(0, _timeRemaining));
+            gameSessionManager.SetTimeRemainingServerRpc(Mathf.Max(0, _timeRemaining));
         }
 
         if (_spawned < dayConfig.botCount)

@@ -34,8 +34,8 @@ GameObject:
   - component: {fileID: 7814610562723482993}
   - component: {fileID: 9030635836983482947}
   - component: {fileID: 2291338215762006501}
-  - component: {fileID: 921614155757277052}
   - component: {fileID: 571656227073775018}
+  - component: {fileID: 8388727415573845881}
   - component: {fileID: 4719748944516136402}
   m_Layer: 3
   m_Name: '[BB] CorePlayer'
@@ -582,28 +582,6 @@ MonoBehaviour:
   maxHoldDuration: 1.5
   interactionPriority: 12
   waitForRelease: 1
---- !u!114 &921614155757277052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 157646745396352906}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d65b43eaa48b2e4599f00a8a0c3be1b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCheatController
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableCheats:
-  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
-  - {fileID: 11400000, guid: 756d6a29ed5958540ad156098b9e5c96, type: 2}
-  - {fileID: 11400000, guid: 6f29d2361fa87db46b629c80cc65cfea, type: 2}
-  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
-  - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
-  currentCheatAction: {fileID: 0}
-  characterAnimator: {fileID: 178504057993001136}
-  _minigameManager: {fileID: 571656227073775018}
 --- !u!114 &571656227073775018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -622,6 +600,25 @@ MonoBehaviour:
     gameInstance: {fileID: 5382956768326881719}
   - key: CardSleeve
     gameInstance: {fileID: 5292229225356036443}
+--- !u!114 &8388727415573845881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157646745396352906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d65b43eaa48b2e4599f00a8a0c3be1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCheatController
+  ShowTopMostFoldoutHeaderGroup: 1
+  availableCheats:
+  - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
+  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+  currentCheatAction: {fileID: 0}
+  characterAnimator: {fileID: 178504057993001136}
+  _minigameManager: {fileID: 571656227073775018}
 --- !u!114 &4719748944516136402
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4424,6 +4421,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 4f8153c8ea518474a9228a59fa3e00b4, type: 2}
+    - target: {fileID: -6652725513331149018, guid: 7743d14c1545aa241bc4103b88e2db08, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -6652725513331149018, guid: 7743d14c1545aa241bc4103b88e2db08, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 

@@ -56,6 +56,7 @@ public class ExposureManager : NetworkBehaviour
     /// <summary>
     /// Вызывается сервером, когда инспектор ловит игрока на мухлеже.
     /// </summary>
+    /// 
     public void AddExposure()
     {
         if (!IsServer) return;
@@ -75,11 +76,11 @@ public class ExposureManager : NetworkBehaviour
 
     private void HandleLevelChanged(int previousValue, int newValue)
     {
-        ApplyStage(newValue);
+        //ApplyStage(newValue);
         OnExposureChanged?.Invoke(newValue);
     }
 
-    private void ApplyStage(int level)
+    public void ApplyStage(int level)
     {
         if (level <= 0 || level > stages.Count)
             return;
@@ -90,15 +91,43 @@ public class ExposureManager : NetworkBehaviour
         // Активируем новые объекты (двери-сейфы, пулемёты, камеры)
         foreach (var go in stage.objectsToActivate)
         {
+            Debug.Log($"[ExposureManager] {go}");
+            // 1. Сначала активируем объект, чтобы Netcode мог его зарегистрировать
             if (go != null) go.SetActive(true);
+
+            // 2. Сетевой спавн (только сервер)
+            if (IsServer)
+            {
+                // Сначала проверяем сам объект, потом детей Пытаемся получить NetworkObject и заспавнить
+                var netObj = go.GetComponent<NetworkObject>();
+                if (netObj == null)
+                    netObj = go.GetComponentInChildren<NetworkObject>(includeInactive: true);
+
+                if (netObj != null && !netObj.IsSpawned)
+                {
+                    netObj.Spawn();
+                    Debug.Log($"[ExposureManager] Spawned NetworkObject: {netObj.name} (from {go.name})");
+                }
+            }
         }
 
         // Деактивируем старые (обычная дверь)
         foreach (var go in stage.objectsToDeactivate)
         {
-            if (go != null) go.SetActive(false);
-        }
+            if (go == null) continue;
 
+            if (IsServer)
+            {
+                var netObj = go.GetComponent<NetworkObject>();
+                if (netObj == null)
+                    netObj = go.GetComponentInChildren<NetworkObject>(includeInactive: true);
+
+                if (netObj != null && netObj.IsSpawned)
+                    netObj.Despawn();
+            }
+
+            go.SetActive(false);
+        }
         stage.onStageApplied?.Invoke();
 
         Debug.Log($"[Exposure] Применена стадия {level}: активировано {stage.objectsToActivate.Count}, деактивировано {stage.objectsToDeactivate.Count}");
