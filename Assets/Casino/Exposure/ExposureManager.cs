@@ -1,4 +1,6 @@
+using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -43,7 +45,14 @@ public class ExposureManager : NetworkBehaviour
         _exposureLevel.OnValueChanged += HandleLevelChanged;
 
         // Применяем текущее состояние (для клиентов, подключившихся позже)
- 
+
+
+        StartCoroutine(ApplyInitialVisualNextFrame());
+    }
+
+    private IEnumerator ApplyInitialVisualNextFrame()
+    {
+        yield return null;
         ApplyVisualStage(_exposureLevel.Value);
     }
 
@@ -102,7 +111,10 @@ public class ExposureManager : NetworkBehaviour
             if (go != null && go.activeSelf)
             {
                 go.SetActive(false);
+                Debug.LogWarning($"[Exposure] {go.gameObject.name}, {OwnerClientId}");
             }
+            else Debug.LogWarning($"[Exposure] go == {go != null}");
+
 
         }
 

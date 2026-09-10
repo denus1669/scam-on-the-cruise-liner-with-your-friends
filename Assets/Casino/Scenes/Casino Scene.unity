@@ -7797,7 +7797,7 @@ MonoBehaviour:
   GlobalObjectIdHash: 748005705
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
-  Ownership: 1
+  Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -13364,7 +13364,7 @@ MonoBehaviour:
   GlobalObjectIdHash: 171528263
   InScenePlacedSourceGlobalObjectIdHash: 3104876941
   DeferredDespawnTick: 0
-  Ownership: 1
+  Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -13953,6 +13953,10 @@ PrefabInstance:
     - target: {fileID: 6347106709352299022, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 203710413
+      objectReference: {fileID: 0}
+    - target: {fileID: 7001395226998179484, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
+      propertyPath: Ownership
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7001395226998179484, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
       propertyPath: GlobalObjectIdHash
