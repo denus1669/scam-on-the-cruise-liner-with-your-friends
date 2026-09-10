@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -12,13 +11,13 @@ public class BotCheatController : CheatController
 
     public override bool CanCheat()
     {
-        // Проверяем, что персонаж не в процессе мухлежа и что он владелец (или бот)
-        return !isCheating.Value;
+        // Проверяем, что персонаж не в процессе мухлежа
+        return !IsCheating;
     }
 
     public override bool TryInitiateCheat(IGameTable table, CheatAction specificCheat = null)
     {
-        if (!IsServer || isCheating.Value) return false;
+        if (!IsServer || IsCheating) return false;
 
         currentTable = table;
         CheatAction cheatToExecute = specificCheat;
@@ -38,11 +37,11 @@ public class BotCheatController : CheatController
             if (!cheatToExecute.CanExecute(currentTable, "BOT")) return false;
         }
 
-
         // 3. Запускаем процесс
         CheatRoutine(cheatToExecute);
         return true;
     }
+
     protected override void CheatRoutine(CheatAction cheat)
     {
         base.CheatRoutine(cheat);
@@ -51,7 +50,6 @@ public class BotCheatController : CheatController
 
     public IEnumerator BotCheatRoutine(CheatAction cheat)
     {
-
         // Бот просто ждёт AnimationDuration — это окно для обвинения игроком
         float timer = cheat.AnimationDuration;
         while (timer > 0)
@@ -89,6 +87,4 @@ public class BotCheatController : CheatController
 
         return validCheats[validCheats.Count - 1];
     }
-
-
 }

@@ -121,8 +121,6 @@ public class GameSessionManager : NetworkBehaviour
             return;
         }
         _timeRemaining.Value = v;
-        Debug.Log($"[GameSessionManager] SetTimeRemaining {_timeRemaining.Value}, = {v}");
-
     }
 
     public void AdvanceDay() => _currentDay.Value++;

@@ -26,7 +26,7 @@ public class PlayerCheatController : CheatController
     public void RequestCheatServerRpc(string specificCheatName = "")
     {
         if (!IsServer) return;
-        if (isCheating.Value) return;
+        if (IsCheating) return;
 
         Debug.Log($"[CheatController] Игрок {OwnerClientId} запросил мухлеж: {specificCheatName}");
 
@@ -55,7 +55,7 @@ public class PlayerCheatController : CheatController
 
     public override bool TryInitiateCheat(IGameTable table, CheatAction specificCheat)
     {
-        if (!IsServer || isCheating.Value) return false;
+        if (!IsServer || IsCheating) return false;
 
         if (!specificCheat.CanExecute(table, "Player"))
         {
@@ -111,24 +111,17 @@ public class PlayerCheatController : CheatController
         string minigameTypeKey = availableGames[randomIndex];
 
         Debug.Log($"[PlayerCheatController] Выбрана случайная мини-игра: '{minigameTypeKey}'");
-
         Debug.Log($"[PlayerCheatController] Запрос мини-игры '{minigameTypeKey}' через менеджер. Контекст: {cheatActionName}");
-
-        // Передаем только тип игры и коллбэк. 
-        // Если мини-игре нужны данные (например, имя чита), она может получить их через свойство ContextData или аналогичное,
-        // которое мы установим в менеджере или передадим отдельным параметром, если изменим сигнатуру.
-        // Для простоты пока передаем только тип, а мини-игра сама разберется (или мы ей скажем через публичное свойство).
 
         _minigameManager.RequestStartGame(minigameTypeKey, cheatActionName, HandleMinigameResult);
     }
 
     private void HandleMinigameResult(bool isSuccess)
     {
-        //if (!IsOwner) return;
-
         Debug.Log($"[PlayerCheatController] Мини-игра завершена локально. Успех: {isSuccess}. Отправка на сервер...");
         FinishPlayerCheatServerRpc(isSuccess);
     }
+
     /// <summary>
     /// Вызывается сервером через RPC, когда чит прерван инспектором или другим игроком.
     /// </summary>
@@ -136,8 +129,6 @@ public class PlayerCheatController : CheatController
     {
         if (_minigameManager == null) return;
 
-        // Получаем все ключи и закрываем активную игру
-        // MinigameBase.ForceClose() уже обрабатывает сброс состояния
         var activeGame = _minigameManager.GetActiveGame();
         if (activeGame != null)
         {
@@ -151,7 +142,7 @@ public class PlayerCheatController : CheatController
     {
         if (!IsServer) return;
 
-        if (!isCheating.Value)
+        if (!IsCheating)
         {
             Debug.LogWarning($"[CheatController] Игрок {OwnerClientId} прислал результат, но флаг isCheating = false (возможно таймаут).");
             return;
@@ -172,13 +163,4 @@ public class PlayerCheatController : CheatController
             HandleCheatCaught(ulong.MaxValue);
         }
     }
-}
-
-
-
-
-
-
-
-
-
+}   

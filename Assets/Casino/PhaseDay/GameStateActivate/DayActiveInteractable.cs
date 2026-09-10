@@ -1,13 +1,7 @@
 using Blocks.Gameplay.Core;
-using System.Net;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-/// <summary>
-/// Интерактивный объект "Входная дверь казино".
-/// Работает только в фазе Preparation — запускает новый игровой день.
-/// </summary>
 public class DayActiveInteractable : NetworkBehaviour, IInteractable
 {
     [Header("Настройки взаимодействия")]
@@ -17,19 +11,15 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
 
     [SerializeField] private GameObject _firstDoorPart;
     [SerializeField] private GameObject _doorOpenPart;
-    [SerializeField] private float _pivotPoint; 
+    [SerializeField] private float _pivotPoint;
 
-    // Кэш для оптимизации обновления текста подсказки
     private string m_CachedPrompt;
     private GameState m_LastState;
 
     public InteractionTriggerMode TriggerMode => triggerMode;
     public int Priority => priority;
-    public float HoldDuration => 0f; // Мгновенное взаимодействие
+    public float HoldDuration => 0f;
 
-    /// <summary>
-    /// Динамический текст подсказки. Меняется в зависимости от фазы.
-    /// </summary>
     public string InteractionPromptText
     {
         get
@@ -40,7 +30,6 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
             if (currentPhase != m_LastState || m_CachedPrompt == null)
             {
                 m_LastState = currentPhase;
-
                 m_CachedPrompt = currentPhase switch
                 {
                     GameState.Preparing => promptText,
@@ -48,32 +37,19 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
                     _ => promptText
                 };
             }
-
             return m_CachedPrompt;
         }
     }
 
-    /// <summary>
-    /// Взаимодействие доступно только в фазе Preparation.
-    /// </summary>
     public bool CanInteract(GameObject interactor)
     {
         var manager = GameSessionManager.Instance;
         if (manager == null) return false;
-
-        if (!interactor.TryGetComponent<NetworkObject>(out var netObj))
-            return false;
-
-        // Проверка, что это игрок
+        if (!interactor.TryGetComponent<NetworkObject>(out var netObj)) return false;
         if (!netObj.IsPlayerObject) return false;
-
-        // Только в фазе Preparation
         return manager.CurrentState == GameState.Preparing;
     }
 
-    /// <summary>
-    /// Запускает новый игровой день.
-    /// </summary>
     public void Interact(GameObject interactor)
     {
         if (!IsSpawned) return;
@@ -81,27 +57,65 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
         var manager = GameSessionManager.Instance;
         if (manager == null) return;
 
-        // Финальная проверка
         if (manager.CurrentState != GameState.Preparing)
         {
             Debug.Log("[DayActiveInteractable] Попытка взаимодействия вне фазы Preparation");
             return;
         }
 
-        Debug.Log("[DayActiveInteractable] Игрок начинает новый день!");
+        Debug.Log("[DayActiveInteractable] Игрок запрашивает начало дня!");
+
+        // ТОЛЬКО запрос на сервер. Никаких визуальных RPC с клиента!
         manager.StartDayServerRpc();
-        if (_firstDoorPart != null) FirstDoorPartInactiveRpc();
-        if (_doorOpenPart != null) OpenDoorRpc();
-            
+        if (ExposureManager.Instance != null)
+            ExposureManager.Instance.AddExposure();
+        ExposureManager.Instance.ApplyStage(ExposureManager.Instance.CurrentLevel);
+        Debug.Log($"[DayActiveInteractable] {ExposureManager.Instance.CurrentLevel}");
     }
-    [Rpc(SendTo.Everyone)]
-    private void OpenDoorRpc()
+
+    public override void OnNetworkSpawn()
     {
-        _doorOpenPart.transform.localEulerAngles = new Vector3(0, _pivotPoint, 0);
+        base.OnNetworkSpawn();
+
+        // Подписываемся на событие смены фазы в менеджере
+        if (GameSessionManager.Instance != null)
+        {
+            GameSessionManager.Instance.OnStateChanged += HandleGameStateChanged;
+            // Синхронизируем начальное состояние для поздно подключившихся
+            HandleGameStateChanged(GameSessionManager.Instance.CurrentState);
+        }
     }
-    [Rpc(SendTo.Everyone)]
-    private void FirstDoorPartInactiveRpc()
+
+    public override void OnNetworkDespawn()
     {
-        _firstDoorPart.SetActive(false);
+        base.OnNetworkDespawn();
+        if (GameSessionManager.Instance != null)
+        {
+            GameSessionManager.Instance.OnStateChanged -= HandleGameStateChanged;
+        }
+    }
+
+    private void HandleGameStateChanged(GameState newState)
+    {
+        if (newState == GameState.DayActive)
+        {
+            OpenDoorVisuals();
+        }
+        else if (newState == GameState.Preparing)
+        {
+            CloseDoorVisuals();
+        }
+    }
+
+    private void OpenDoorVisuals()
+    {
+        if (_firstDoorPart != null) _firstDoorPart.SetActive(false);
+        if (_doorOpenPart != null) _doorOpenPart.transform.localEulerAngles = new Vector3(0, _pivotPoint, 0);
+    }
+
+    private void CloseDoorVisuals()
+    {
+        if (_firstDoorPart != null) _firstDoorPart.SetActive(true);
+        if (_doorOpenPart != null) _doorOpenPart.transform.localEulerAngles = Vector3.zero;
     }
 }

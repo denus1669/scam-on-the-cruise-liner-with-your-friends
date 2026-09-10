@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Services.Qos.V2.Models;
 using UnityEngine;
 
 /// <summary>
@@ -18,17 +17,12 @@ public abstract class CheatController : NetworkBehaviour
     [SerializeField] protected CheatAction currentCheatAction;
     [SerializeField] protected Animator characterAnimator;
 
-
     protected IGameTable currentTable;
     protected Coroutine cheatCoroutine;
 
-    // Сетевое состояние мухлежа
-    protected NetworkVariable<bool> isCheating = new NetworkVariable<bool>(
-        false,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server);
-
-    public bool IsCheating => isCheating.Value;
+    // Локальное состояние мухлежа (на сервере - авторитетное, на клиенте - визуальная копия)
+    protected bool isCheatingLocal;
+    public bool IsCheating => isCheatingLocal;
 
     // --- ГЛОБАЛЬНЫЕ СОБЫТИЯ ДЛЯ ВИЗУАЛА (срабатывают на всех клиентах) ---
     public event Action<string> OnCheatStarted;
@@ -43,20 +37,18 @@ public abstract class CheatController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        isCheating.OnValueChanged += HandleCheatingStateChanged;
-        OnCheatingStateChanged?.Invoke(isCheating.Value);
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        isCheating.OnValueChanged -= HandleCheatingStateChanged;
+        // При спавне синхронизируем начальное состояние для новых клиентов
+        if (IsServer && isCheatingLocal)
+        {
+            SyncCheatingStateClientRpc(true);
+        }
+        OnCheatingStateChanged?.Invoke(isCheatingLocal);
     }
 
     public virtual bool CanCheat()
     {
         // Проверяем, что персонаж не в процессе мухлежа и что он владелец (или бот)
-        return !isCheating.Value && IsOwner;
+        return !isCheatingLocal && IsOwner;
     }
 
     /// <summary>
@@ -66,54 +58,84 @@ public abstract class CheatController : NetworkBehaviour
     /// </summary>
     public virtual bool TryInitiateCheat(IGameTable table, CheatAction specificCheat = null)
     {
-        if (!IsServer || isCheating.Value || !IsOwner) return false;
+        if (!IsServer || isCheatingLocal || !IsOwner) return false;
         currentTable = table;
         CheatRoutine(specificCheat);
-
         return true;
     }
 
     protected virtual void CheatRoutine(CheatAction cheat)
     {
-        Debug.Log($"[Cheat] ДИАГНОСТИКА | IsServer:{IsServer} | IsClient:{IsClient} | IsHost:{IsHost} | IsOwner:{IsOwner} | OwnerClientId:{OwnerClientId} | NM.IsServer:{NetworkManager.Singleton.IsServer} | NM.IsHost:{NetworkManager.Singleton.IsHost} | WritePerm:{isCheating.WritePerm} | Тип:{GetType().Name} | База:{GetType().BaseType?.Name}");
-
-        // Проверяем, есть ли скрытая переменная
-        var fields = GetType().GetFields(System.Reflection.BindingFlags.NonPublic |
-                                          System.Reflection.BindingFlags.Instance |
-                                          System.Reflection.BindingFlags.FlattenHierarchy);
-        // Проверяем все поля в иерархии
-        var allFields = GetType().GetFields(System.Reflection.BindingFlags.NonPublic |
-                                             System.Reflection.BindingFlags.Instance |
-                                             System.Reflection.BindingFlags.FlattenHierarchy);
-
-        foreach (var field in allFields)
-        {
-            if (field.FieldType == typeof(NetworkVariable<bool>) && field.Name == "isCheating")
-            {
-                var variable = field.GetValue(this) as NetworkVariable<bool>;
-                Debug.Log($"Найдено поле: {field.Name} в классе {field.DeclaringType?.Name}, Права: {variable?.WritePerm}");
-            }
-        }
-        isCheating.Value = true;
+        SetCheating(true);
         currentCheatAction = cheat;
 
         // Оповещаем всех клиентов (запуск подозрительной анимации и звуков на клиентах)
         NotifyCheatStartedClientRpc(cheat.AnimationTriggerName);
     }
 
+    /// <summary>
+    /// Единая точка изменения состояния читерства.
+    /// На сервере меняет локально и рассылает обновления.
+    /// На клиенте отправляет запрос на сервер.
+    /// </summary>
+    protected void SetCheating(bool value)
+    {
+        if (IsServer)
+        {
+            if (isCheatingLocal == value) return;
+
+            isCheatingLocal = value;
+            OnCheatingStateChanged?.Invoke(value);
+            SyncCheatingStateClientRpc(value);
+        }
+        else
+        {
+            // Клиент запрашивает изменение у сервера
+            SetCheatingServerRpc(value);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void SetCheatingServerRpc(bool value)
+    {
+        // Валидация: принимаем изменения только от владельца объекта или если это бот (сервер управляет ботами сам, но на всякий случай)
+        if (!IsOwner && !(this is BotCheatController))
+        {
+            Debug.LogWarning($"[Cheat] Попытка смены состояния от не-владельца! Sender: {NetworkManager.Singleton.LocalClientId}");
+            return;
+        }
+
+        if (isCheatingLocal == value) return;
+
+        isCheatingLocal = value;
+        OnCheatingStateChanged?.Invoke(value);
+
+        // Рассылаем подтверждение всем клиентам (включая отправителя)
+        SyncCheatingStateClientRpc(value);
+    }
+
+    [ClientRpc]
+    private void SyncCheatingStateClientRpc(bool value)
+    {
+        // На хосте уже установлено в SetCheating, но для чистоты можно оставить или добавить guard
+        if (IsHost) return;
+
+        isCheatingLocal = value;
+        OnCheatingStateChanged?.Invoke(value);
+    }
 
     protected void CompleteCheat(CheatAction cheat, string who)
     {
-        Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для !");
+        Debug.Log($"[CheatController] Мухлеж '{cheat.CheatName}' успешен для {who}!");
         cheat.ApplyCheatResult(currentTable, who);
-        isCheating.Value = false;
+        SetCheating(false);
         currentCheatAction = null;
     }
 
     protected virtual void CancelCheat()
     {
         if (cheatCoroutine != null) StopCoroutine(cheatCoroutine);
-        isCheating.Value = false;
+        SetCheating(false);
         currentCheatAction = null;
         StopCheatAnimationClientRpc();
     }
@@ -134,6 +156,7 @@ public abstract class CheatController : NetworkBehaviour
             accuserClientId,
             isCheaterBot: this is BotCheatController
         );
+
         // 3. Сбрасываем состояние мухлежа
         CancelCheat();
 
@@ -156,21 +179,16 @@ public abstract class CheatController : NetworkBehaviour
         Debug.Log($"[UI/FX] ИГРА ПРЕРВАНА!");
     }
 
-
-
-    protected virtual void HandleCheatingStateChanged(bool previous, bool current)
-    {
-        OnCheatingStateChanged?.Invoke(current);
-    }
-
     [ClientRpc]
     protected virtual void NotifyCheatStartedClientRpc(string animationTriggerName)
     {
+        OnCheatStarted?.Invoke(animationTriggerName);
     }
 
     [ClientRpc]
     protected virtual void StopCheatAnimationClientRpc()
     {
+        OnCheatCanceled?.Invoke();
         if (characterAnimator != null) characterAnimator.SetTrigger("CancelAction");
     }
 }
