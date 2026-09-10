@@ -8,7 +8,7 @@ public sealed class PreparingState : GameStateBase
     public override void Enter()
     {
         if (ExposureManager.Instance != null)
-            ExposureManager.Instance.ApplyStage(ExposureManager.Instance.CurrentLevel);
+            ExposureManager.Instance.ApplyVisualStage(ExposureManager.Instance.CurrentLevel);
 
         Debug.Log($"[Session] День {gameSessionManager.CurrentDay}: подготовка");
     }

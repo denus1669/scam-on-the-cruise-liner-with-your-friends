@@ -43,8 +43,8 @@ public class ExposureManager : NetworkBehaviour
         _exposureLevel.OnValueChanged += HandleLevelChanged;
 
         // Применяем текущее состояние (для клиентов, подключившихся позже)
-        if (_exposureLevel.Value > 0)
-            ApplyStage(_exposureLevel.Value);
+ 
+        ApplyVisualStage(_exposureLevel.Value);
     }
 
     public override void OnNetworkDespawn()
@@ -54,24 +54,21 @@ public class ExposureManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Вызывается сервером, когда инспектор ловит игрока на мухлеже.
+    /// Вызывается ТОЛЬКО на сервере. Изменяет состояние и инициирует синхронизацию.
+    /// Аналог PlayerDrawCard / BotStand в BlackGregTable.
     /// </summary>
-    /// 
     public void AddExposure()
     {
         if (!IsServer) return;
         if (_exposureLevel.Value >= MAX_EXPOSURE) return;
 
         int newLevel = _exposureLevel.Value + 1;
-        _exposureLevel.Value = newLevel;
+        _exposureLevel.Value = newLevel; // Триггерит OnValueChanged
 
         Debug.Log($"[Exposure] Уровень раскрытия: {newLevel}/{MAX_EXPOSURE}");
 
-        // Все изменения локации синхронизируются через OnValueChanged
         if (newLevel >= MAX_EXPOSURE)
-        {
             TriggerGameOverClientRpc();
-        }
     }
 
     private void HandleLevelChanged(int previousValue, int newValue)
@@ -80,57 +77,61 @@ public class ExposureManager : NetworkBehaviour
         OnExposureChanged?.Invoke(newValue);
     }
 
-    public void ApplyStage(int level)
+    /// <summary>
+    /// Клиентский метод. Только визуализация. Никакого Spawn/Despawn NetworkObject.
+    /// Аналог SpawnCardVisual / CardViewCleaner.
+    /// </summary>
+    public void ApplyVisualStage(int level)
     {
-        if (level <= 0 || level > stages.Count)
-            return;
+        if (level < 0 || level > stages.Count) return;
 
-        var stage = stages[level - 1];
+        var stage = stages[level];
         if (stage == null) return;
 
-        // Активируем новые объекты (двери-сейфы, пулемёты, камеры)
+        // Активация/деактивация ГОТОВЫХ объектов (уже заспавненных сервером)
         foreach (var go in stage.objectsToActivate)
         {
-            Debug.Log($"[ExposureManager] {go}");
-            // 1. Сначала активируем объект, чтобы Netcode мог его зарегистрировать
-            if (go != null) go.SetActive(true);
-
-            // 2. Сетевой спавн (только сервер)
-            if (IsServer)
+            if (go != null && !go.activeSelf)
             {
-                // Сначала проверяем сам объект, потом детей Пытаемся получить NetworkObject и заспавнить
-                var netObj = go.GetComponent<NetworkObject>();
-                if (netObj == null)
-                    netObj = go.GetComponentInChildren<NetworkObject>(includeInactive: true);
-
-                if (netObj != null && !netObj.IsSpawned)
-                {
-                    netObj.Spawn();
-                    Debug.Log($"[ExposureManager] Spawned NetworkObject: {netObj.name} (from {go.name})");
-                }
+                go.SetActive(true);
             }
         }
 
-        // Деактивируем старые (обычная дверь)
         foreach (var go in stage.objectsToDeactivate)
         {
-            if (go == null) continue;
-
-            if (IsServer)
+            if (go != null && go.activeSelf)
             {
-                var netObj = go.GetComponent<NetworkObject>();
-                if (netObj == null)
-                    netObj = go.GetComponentInChildren<NetworkObject>(includeInactive: true);
-
-                if (netObj != null && netObj.IsSpawned)
-                    netObj.Despawn();
+                go.SetActive(false);
             }
 
-            go.SetActive(false);
         }
-        stage.onStageApplied?.Invoke();
 
-        Debug.Log($"[Exposure] Применена стадия {level}: активировано {stage.objectsToActivate.Count}, деактивировано {stage.objectsToDeactivate.Count}");
+        stage.onStageApplied?.Invoke();
+        Debug.Log($"[Exposure Client] Визуал стадии {level} применен.");
+    }
+
+    private void SetStartDoor(int level)
+    {
+        var stage = stages[level];
+        if (stage == null) return;
+
+        foreach (var go in stage.objectsToDeactivate)
+        {
+            if (go != null && go.activeSelf)
+                go.SetActive(false);
+        }
+
+        stage.onStageApplied?.Invoke();
+        Debug.Log($"[Exposure Client] Визуал стадии {level} применен.");
+    }
+
+
+    
+    [ClientRpc]
+    public void SyncExposureVisualsClientRpc(int level)
+    {
+        // На клиенте только применяем визуал
+        ApplyVisualStage(level);
     }
 
     [ClientRpc]

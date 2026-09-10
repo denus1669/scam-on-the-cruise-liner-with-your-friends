@@ -67,10 +67,6 @@ public class DayActiveInteractable : NetworkBehaviour, IInteractable
 
         // ТОЛЬКО запрос на сервер. Никаких визуальных RPC с клиента!
         manager.StartDayServerRpc();
-        if (ExposureManager.Instance != null)
-            ExposureManager.Instance.AddExposure();
-        ExposureManager.Instance.ApplyStage(ExposureManager.Instance.CurrentLevel);
-        Debug.Log($"[DayActiveInteractable] {ExposureManager.Instance.CurrentLevel}");
     }
 
     public override void OnNetworkSpawn()
