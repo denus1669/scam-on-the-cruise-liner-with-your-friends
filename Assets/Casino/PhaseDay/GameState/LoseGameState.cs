@@ -6,14 +6,13 @@ public sealed class LoseGameState : GameStateBase
     public override GameState Type => GameState.LoseGame;
     public override void Enter()
     {
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
-        Debug.Log("Lose");
+
+        gameSessionManager.ForceStopAllGames();
+        gameSessionManager.SendBotsToExit();
+
+        var breakdownManager = gameSessionManager.BreakdownManager;
+        breakdownManager.StopBreakdownSession();
+
     }
     public override void OnContinuePressed() => gameSessionManager.SetGameState(GameState.GameStatistic);
 }

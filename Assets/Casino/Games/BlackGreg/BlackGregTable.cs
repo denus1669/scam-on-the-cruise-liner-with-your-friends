@@ -467,6 +467,7 @@ public class BlackGregTable : GameTable, ICardGameTable
             // Игрок-читер — пока используем поведение по умолчанию (форс-стоп).
             // В будущем здесь будет мини-игра или другая механика.
             base.OnCheaterCaught(accuserClientId, isCheaterBot);
+            RevertBotHand();
             return;
         }
 

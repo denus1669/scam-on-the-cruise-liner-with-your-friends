@@ -32,7 +32,10 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         NetworkVariableWritePermission.Server);
 
     /// <summary>Синхронизируемый флаг, указывающий, идёт ли игра.</summary>
-    protected readonly NetworkVariable<bool> gameInProgress = new NetworkVariable<bool>(false);
+    protected readonly NetworkVariable<bool> gameInProgress = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
 
     protected readonly NetworkVariable<bool> isBotOccupied = new NetworkVariable<bool>(
         false,

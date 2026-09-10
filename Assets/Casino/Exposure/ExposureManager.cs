@@ -87,8 +87,7 @@ public class ExposureManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Клиентский метод. Только визуализация. Никакого Spawn/Despawn NetworkObject.
-    /// Аналог SpawnCardVisual / CardViewCleaner.
+    /// Клиентский метод. Только визуализация.
     /// </summary>
     public void ApplyVisualStage(int level)
     {
@@ -111,33 +110,12 @@ public class ExposureManager : NetworkBehaviour
             if (go != null && go.activeSelf)
             {
                 go.SetActive(false);
-                Debug.LogWarning($"[Exposure] {go.gameObject.name}, {OwnerClientId}");
             }
-            else Debug.LogWarning($"[Exposure] go == {go != null}");
-
-
         }
 
         stage.onStageApplied?.Invoke();
         Debug.Log($"[Exposure Client] Визуал стадии {level} применен.");
     }
-
-    private void SetStartDoor(int level)
-    {
-        var stage = stages[level];
-        if (stage == null) return;
-
-        foreach (var go in stage.objectsToDeactivate)
-        {
-            if (go != null && go.activeSelf)
-                go.SetActive(false);
-        }
-
-        stage.onStageApplied?.Invoke();
-        Debug.Log($"[Exposure Client] Визуал стадии {level} применен.");
-    }
-
-
     
     [ClientRpc]
     public void SyncExposureVisualsClientRpc(int level)

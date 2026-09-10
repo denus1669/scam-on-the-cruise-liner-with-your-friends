@@ -145,7 +145,7 @@ public class BotAgent : NetworkBehaviour
             currentTable.RemoveBot();
         }
 
-        currentTable = table;
+        SetCurrentTableNetworked(table);
 
         // РЕЗЕРВИРУЕМ СТОЛ СРАЗУ — чтобы другие боты не выбрали его
         NetworkObject netObj = GetComponent<NetworkObject>();
@@ -418,7 +418,7 @@ public class BotAgent : NetworkBehaviour
             currentTable.StartGame();
         if (currentTable.TableType == "BlackGreg")
 
-        _isArrived.Value = true;
+        SetArrived(true);
         currentTable.BotReachedTable(true);
     }
 
@@ -461,7 +461,11 @@ public class BotAgent : NetworkBehaviour
         if (GameTableManager.Instance != null)
         {
             GameTableManager.Instance.OnAnyTableFreed -= OnAnyTableFreed;
-        }
+        }    // Не пытаемся идти за стол, если игра/сеть останавливается
+
+        if (!IsSpawned) return;
+        if (NetworkManager.Singleton == null) return;
+        if (NetworkManager.Singleton.ShutdownInProgress) return;
 
         isWaitingForTable = false;
         GoToRandomFreeTable();
@@ -531,6 +535,34 @@ public class BotAgent : NetworkBehaviour
     }
 
     #endregion
+    /// <summary>Сервер устанавливает стол и рассылает его клиентам.</summary>
+    private void SetCurrentTableNetworked(IGameTable table)
+    {
+        currentTable = table;
 
-    
+        if (table is GameTable gameTable && gameTable.NetworkObject != null)
+        {
+            // Рассылаем всем текущим клиентам
+            SetCurrentTableClientRpc(new NetworkBehaviourReference(gameTable));
+        }
+        else
+        {
+            // null — сброс
+            SetCurrentTableClientRpc(default);
+        }
+    }
+
+    [ClientRpc]
+    private void SetCurrentTableClientRpc(NetworkBehaviourReference tableRef)
+    {
+        // На сервере currentTable уже установлен — не перезаписываем
+        if (IsServer) return;
+
+        if (tableRef.TryGet(out NetworkBehaviour nb) && nb is IGameTable table)
+            currentTable = table;
+        else
+            currentTable = null;
+
+        Debug.Log($"[BotAgent:{gameObject.name}] Клиент получил CurrentTable = {currentTable?.TableName ?? "null"}");
+    }
 }
