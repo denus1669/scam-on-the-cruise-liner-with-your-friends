@@ -12941,7 +12941,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.3
+      value: -0.38
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
       propertyPath: m_LocalPosition.z
@@ -12993,15 +12993,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1527256993076996442, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7573341073813116240, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: c38b8923d1dae194eb0ad20742f3fcf7, type: 2}
+      objectReference: {fileID: 2100000, guid: 4aca02fa6a68bb14a84fd98d5d0d57f3, type: 2}
     - target: {fileID: 8428118890189954203, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
       propertyPath: m_LocalScale.y
       value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8428118890189954203, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.44
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13974,6 +13978,10 @@ PrefabInstance:
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 3104876941
       objectReference: {fileID: 0}
+    - target: {fileID: 2886128056197085215, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4aca02fa6a68bb14a84fd98d5d0d57f3, type: 2}
     - target: {fileID: 6888928867452377717, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
       propertyPath: m_LayerOverridePriority
       value: 1
@@ -14680,6 +14688,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3089908282524601477, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4aca02fa6a68bb14a84fd98d5d0d57f3, type: 2}
+    - target: {fileID: 3089908282524601477, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4aca02fa6a68bb14a84fd98d5d0d57f3, type: 2}
+    - target: {fileID: 3542235537051709436, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4aca02fa6a68bb14a84fd98d5d0d57f3, type: 2}
     - target: {fileID: 3798423188054964650, guid: f02ef3a8f0f198242af6b65420bbb412, type: 3}
       propertyPath: _pivotPoint
       value: -145
@@ -14826,6 +14846,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 606988731779549988, guid: 4eaeb1a3a4545c94fa77690acee65bec, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e99afb5a5e8f56c498791f29b96ea115, type: 2}
     - target: {fileID: 1375402436091094454, guid: 4eaeb1a3a4545c94fa77690acee65bec, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -14846,6 +14870,10 @@ PrefabInstance:
       propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4476983616507184183, guid: 4eaeb1a3a4545c94fa77690acee65bec, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e99afb5a5e8f56c498791f29b96ea115, type: 2}
     - target: {fileID: 4679970102700244779, guid: 4eaeb1a3a4545c94fa77690acee65bec, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 2931528951
