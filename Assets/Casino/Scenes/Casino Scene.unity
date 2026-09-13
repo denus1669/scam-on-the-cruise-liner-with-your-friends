@@ -680,6 +680,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Slots Variant (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
       value: -19.73713
@@ -1021,6 +1025,10 @@ PrefabInstance:
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_Name
       value: SM_Slots Variant (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1955,6 +1963,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7111689995493542687, guid: e3769a20051c22847ab053be0e8d81e3, type: 3}
+      propertyPath: unityAudioMixer
+      value: 
+      objectReference: {fileID: 24100000, guid: fddb343a82968524eb1e9a6f65433d7e, type: 2}
     - target: {fileID: 7605289959106422121, guid: e3769a20051c22847ab053be0e8d81e3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.37373
@@ -3319,6 +3331,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_CCTV (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -3951,6 +3967,10 @@ PrefabInstance:
     - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_Name
       value: SM_CCTV (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
@@ -5242,6 +5262,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Slots Variant (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
       value: -28.30186
@@ -5282,6 +5306,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 7405630681472697495, guid: e5e2af71d4a2d024d83a59f9f8fa0d37, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8531,6 +8559,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_CCTV (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -9024,6 +9056,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_CCTV (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -9224,6 +9260,10 @@ PrefabInstance:
     - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_Name
       value: SM_CCTV (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
@@ -10367,6 +10407,58 @@ PrefabInstance:
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: Loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: MaxDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].time
+      value: 0.23414826
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[2].time
+      value: 0.74502563
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[0].value
+      value: 0.91176605
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].value
+      value: 0.42807955
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].inSlope
+      value: -1.4992901
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[1].outSlope
+      value: -1.4992901
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[2].inWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 7955471977793913670, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: rolloffCustomCurve.m_Curve.Array.data[2].outWeight
+      value: 0.33333334
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11518,6 +11610,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_CCTV (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -12135,7 +12231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1948044416
 Transform:
   m_ObjectHideFlags: 0
@@ -12317,6 +12413,10 @@ PrefabInstance:
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_Name
       value: SM_Slots Variant (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12654,6 +12754,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Slots Variant (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
       value: -46.83186
@@ -12715,6 +12819,10 @@ PrefabInstance:
     - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_Name
       value: SM_CCTV (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
@@ -13006,8 +13114,38 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4569789287201961044, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2033507553}
   m_SourcePrefab: {fileID: 100100000, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
+--- !u!1 &2033507552 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4569789287201961044, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
+  m_PrefabInstance: {fileID: 2033507551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &2033507553
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033507552}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2286609463051499506, guid: e0ce1e3914938804982ad8e6aa827d61, type: 3}
 --- !u!1001 &2043621442
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13835,6 +13973,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_CCTV (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -14072,6 +14214,10 @@ PrefabInstance:
     - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_Name
       value: SM_CCTV
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882678926415436423, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6550672558916321341, guid: 93e3a4345df0c3546a747fdf57473595, type: 3}
       propertyPath: m_LocalScale.x

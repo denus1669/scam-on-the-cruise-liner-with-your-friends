@@ -14806,6 +14806,10 @@ PrefabInstance:
       propertyPath: m_LocalRotation.x
       value: -0
       objectReference: {fileID: 0}
+    - target: {fileID: 9162682974747400534, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 7405630681472697495, guid: e5e2af71d4a2d024d83a59f9f8fa0d37, type: 2}
     - target: {fileID: 9180179217993700593, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -14877,6 +14881,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8371449471237639755, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7831780719040811217}
+    - targetCorrespondingSourceObject: {fileID: 8371449471237639755, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 64987473435185442}
   m_SourcePrefab: {fileID: 100100000, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
 --- !u!1 &7305609297544467547 stripped
 GameObject:
@@ -14930,6 +14937,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &64987473435185442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7305609297544467547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 738a1eeb08341d247a63679b88e7001e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeInit
+  volumeParametr: Slots
+  volumeMixer: {fileID: 24100000, guid: e5e2af71d4a2d024d83a59f9f8fa0d37, type: 2}
 --- !u!4 &7937994976135057121 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9180179217993700593, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
