@@ -257,6 +257,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
         gameInProgress.Value = true;
 
+        
         if (IsServer && casinoBank != null)
         {
             casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ставка", TableType);

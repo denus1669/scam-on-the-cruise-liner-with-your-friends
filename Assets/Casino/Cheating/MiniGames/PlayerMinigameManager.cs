@@ -44,7 +44,7 @@ public class PlayerMinigameManager : NetworkBehaviour
                 // Убеждаемся, что панель выключена при старте
                 entry.gameInstance.gameObject.SetActive(false);
                 _gamesDictionary[entry.key] = entry.gameInstance;
-                Debug.Log($"[MinigameManager] Зарегистрирована игра: {entry.key}");
+                //Debug.Log($"[MinigameManager] Зарегистрирована игра: {entry.key}");
             }
         }
     }

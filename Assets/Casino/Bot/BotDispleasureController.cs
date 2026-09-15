@@ -1,4 +1,5 @@
 using Blocks.Gameplay.Core;
+using ithappy.Casino;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -32,17 +33,29 @@ public class BotDispleasureController : NetworkBehaviour
     {
         botAgent = GetComponent<BotAgent>();
     }
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
 
+        currentDispleasure.OnValueChanged += OnDispleasureValueChanged;
+    }
     public override void OnNetworkDespawn()
     {
+
+        currentDispleasure.OnValueChanged -= OnDispleasureValueChanged;
+        
         watchers.Clear();
         base.OnNetworkDespawn();
+    }
+    private void OnDispleasureValueChanged(float oldValue, float newValue)
+    {
+        OnDispleasureChanged?.Invoke(newValue);
     }
 
     private void Update()
     {
         if (!IsServer) return;
-
+        /*
         IGameTable table = GetCurrentTable();
         if (table == null || !table.IsGameStarted) return;
 
@@ -67,7 +80,7 @@ public class BotDispleasureController : NetworkBehaviour
         if (!Mathf.Approximately(previousDispleasure, currentDispleasure.Value))
         {
             OnDispleasureChanged?.Invoke(currentDispleasure.Value);
-        }
+        }*/
     }
 
 
@@ -87,14 +100,18 @@ public class BotDispleasureController : NetworkBehaviour
     /// Добавляет мгновенное количество раздражения (например, при ложном шлепке).
     /// Вызывается только на сервере.
     /// </summary>
-    public void AddInstantDispleasure(float amount)
+    /// 
+
+    [Rpc(SendTo.Server)]
+    public void AddInstantDispleasureServerRpc(float displeasureValue)
     {
         if (!IsServer) return;
-
+        AddInstantDispleasure(displeasureValue);
+    }
+    public void AddInstantDispleasure(float amount)
+    {
         currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);
         Debug.Log($"[Displeasure] Бот {gameObject.name} получил мгновенное раздражение: +{amount}. Текущее: {currentDispleasure.Value}");
-
-        OnDispleasureChanged?.Invoke(currentDispleasure.Value);
 
         if (currentDispleasure.Value >= maxDispleasure)
         {

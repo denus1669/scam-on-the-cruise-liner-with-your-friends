@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3011846507
+  GlobalObjectIdHash: 2295974813
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1103,6 +1103,34 @@ PrefabInstance:
       propertyPath: interactionAddon
       value: 
       objectReference: {fileID: 3955545337037980288}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5894220276983199240}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CloseMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: InGameMenuController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7838769987601223278, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1170,6 +1198,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06a01c37bded30c44981b4f90e840d60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Minigame_ReactionClick
+--- !u!114 &5894220276983199240 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7972766767120980117, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+  m_PrefabInstance: {fileID: 4569059322615951005}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03936f74fa2de524eb4de43696a9c87b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InGameMenuController
 --- !u!114 &8250126903835358271 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5554866384733346466, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}

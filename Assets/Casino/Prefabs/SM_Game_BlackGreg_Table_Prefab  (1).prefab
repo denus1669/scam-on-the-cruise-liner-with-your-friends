@@ -604,6 +604,7 @@ MonoBehaviour:
   startRotation: {x: 30, y: 180, z: 0}
   cardLimit: 10
   minCardsToFinish: 2
+  timeBeforeDiscard: 5
   playerHandData: []
   botHandData: []
 --- !u!1 &2474686349214915701
@@ -1093,6 +1094,7 @@ MonoBehaviour:
   blackGregTable: {fileID: 2518625619299382771}
   triggerMode: 0
   priority: 5
+  _timeToHold: 0.5
 --- !u!114 &3491580384908380077
 MonoBehaviour:
   m_ObjectHideFlags: 0

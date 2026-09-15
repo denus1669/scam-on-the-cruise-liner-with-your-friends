@@ -145,7 +145,9 @@ public class InputModeSwitcher : MonoBehaviour, IInputModeSwitcher
         Cursor.visible = _wasCursorVisible;
         Cursor.lockState = _wasCursorLockState;
         _cursorStateSaved = false;
+        Debug.Log($"[InputModeSwitcher] RestoreCursorState: {Cursor.visible},    {Cursor.lockState}");
     }
+
 
     private void SetCursorVisible(bool visible)
     {

@@ -103,7 +103,6 @@ public class BotArrivalIndicator : NetworkObjectVisibilityIndicator
     /// </summary3>
     private void HandleGameStarted()
     {
-        Debug.Log("%$$$$$$$$$$$$");
         HideIndicator();
     }
     

@@ -238,6 +238,8 @@ public class SlotMachine : GameTable
 
         Leave(clientId);
         Debug.Log($"[SlotMachine] Игрок {clientId} завершил починку, стол освобождён");
+
+        GameTableManager.Instance?.NotifyTableFreed();
     }
 
     public void Restore()
@@ -248,6 +250,7 @@ public class SlotMachine : GameTable
         _isExploded.Value = false;
         // [ИСПРАВЛЕНО] Обращаемся к локальной переменной сервера
         _serverTimeToExplode = 0f;
+        GameTableManager.Instance?.NotifyTableFreed();
 
         Debug.Log($"<color=cyan>[ВОССТАНОВЛЕНИЕ]</color> Игровой автомат '{slotMachineName}' восстановлен и готов к работе.");
     }
@@ -310,7 +313,7 @@ public class SlotMachine : GameTable
             comboIndex = UnityEngine.Random.Range(0, winningCombos.Length);
         }
 
-        Debug.LogError($"[SlotMachine] Автомат '{slotMachineName}' начинает спин. Результат: {(isWin ? "ПОБЕДА" : "ПРОИГРЫШ")}");
+        Debug.Log($"[SlotMachine] Автомат '{slotMachineName}' начинает спин. Результат: {(isWin ? "ПОБЕДА" : "ПРОИГРЫШ")}");
         StartCoroutine(SpinRoutine(isWin, comboIndex));
     }
 

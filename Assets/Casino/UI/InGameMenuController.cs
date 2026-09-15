@@ -1,5 +1,6 @@
-using UnityEngine;
 using Blocks.Gameplay.Core;
+using Unity.Netcode;
+using UnityEngine;
 
 public class InGameMenuController : MonoBehaviour
 {
@@ -19,9 +20,18 @@ public class InGameMenuController : MonoBehaviour
     [Header("Кнопка назад в SettingsAudio")]
     [SerializeField] private UnityEngine.UI.Button settingsAudioBackButton;
 
+    private NetworkObject _networkObject;
 
 
     private bool _isMenuOpen;
+    private void Awake()
+    {
+        _networkObject = GetComponentInParent<NetworkObject>();
+        if (_networkObject == null)
+        {
+            Debug.LogWarning("[InGameMenuController] NetworkObject not found! Menu will work for all players.", this);
+        }
+    }
 
     private void OnEnable()
     {
@@ -88,6 +98,11 @@ public class InGameMenuController : MonoBehaviour
 
     private void ToggleMenu()
     {
+        if (_networkObject != null && !_networkObject.IsOwner)
+        {
+            return;
+        }
+
         if (_isMenuOpen)
             CloseMenu();
         else
@@ -108,9 +123,19 @@ public class InGameMenuController : MonoBehaviour
     public void CloseMenu()
     {
         _isMenuOpen = false;
-        inputModeSwitcher?.ExitUIMode(true);
-        Debug.Log($"EDDDDDDDDDD");
         HideAllPanels();
+        inputModeSwitcher?.ExitUIMode(true);
+
+
+        StartCoroutine(ForceCursorLockNextFrame());
+
+    }
+
+    private System.Collections.IEnumerator ForceCursorLockNextFrame()
+    {
+        yield return null; // Ждем следующий кадр
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     #region Navigation

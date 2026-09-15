@@ -274,7 +274,7 @@ namespace Blocks.Gameplay.Core
             {
                 if (bot != null && bot.IsSpawned)
                 {
-                    bot.AddInstantDispleasure(explodeDispleasureAmount);
+                    bot.AddInstantDispleasureServerRpc(explodeDispleasureAmount);
                     affectedBots++;
                 }
             }

@@ -17,6 +17,8 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
     [SerializeField] private int priority = 5;
 
+    [SerializeField] private float _timeToHold = 1f;
+
     // Кэш для оптимизации обновления текста подсказки
     private string m_CachedPrompt;
     private bool m_LastGameStarted;
@@ -29,7 +31,7 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
     /// <summary>
     /// Динамическое время удержания: 2 сек для Reveal, 0 сек для Finish.
     /// </summary>
-    public float HoldDuration => blackGregTable != null && blackGregTable.IsRevealed ? 0f : 2f;
+    public float HoldDuration => blackGregTable != null && blackGregTable.IsRevealed ? 0f : _timeToHold;
 
     /// <summary>
     /// Динамический текст подсказки.
@@ -52,7 +54,7 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
                 m_CachedPrompt = blackGregTable == null ? "Стол недоступен" :
                     !gameStarted ? "Игра не началась" :
                     canReveal ? "Вскрыть карты (Удерживайте E)" :
-                    canFinish ? "Завершить партию (E)" :
+                    //canFinish ? "Завершить партию (E)" :
                     "Бот не закончил ходить или Игрок не взял 2 карты";
             }
 
@@ -89,9 +91,11 @@ public class FinishGameInteractable : NetworkBehaviour, IInteractable
         {
             blackGregTable.RevealHandsServerRpc(clientId);
         }
+
+        /*
         else if (blackGregTable.CanPlayerFinish())
         {
             blackGregTable.FinishGameServerRpc(clientId);
-        }
+        }*/
     }
 }

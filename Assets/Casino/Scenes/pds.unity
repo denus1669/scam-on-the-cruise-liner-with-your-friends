@@ -385,9 +385,17 @@ PrefabInstance:
       value: Canvas (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3315012685190385858, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+    - {fileID: 9043568345424526430, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+    - {fileID: 3504598309250611388, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+    - {fileID: 1027866691577915991, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+    - {fileID: 7545002281608694033, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8926200549256132067, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1941839299}
   m_SourcePrefab: {fileID: 100100000, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
 --- !u!114 &365489662 stripped
 MonoBehaviour:
@@ -948,6 +956,23 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &1941839294 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8926200549256132067, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+  m_PrefabInstance: {fileID: 365489661}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1941839299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941839294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54c6314f1cdf90640b34b02f97bd45da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::dssd
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -27,6 +27,9 @@ public class BlackGregTable : GameTable, ICardGameTable
     [SerializeField] private int cardLimit = 10;
     [SerializeField] private int minCardsToFinish = 2;
 
+    [Header("End Game")]
+    [SerializeField] private float timeBeforeDiscard = 5f;
+
     private readonly NetworkVariable<bool> _isRevealed = new NetworkVariable<bool>(
         false,
         NetworkVariableReadPermission.Everyone,
@@ -250,15 +253,6 @@ public class BlackGregTable : GameTable, ICardGameTable
             PlayerDrawCard();
         }
     }
-
-    /*
-    [Rpc(SendTo.Server)]
-    public void RequestFinishGameServerRpc(ulong clientId)
-    {
-        if (IsServer && IsOccupied && clientId == OccupiedByClientId)
-            FinishGame();
-    }
-    */
 
     // ---------- Сетевая синхронизация рук ----------
 
@@ -585,6 +579,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         {
             PutOnTablePlayerCards();
             RevealHands();
+            Invoke("FinishGame", timeBeforeDiscard);
         }
     }
     public bool CanPlayerFinish()
