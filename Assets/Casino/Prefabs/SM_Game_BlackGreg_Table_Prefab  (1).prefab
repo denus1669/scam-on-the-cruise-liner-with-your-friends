@@ -982,7 +982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckInteractable
   ShowTopMostFoldoutHeaderGroup: 1
-  blackjackTable: {fileID: 2518625619299382771}
+  blackGregTable: {fileID: 2518625619299382771}
   triggerMode: 0
   priority: 5
   promptText: "\u0412\u0437\u044F\u0442\u044C \u043A\u0430\u0440\u0442\u0443 (E)"

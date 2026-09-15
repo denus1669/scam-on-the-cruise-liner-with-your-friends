@@ -3019,7 +3019,7 @@ MonoBehaviour:
   GlobalObjectIdHash: 2860473355
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
-  Ownership: 1
+  Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -4419,7 +4419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &698027261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6118,7 +6118,7 @@ MonoBehaviour:
   GlobalObjectIdHash: 4024679986
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
-  Ownership: 1
+  Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -7313,7 +7313,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.43
+      value: 7.35
       objectReference: {fileID: 0}
     - target: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7321,7 +7321,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.63
+      value: 2.74
       objectReference: {fileID: 0}
     - target: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7840,7 +7840,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1178337121
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13357,7 +13357,7 @@ MonoBehaviour:
   GlobalObjectIdHash: 4226164177
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
-  Ownership: 1
+  Ownership: 8
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0

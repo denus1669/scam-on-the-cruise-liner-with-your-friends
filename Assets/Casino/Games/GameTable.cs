@@ -1,5 +1,6 @@
 using Blocks.Gameplay.Core;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
 using Unity.Netcode;
 using UnityEngine;
@@ -43,19 +44,29 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         NetworkVariableWritePermission.Server);
 
     protected readonly NetworkVariable<bool> isBotReachedTable = new NetworkVariable<bool>(
-    false,
-    NetworkVariableReadPermission.Everyone,
-    NetworkVariableWritePermission.Server);
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    public readonly NetworkVariable<NetworkObjectReference> botNetworkObjectRef = new NetworkVariable<NetworkObjectReference>(
+        default,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
+
+    public NetworkList<ulong> playersInGameArea = new NetworkList<ulong>();
+
 
     /// <summary>Ссылка на сетевой объект бота, закреплённого за столом (только на сервере).</summary>
     protected NetworkObject currentBot;
 
+
     public Transform TableTransform => transform;
-    public string TableName => gameObject.name; 
+    public string TableName => gameObject.name;
 
     // ---------- Реализация IGameTable ----------
     /// <inheritdoc />
     public bool IsOccupied => isOccupied.Value;
+
     /// <inheritdoc />
     public ulong OccupiedByClientId => occupiedByClientId.Value;
     /// <inheritdoc />
@@ -75,10 +86,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     /// <inheritdoc />
     public event Action OnGameEnded;
 
-    public readonly NetworkVariable<NetworkObjectReference> botNetworkObjectRef = new NetworkVariable<NetworkObjectReference>(
-    default,
-    NetworkVariableReadPermission.Everyone,
-    NetworkVariableWritePermission.Server);
+
 
     // ---------- Unity / NetworkBehaviour ----------
     public override void OnNetworkSpawn()
@@ -94,7 +102,6 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
 
-        Debug.Log($"isOccupied {isOccupied.Value}  isBotOccupied {isBotOccupied.Value}");
     }
 
     public override void OnNetworkDespawn()
@@ -115,6 +122,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     {
         ulong clientId = current ? occupiedByClientId.Value : ulong.MaxValue;
         OnOccupantChanged?.Invoke(clientId);
+        Debug.Log($"IsOccupied == {IsOccupied}");
     }
 
     private void OnBotOccupiedChanged(bool previous, bool current)
@@ -130,11 +138,11 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
             OnGameEnded?.Invoke();
     }
 
-   
+
 
     // ---------- RPC для занятия/освобождения игрока ----------
     [Rpc(SendTo.Server)]
-    private void OccupyServerRpc(ulong clientId)
+    public void OccupyServerRpc(ulong clientId)
     {
         if (!IsServer || isOccupied.Value) return;
         Occupy(clientId);
@@ -171,7 +179,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
         if (occupiedByClientId.Value != clientId)
         {
-            Debug.LogWarning($"[GameTable] Клиент {clientId} пытался покинуть стол, но владелец {occupiedByClientId.Value}");
+            Debug.LogWarning($"[GameTable] Клиент {clientId} пытался покинуть стол, но владелец {occupiedByClientId.Value} стол занят");
             return;
         }
 
@@ -257,7 +265,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
         gameInProgress.Value = true;
 
-        
+
         if (IsServer && casinoBank != null)
         {
             casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ставка", TableType);
@@ -338,50 +346,106 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
     // ---------- Обработка триггера ----------
     public virtual void OnTriggerExit(Collider other)
     {
+        if (!IsServer)
+        {
+            Debug.LogWarning($"[GameTable] Попытка покинуть стол но это не сервер");
+            return; 
+        }
+
         // 1. Получаем NetworkObject вышедшего коллайдера
         NetworkObject netObj = other.GetComponent<NetworkObject>();
 
         // Если это не сетевой объект или не игрок — игнорируем
-        if (netObj == null || !netObj.IsPlayerObject) return;
+        if (netObj == null || !netObj.IsPlayerObject)
+        {
+            Debug.LogWarning($"[GameTable] Попытка покинуть стол но netObj == null {netObj == null} а !netObj.IsPlayerObject {!netObj.IsPlayerObject}");
+            return;
+        }
+        Debug.Log($"OnTriggerExitnetObj.OwnerClientId   {netObj.OwnerClientId}");
+
 
         ulong exitingClientId = netObj.OwnerClientId;
+        RemovePlayer(exitingClientId);
 
         // 2. Проверяем, является ли вышедший игрок ТЕКУЩИМ владельцем стола
-        if (exitingClientId != occupiedByClientId.Value)
+        if (IsOccupied)
         {
-            // Если вышел кто-то другой (второй игрок, зритель и т.д.), просто игнорируем
-            return;
+            Debug.LogWarning($"[GameTable] Попытка покинуть стол занятый стол");
+
+            if (exitingClientId != occupiedByClientId.Value)
+            {
+                Debug.LogWarning($"[GameTable] Попытка покинуть стол занятый стол exitingClientId {exitingClientId} != occupiedByClientId.Value {occupiedByClientId.Value}");
+
+                // Если вышел кто-то другой (второй игрок, зритель и т.д.), просто игнорируем
+                return;
+            }
         }
 
         // 3. Если вышел именно владелец, освобождаем стол
-        if (IsServer)
-        {
-            Leave(exitingClientId);
-        }
-        else if (netObj.IsLocalPlayer)
-        {
-            // Для клиентов в Distributed Authority отправляем RPC на сервер
-            LeaveServerRpc(exitingClientId);
-        }
+        LeaveServerRpc(exitingClientId);
+
     }
 
     public virtual void OnTriggerEnter(Collider other)
     {
+        if (!IsServer)
+        {
+            Debug.LogWarning($"[GameTable] Попытка зайти в стол но это не сервер");
+            return; 
+        }
+
 
         NetworkObject netObj = other.GetComponent<NetworkObject>();
-        if (netObj == null || !netObj.IsPlayerObject) return;
 
-        if (IsServer)
+        if (netObj == null || !netObj.IsPlayerObject)
         {
-            // Если физика на сервере - занимаем сразу
-            Occupy(netObj.OwnerClientId);
-        }
-        else if (netObj.IsLocalPlayer)
-        {
-            // Если физика на клиенте (DA) - шлем RPC
-            OccupyServerRpc(netObj.OwnerClientId);
+            Debug.LogWarning($"[GameTable] Попытка зайти в стол но netObj == null {netObj == null} а !netObj.IsPlayerObject {!netObj.IsPlayerObject}");
+            return;
         }
 
+        ulong exitingClientId = netObj.OwnerClientId;
+
+
+        Debug.Log($"OnTriggerEnternetObj.OwnerClientId   {exitingClientId}");
+
+        if (IsOccupied)
+        {
+            if (exitingClientId != occupiedByClientId.Value)
+            {
+                Debug.LogWarning($"[GameTable] Попытка зайти в стол но он уже занят");
+                return;
+            }
+        }
+
+        AddPlayer(exitingClientId);
+
+        if (IsGameStarted)
+        {
+            OccupyServerRpc(exitingClientId);
+        }
+    }
+    protected virtual void AddPlayer(ulong exitingClientId)
+    {
+        
+        if (playersInGameArea.Contains(exitingClientId))
+        {
+            Debug.LogWarning($"[GameTable] нельзя добавить уже имеющегося игрока в списке playersInGameArea {exitingClientId}");
+            return;
+        }
+
+        playersInGameArea.Add(exitingClientId);
+        Debug.Log($"[GameTable] AddPlayer: {exitingClientId}, count={playersInGameArea.Count}");
+    }
+
+    protected virtual void RemovePlayer(ulong exitingClientId)
+    {
+        if (playersInGameArea.Count < 0)
+        {
+            Debug.LogWarning($"[GameTable] Нельзя убрать никого нет BeforeRemove {exitingClientId}, count={playersInGameArea.Count} ");
+            return;
+        }
+        playersInGameArea.Remove(exitingClientId);
+        Debug.Log($"[GameTable] Remove {exitingClientId}, count={playersInGameArea.Count} ");
     }
 
     // ---------- Обработка дисконнекта ----------
@@ -391,6 +455,7 @@ public abstract class GameTable : NetworkBehaviour, IGameTable
 
         if (occupiedByClientId.Value == clientId)
         {
+            RemovePlayer(clientId);
             Leave(clientId);
         }
     }

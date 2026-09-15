@@ -1,6 +1,8 @@
 using Blocks.Gameplay.Core;
 using System;
+using System.Linq;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 /// <summary>
@@ -10,7 +12,7 @@ using UnityEngine;
 public class DeckInteractable : NetworkBehaviour, IInteractable
 {
     [Header("Стол")]
-    [SerializeField] private BlackGregTable blackjackTable;
+    [SerializeField] private BlackGregTable blackGregTable;
 
     [Header("Настройки взаимодействия")]
     [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
@@ -25,27 +27,35 @@ public class DeckInteractable : NetworkBehaviour, IInteractable
 
     public bool CanInteract(GameObject interactor)
     {
-
-        if (blackjackTable == null || !blackjackTable.IsOccupied || !blackjackTable.IsBotReachedTable)
+        if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
         {
+            Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
             return false;
         }
 
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        return clientId == blackjackTable.OccupiedByClientId;
+
+        if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId)
+        {
+            Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
+            return false;
+        }
+
+        Debug.Log($"blackGregTable.playersInGameArea.Contains(clientId) == {blackGregTable.playersInGameArea.Contains(clientId)}");
+        return blackGregTable.playersInGameArea.Contains(clientId);
     }
 
     public void Interact(GameObject interactor)
     {
 
-        if (!IsSpawned || blackjackTable == null)
+        if (!IsSpawned || blackGregTable == null)
         {
             return;
         }
             
 
         ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        blackjackTable.RequestDrawCardServerRpc(clientId);
-
+        blackGregTable.RequestDrawCardServerRpc(clientId);
+        Debug.Log($"{clientId}");
     }
 }

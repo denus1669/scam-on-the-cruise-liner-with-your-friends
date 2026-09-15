@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
+using UnityEngine;
 
 /// <summary>
 /// Компонент стола для игры в блэкджек.
@@ -175,6 +176,7 @@ public class BlackGregTable : GameTable, ICardGameTable
         base.EndGame(); // устанавливает gameInProgress.Value = false
         ClearHands();   // очистка визуала и данных
         ClearHandsClientRpc();
+        LeaveServerRpc(OccupiedByClientId);
     }
     [ClientRpc]
     private void ClearHandsClientRpc()
@@ -248,10 +250,23 @@ public class BlackGregTable : GameTable, ICardGameTable
     [Rpc(SendTo.Server)]
     public void RequestDrawCardServerRpc(ulong clientId)
     {
-        if (IsServer && IsOccupied && clientId == OccupiedByClientId)
+        if (IsOccupied)
         {
-            PlayerDrawCard();
+            if (IsServer && clientId == OccupiedByClientId)
+            {
+                PlayerDrawCard();
+            }
+            
         }
+        else 
+        {
+            if (IsServer && playersInGameArea.Contains(clientId))
+            {
+                Occupy(clientId);
+                PlayerDrawCard();
+            }
+        }
+        
     }
 
     // ---------- Сетевая синхронизация рук ----------
@@ -259,6 +274,7 @@ public class BlackGregTable : GameTable, ICardGameTable
     [ClientRpc]
     private void SyncHandsClientRpc(ulong playerClientId, CardData[] syncedPlayerHand, CardData[] syncedBotHand)
     {
+
         if (IsRevealed) return; 
 
         playerHandData = new List<CardData>(syncedPlayerHand);
@@ -593,5 +609,15 @@ public class BlackGregTable : GameTable, ICardGameTable
     {
         if (IsServer && IsOccupied && clientId == OccupiedByClientId)
             FinishGame();
+    }
+    public override void OnTriggerEnter(Collider other)
+    {
+        base.OnTriggerEnter(other);
+        NetworkObject netObj = other.GetComponent<NetworkObject>();
+        ulong exitingClientId = netObj.OwnerClientId;
+        if (IsGameStarted)
+        {
+            OccupyServerRpc(exitingClientId);
+        }
     }
 }
