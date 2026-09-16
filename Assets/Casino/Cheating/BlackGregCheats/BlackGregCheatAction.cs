@@ -1,4 +1,4 @@
-using UnityEngine;
+using CasinoScripts;
 
 /// <summary>
 /// Специфичный базовый класс мухлежа для игры BlackGreg.

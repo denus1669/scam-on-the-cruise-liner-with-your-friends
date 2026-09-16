@@ -1,6 +1,7 @@
 using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
+using CasinoScripts;
 
 /// <summary>
 /// Интерактивный объект для завершения игры.

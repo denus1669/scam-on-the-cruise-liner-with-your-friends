@@ -1,4 +1,5 @@
 using UnityEngine;
+using CasinoScripts;
 
 public class DeckCutManager : MonoBehaviour
 {

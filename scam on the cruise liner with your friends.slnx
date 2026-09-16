@@ -1,9 +1,12 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="CasinoScripts.csproj" />
   <Project Path="Blocks.Gameplay.Core.csproj" />
   <Project Path="Blocks.Sessions.Common.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Blocks.Gameplay.Core.Editor.csproj" />
+  <Project Path="PlayMode.csproj" />
   <Project Path="Blocks.Sessions.csproj" />
+  <Project Path="EditMode.csproj" />
   <Project Path="Blocks.Common.csproj" />
 </Solution>

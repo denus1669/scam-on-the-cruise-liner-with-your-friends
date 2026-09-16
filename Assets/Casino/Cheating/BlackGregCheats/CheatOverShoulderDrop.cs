@@ -3,6 +3,7 @@
 // ==========================================
 using System.Collections.Generic;
 using UnityEngine;
+using CasinoScripts;
 
 [CreateAssetMenu(fileName = "BG_OverShoulderDrop", menuName = "Cheats/BlackGreg/5. Over Shoulder Drop")]
 public class CheatOverShoulderDrop : BlackGregCheatAction

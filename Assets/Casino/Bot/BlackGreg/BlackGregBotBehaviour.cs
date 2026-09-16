@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using CasinoScripts;
 
 /// <summary>
 /// Специфичное поведение бота для игры BlackGreg (БлэкГрэг).

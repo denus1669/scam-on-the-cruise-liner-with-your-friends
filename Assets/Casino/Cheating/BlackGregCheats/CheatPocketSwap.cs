@@ -2,8 +2,8 @@
 // 3. Карманный обмен
 // ==========================================
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
+using CasinoScripts;
 
 [CreateAssetMenu(fileName = "BG_PocketSwap", menuName = "Cheats/BlackGreg/3. Pocket Swap")]
 public class CheatPocketSwap : BlackGregCheatAction

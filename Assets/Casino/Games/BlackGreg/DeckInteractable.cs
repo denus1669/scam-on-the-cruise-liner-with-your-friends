@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using CasinoScripts;
 
 /// <summary>
 /// Интерактивный объект "Колода карт".
