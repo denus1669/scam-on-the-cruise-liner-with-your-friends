@@ -1,8 +1,9 @@
-﻿using Blocks.Gameplay.Core;
+﻿using Assets.Casino.Slots;
+using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slots
 {
     /// <summary>
     /// Интерактивный компонент автомата.

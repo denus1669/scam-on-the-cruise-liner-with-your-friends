@@ -1,7 +1,8 @@
+using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slap
 {
     [RequireComponent(typeof(PlayerSlapReceiver))]
     public class PlayerSlapInteractable : MonoBehaviour, IHoldReleaseInteractable

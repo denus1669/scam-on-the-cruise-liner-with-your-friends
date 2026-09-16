@@ -1,4 +1,4 @@
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Cheating
 {
     /// <summary>
     /// Контракт для любого визуального индикатора мухлежа бота.

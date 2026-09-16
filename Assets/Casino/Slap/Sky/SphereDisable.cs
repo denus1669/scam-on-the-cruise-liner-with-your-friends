@@ -1,19 +1,21 @@
 using Unity.Netcode;
 using UnityEngine;
 
-
-[RequireComponent(typeof(Collider))]
-public class SphereDisableTrigge : NetworkBehaviour
+namespace Assets.Casino.Slap.Sky
 {
-    [SerializeField] private bool _isActiveSphere = false;
-
-    private void OnTriggerEnter(Collider other)
+    [RequireComponent(typeof(Collider))]
+    public class SphereDisableTrigge : NetworkBehaviour
     {
-        if (!IsServer) return;
+        [SerializeField] private bool _isActiveSphere = false;
 
-        var teleporter = other.GetComponent<PlayerTeleporter>();
-        if (teleporter == null) return;
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!IsServer) return;
 
-        teleporter.SphereActiveClientRpc(_isActiveSphere);
+            var teleporter = other.GetComponent<PlayerTeleporter>();
+            if (teleporter == null) return;
+
+            teleporter.SphereActiveClientRpc(_isActiveSphere);
+        }
     }
 }

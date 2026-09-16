@@ -1,145 +1,149 @@
+using Assets.Casino.Games;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Управляет раздражением бота. Работает на сервере в методе Update.
-/// Поддерживает интерфейс IAccusable для обработки обвинений в мухлеже.
-/// </summary>
-[RequireComponent(typeof(BotAgent))]
-public class BotDispleasureController : NetworkBehaviour
+namespace Assets.Casino.Bot
 {
-    [Header("Настройки недовольства")]
-    [SerializeField] private float maxDispleasure = 100f;
-    [SerializeField] private float baseDispleasureRate = 5f; // Накопление в секунду
-    [SerializeField] private float decayRate = 2f;           // Спад в секунду, когда не смотрят
-
-    [SerializeField] private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
-
-    // Список ID игроков, которые прямо сейчас смотрят на бота
-    private HashSet<ulong> watchers = new HashSet<ulong>();
-    private BotAgent botAgent;
-
-    public float MaxDispleasure => maxDispleasure;
-
-    public event Action<float> OnDispleasureChanged;
-
-    public float CurrentDispleasure => currentDispleasure.Value;
-
-    private void Awake()
+    /// <summary>
+    /// Управляет раздражением бота. Работает на сервере в методе Update.
+    /// Поддерживает интерфейс IAccusable для обработки обвинений в мухлеже.
+    /// </summary>
+    [RequireComponent(typeof(BotAgent))]
+    public class BotDispleasureController : NetworkBehaviour
     {
-        botAgent = GetComponent<BotAgent>();
-    }
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+        [Header("Настройки недовольства")]
+        [SerializeField] private float maxDispleasure = 100f;
+        [SerializeField] private float baseDispleasureRate = 5f; // Накопление в секунду
+        [SerializeField] private float decayRate = 2f;           // Спад в секунду, когда не смотрят
 
-        currentDispleasure.OnValueChanged += OnDispleasureValueChanged;
-    }
-    public override void OnNetworkDespawn()
-    {
+        [SerializeField] private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
 
-        currentDispleasure.OnValueChanged -= OnDispleasureValueChanged;
-        
-        watchers.Clear();
-        base.OnNetworkDespawn();
-    }
-    private void OnDispleasureValueChanged(float oldValue, float newValue)
-    {
-        OnDispleasureChanged?.Invoke(newValue);
-    }
+        // Список ID игроков, которые прямо сейчас смотрят на бота
+        private HashSet<ulong> watchers = new HashSet<ulong>();
+        private BotAgent botAgent;
 
-    private void Update()
-    {
-        if (!IsServer) return;
-        /*
-        IGameTable table = GetCurrentTable();
-        if (table == null || !table.IsGameStarted) return;
+        public float MaxDispleasure => maxDispleasure;
 
-        float previousDispleasure = currentDispleasure.Value;
+        public event Action<float> OnDispleasureChanged;
 
-        if (watchers.Count > 0)
+        public float CurrentDispleasure => currentDispleasure.Value;
+
+        private void Awake()
         {
-            float increase = baseDispleasureRate * Time.deltaTime * watchers.Count;
-            currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + increase, 0f, maxDispleasure);
+            botAgent = GetComponent<BotAgent>();
+        }
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            currentDispleasure.OnValueChanged += OnDispleasureValueChanged;
+        }
+        public override void OnNetworkDespawn()
+        {
+
+            currentDispleasure.OnValueChanged -= OnDispleasureValueChanged;
+
+            watchers.Clear();
+            base.OnNetworkDespawn();
+        }
+        private void OnDispleasureValueChanged(float oldValue, float newValue)
+        {
+            OnDispleasureChanged?.Invoke(newValue);
+        }
+
+        private void Update()
+        {
+            if (!IsServer) return;
+            /*
+            IGameTable table = GetCurrentTable();
+            if (table == null || !table.IsGameStarted) return;
+
+            float previousDispleasure = currentDispleasure.Value;
+
+            if (watchers.Count > 0)
+            {
+                float increase = baseDispleasureRate * Time.deltaTime * watchers.Count;
+                currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + increase, 0f, maxDispleasure);
+
+                if (currentDispleasure.Value >= maxDispleasure)
+                {
+                    HandleMaxDispleasure(table);
+                }
+            }
+            else if (currentDispleasure.Value > 0)
+            {
+                currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value - (decayRate * Time.deltaTime), 0f, maxDispleasure);
+            }
+
+            // Уведомляем подписчиков, только если значение действительно изменилось
+            if (!Mathf.Approximately(previousDispleasure, currentDispleasure.Value))
+            {
+                OnDispleasureChanged?.Invoke(currentDispleasure.Value);
+            }*/
+        }
+
+
+        [Rpc(SendTo.Server)]
+        public void AddWatcherServerRpc(ulong clientId)
+        {
+            watchers.Add(clientId);
+        }
+
+        [Rpc(SendTo.Server)]
+        public void RemoveWatcherServerRpc(ulong clientId)
+        {
+            watchers.Remove(clientId);
+        }
+
+        /// <summary>
+        /// Добавляет мгновенное количество раздражения (например, при ложном шлепке).
+        /// Вызывается только на сервере.
+        /// </summary>
+        /// 
+
+        [Rpc(SendTo.Server)]
+        public void AddInstantDispleasureServerRpc(float displeasureValue)
+        {
+            if (!IsServer) return;
+            AddInstantDispleasure(displeasureValue);
+        }
+        public void AddInstantDispleasure(float amount)
+        {
+            currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);
+            Debug.Log($"[Displeasure] Бот {gameObject.name} получил мгновенное раздражение: +{amount}. Текущее: {currentDispleasure.Value}");
 
             if (currentDispleasure.Value >= maxDispleasure)
             {
-                HandleMaxDispleasure(table);
+                HandleMaxDispleasure(GetCurrentTable());
             }
         }
-        else if (currentDispleasure.Value > 0)
+
+        private void HandleMaxDispleasure(IGameTable table)
         {
-            currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value - (decayRate * Time.deltaTime), 0f, maxDispleasure);
+            Debug.LogWarning($"[Displeasure] Бот {gameObject.name} вышел из себя!");
+            if (table != null)
+            {
+                table.ForceStopGame(ulong.MaxValue, isCheaterBot: false, reason: "Harassment");
+            }
+            botAgent.GoToExit();
+            ResetDispleasure();
         }
 
-        // Уведомляем подписчиков, только если значение действительно изменилось
-        if (!Mathf.Approximately(previousDispleasure, currentDispleasure.Value))
+        public void ResetDispleasure()
         {
-            OnDispleasureChanged?.Invoke(currentDispleasure.Value);
-        }*/
-    }
+            if (!IsServer) return;
+            currentDispleasure.Value = 0f;
+            watchers.Clear();
 
-
-    [Rpc(SendTo.Server)]
-    public void AddWatcherServerRpc(ulong clientId)
-    {
-        watchers.Add(clientId);
-    }
-
-    [Rpc(SendTo.Server)]
-    public void RemoveWatcherServerRpc(ulong clientId)
-    {
-        watchers.Remove(clientId);
-    }
-
-    /// <summary>
-    /// Добавляет мгновенное количество раздражения (например, при ложном шлепке).
-    /// Вызывается только на сервере.
-    /// </summary>
-    /// 
-
-    [Rpc(SendTo.Server)]
-    public void AddInstantDispleasureServerRpc(float displeasureValue)
-    {
-        if (!IsServer) return;
-        AddInstantDispleasure(displeasureValue);
-    }
-    public void AddInstantDispleasure(float amount)
-    {
-        currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);
-        Debug.Log($"[Displeasure] Бот {gameObject.name} получил мгновенное раздражение: +{amount}. Текущее: {currentDispleasure.Value}");
-
-        if (currentDispleasure.Value >= maxDispleasure)
-        {
-            HandleMaxDispleasure(GetCurrentTable());
+            OnDispleasureChanged?.Invoke(0f);
         }
-    }
 
-    private void HandleMaxDispleasure(IGameTable table)
-    {
-        Debug.LogWarning($"[Displeasure] Бот {gameObject.name} вышел из себя!");
-        if(table != null)
+        private IGameTable GetCurrentTable()
         {
-            table.ForceStopGame(ulong.MaxValue, isCheaterBot: false, reason: "Harassment");
+            return botAgent != null ? botAgent.CurrentTable : null;
         }
-        botAgent.GoToExit();
-        ResetDispleasure();
+
     }
-
-    public void ResetDispleasure()
-    {
-        if (!IsServer) return;
-        currentDispleasure.Value = 0f;
-        watchers.Clear();
-
-        OnDispleasureChanged?.Invoke(0f);
-    }
-
-    private IGameTable GetCurrentTable()
-    {
-        return botAgent != null ? botAgent.CurrentTable : null;
-    }
-
 }

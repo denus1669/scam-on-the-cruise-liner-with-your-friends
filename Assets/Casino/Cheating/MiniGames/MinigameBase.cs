@@ -1,77 +1,81 @@
+using Assets.Casino.UI;
 using System;
 using UnityEngine;
 
-public abstract class MinigameBase : MonoBehaviour
+namespace Assets.Casino.Cheating.MiniGames
 {
-    protected Action<bool> _onComplete;
-    protected string _contextData;
-    protected bool _isPlaying;
-
-    [Header("Базовые настройки")]
-    [SerializeField] protected GameObject panelRoot;
-
-    [Header("Настройки курсора")]
-    [SerializeField] protected bool manageCursor = true;
-
-    [Header("Переключатель управления")]
-    [Tooltip("Если не назначен — будет найден автоматически на сцене")]
-    [SerializeField] private InputModeSwitcher inputModeSwitcher;
-
-    private void Awake()
+    public abstract class MinigameBase : MonoBehaviour
     {
-        if (inputModeSwitcher == null)
-            inputModeSwitcher = FindFirstObjectByType<InputModeSwitcher>();
+        protected Action<bool> _onComplete;
+        protected string _contextData;
+        protected bool _isPlaying;
 
-        if (inputModeSwitcher == null)
-            Debug.LogWarning("[MinigameBase] InputModeSwitcher не найден на сцене!", this);
-    }
+        [Header("Базовые настройки")]
+        [SerializeField] protected GameObject panelRoot;
 
-    public virtual void StartGame(string contextData, Action<bool> onComplete)
-    {
-        _contextData = contextData;
-        _onComplete = onComplete;
+        [Header("Настройки курсора")]
+        [SerializeField] protected bool manageCursor = true;
 
-        if (panelRoot != null)
-            panelRoot.SetActive(true);
+        [Header("Переключатель управления")]
+        [Tooltip("Если не назначен — будет найден автоматически на сцене")]
+        [SerializeField] private InputModeSwitcher inputModeSwitcher;
 
-        inputModeSwitcher?.EnterUIMode(manageCursor);
+        private void Awake()
+        {
+            if (inputModeSwitcher == null)
+                inputModeSwitcher = FindFirstObjectByType<InputModeSwitcher>();
 
-        OnGameStarted();
-    }
+            if (inputModeSwitcher == null)
+                Debug.LogWarning("[MinigameBase] InputModeSwitcher не найден на сцене!", this);
+        }
 
-    protected virtual void OnGameStarted() { }
+        public virtual void StartGame(string contextData, Action<bool> onComplete)
+        {
+            _contextData = contextData;
+            _onComplete = onComplete;
 
-    protected void FinishGame(bool isSuccess)
-    {
-        inputModeSwitcher?.ExitUIMode(manageCursor);
+            if (panelRoot != null)
+                panelRoot.SetActive(true);
 
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
+            inputModeSwitcher?.EnterUIMode(manageCursor);
 
-        _onComplete?.Invoke(isSuccess);
-        _onComplete = null;
-    }
+            OnGameStarted();
+        }
 
-    public virtual void ForceClose()
-    {
-        inputModeSwitcher?.ExitUIMode(manageCursor);
+        protected virtual void OnGameStarted() { }
 
-        if (panelRoot != null)
-            panelRoot.SetActive(false);
+        protected void FinishGame(bool isSuccess)
+        {
+            inputModeSwitcher?.ExitUIMode(manageCursor);
 
-        _onComplete = null;
-        _isPlaying = false;
-    }
+            if (panelRoot != null)
+                panelRoot.SetActive(false);
 
-    public virtual void WinGame()
-    {
-        Debug.Log("<color=green>Выигрыш</color>");
-        FinishGame(true);
-    }
+            _onComplete?.Invoke(isSuccess);
+            _onComplete = null;
+        }
 
-    public virtual void LoseGame()
-    {
-        Debug.Log("<color=red>Проигрыш</color>");
-        FinishGame(false);
+        public virtual void ForceClose()
+        {
+            inputModeSwitcher?.ExitUIMode(manageCursor);
+
+            if (panelRoot != null)
+                panelRoot.SetActive(false);
+
+            _onComplete = null;
+            _isPlaying = false;
+        }
+
+        public virtual void WinGame()
+        {
+            Debug.Log("<color=green>Выигрыш</color>");
+            FinishGame(true);
+        }
+
+        public virtual void LoseGame()
+        {
+            Debug.Log("<color=red>Проигрыш</color>");
+            FinishGame(false);
+        }
     }
 }

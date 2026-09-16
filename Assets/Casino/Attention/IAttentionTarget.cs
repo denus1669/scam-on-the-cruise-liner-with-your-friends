@@ -1,3 +1,6 @@
+namespace Assets.Casino.Attention
+{
+
     /// <summary>
     /// Интерфейс для объектов, на которые можно смотреть в режиме внимания.
     /// </summary>
@@ -14,3 +17,4 @@
         /// </summary>
         void OnAttentionExit(ulong watcherClientId);
     }
+}

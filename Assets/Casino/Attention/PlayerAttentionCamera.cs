@@ -1,6 +1,7 @@
+using Blocks.Gameplay.Core;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Attention
 {
     /// <summary>
     /// Отвечает ТОЛЬКО за зум камеры при включении режима внимания.

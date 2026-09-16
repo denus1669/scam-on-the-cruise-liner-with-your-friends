@@ -1,8 +1,9 @@
+using Assets.Casino.Inspector;
 using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Inspector
 {
     /// <summary>
     /// Интерактивный компонент инспектора.

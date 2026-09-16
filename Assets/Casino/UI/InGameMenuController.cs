@@ -2,208 +2,211 @@ using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 
-public class InGameMenuController : MonoBehaviour
+namespace Assets.Casino.UI
 {
-    [Header("События")]
-    [SerializeField] private GameEvent onMenuPressed;
-
-    [Header("Переключатель управления")]
-    [SerializeField] private InputModeSwitcher inputModeSwitcher;
-
-    [Header("Панели")]
-    [SerializeField] private MainMenuPanel mainMenuPanel;
-    [SerializeField] private SettingsPanel settingsPanel;
-    [SerializeField] private GameObject settingsAudioPanel;
-    [SerializeField] private SettingsInputPanel settingsInputPanel;
-    [SerializeField] private GameObject confirmQuitPanel;
-
-    [Header("Кнопка назад в SettingsAudio")]
-    [SerializeField] private UnityEngine.UI.Button settingsAudioBackButton;
-
-    private NetworkObject _networkObject;
-
-
-    private bool _isMenuOpen;
-    private void Awake()
+    public class InGameMenuController : MonoBehaviour
     {
-        _networkObject = GetComponentInParent<NetworkObject>();
-        if (_networkObject == null)
-        {
-            Debug.LogWarning("[InGameMenuController] NetworkObject not found! Menu will work for all players.", this);
-        }
-    }
+        [Header("События")]
+        [SerializeField] private GameEvent onMenuPressed;
 
-    private void OnEnable()
-    {
-        onMenuPressed?.RegisterListener(ToggleMenu);
+        [Header("Переключатель управления")]
+        [SerializeField] private InputModeSwitcher inputModeSwitcher;
 
-        if (mainMenuPanel != null)
+        [Header("Панели")]
+        [SerializeField] private MainMenuPanel mainMenuPanel;
+        [SerializeField] private SettingsPanel settingsPanel;
+        [SerializeField] private GameObject settingsAudioPanel;
+        [SerializeField] private SettingsInputPanel settingsInputPanel;
+        [SerializeField] private GameObject confirmQuitPanel;
+
+        [Header("Кнопка назад в SettingsAudio")]
+        [SerializeField] private UnityEngine.UI.Button settingsAudioBackButton;
+
+        private NetworkObject _networkObject;
+
+
+        private bool _isMenuOpen;
+        private void Awake()
         {
-            mainMenuPanel.OnContinuePressed += CloseMenu;
-            mainMenuPanel.OnSettingsPressed += OpenSettings;
-            mainMenuPanel.OnQuitPressed += ShowQuitConfirm;
+            _networkObject = GetComponentInParent<NetworkObject>();
+            if (_networkObject == null)
+            {
+                Debug.LogWarning("[InGameMenuController] NetworkObject not found! Menu will work for all players.", this);
+            }
         }
 
-        if (settingsPanel != null)
+        private void OnEnable()
         {
-            settingsPanel.OnAudioPressed += OpenSettingsAudio;
-            settingsPanel.OnInputPressed += OpenSettingsInput;
-            settingsPanel.OnBackPressed += CloseSettings;
+            onMenuPressed?.RegisterListener(ToggleMenu);
+
+            if (mainMenuPanel != null)
+            {
+                mainMenuPanel.OnContinuePressed += CloseMenu;
+                mainMenuPanel.OnSettingsPressed += OpenSettings;
+                mainMenuPanel.OnQuitPressed += ShowQuitConfirm;
+            }
+
+            if (settingsPanel != null)
+            {
+                settingsPanel.OnAudioPressed += OpenSettingsAudio;
+                settingsPanel.OnInputPressed += OpenSettingsInput;
+                settingsPanel.OnBackPressed += CloseSettings;
+            }
+
+            if (settingsInputPanel != null)
+            {
+                settingsInputPanel.OnBackPressed += CloseSettingsInput;
+            }
+
+            if (settingsAudioBackButton != null)
+            {
+                settingsAudioBackButton.onClick.AddListener(CloseSettingsAudio);
+            }
         }
 
-        if (settingsInputPanel != null)
+        private void OnDisable()
         {
-            settingsInputPanel.OnBackPressed += CloseSettingsInput;
+            onMenuPressed?.UnregisterListener(ToggleMenu);
+
+            if (mainMenuPanel != null)
+            {
+                mainMenuPanel.OnContinuePressed -= CloseMenu;
+                mainMenuPanel.OnSettingsPressed -= OpenSettings;
+                mainMenuPanel.OnQuitPressed -= ShowQuitConfirm;
+            }
+
+            if (settingsPanel != null)
+            {
+                settingsPanel.OnAudioPressed -= OpenSettingsAudio;
+                settingsPanel.OnInputPressed -= OpenSettingsInput;
+                settingsPanel.OnBackPressed -= CloseSettings;
+            }
+
+            if (settingsInputPanel != null)
+            {
+                settingsInputPanel.OnBackPressed -= CloseSettingsInput;
+            }
+
+            if (settingsAudioBackButton != null)
+            {
+                settingsAudioBackButton.onClick.RemoveListener(CloseSettingsAudio);
+            }
         }
 
-        if (settingsAudioBackButton != null)
+        private void Start()
         {
-            settingsAudioBackButton.onClick.AddListener(CloseSettingsAudio);
-        }
-    }
-
-    private void OnDisable()
-    {
-        onMenuPressed?.UnregisterListener(ToggleMenu);
-
-        if (mainMenuPanel != null)
-        {
-            mainMenuPanel.OnContinuePressed -= CloseMenu;
-            mainMenuPanel.OnSettingsPressed -= OpenSettings;
-            mainMenuPanel.OnQuitPressed -= ShowQuitConfirm;
+            HideAllPanels();
         }
 
-        if (settingsPanel != null)
+        private void ToggleMenu()
         {
-            settingsPanel.OnAudioPressed -= OpenSettingsAudio;
-            settingsPanel.OnInputPressed -= OpenSettingsInput;
-            settingsPanel.OnBackPressed -= CloseSettings;
+            if (_networkObject != null && !_networkObject.IsOwner)
+            {
+                return;
+            }
+
+            if (_isMenuOpen)
+                CloseMenu();
+            else
+                OpenMenu();
         }
 
-        if (settingsInputPanel != null)
+        public void OpenMenu()
         {
-            settingsInputPanel.OnBackPressed -= CloseSettingsInput;
+            _isMenuOpen = true;
+            inputModeSwitcher?.EnterUIMode(true);
+
+            HideAllPanels();
+
+            if (mainMenuPanel != null)
+                mainMenuPanel.gameObject.SetActive(true);
         }
 
-        if (settingsAudioBackButton != null)
+        public void CloseMenu()
         {
-            settingsAudioBackButton.onClick.RemoveListener(CloseSettingsAudio);
-        }
-    }
+            _isMenuOpen = false;
+            HideAllPanels();
+            inputModeSwitcher?.ExitUIMode(true);
 
-    private void Start()
-    {
-        HideAllPanels();
-    }
 
-    private void ToggleMenu()
-    {
-        if (_networkObject != null && !_networkObject.IsOwner)
-        {
-            return;
+            StartCoroutine(ForceCursorLockNextFrame());
+
         }
 
-        if (_isMenuOpen)
-            CloseMenu();
-        else
-            OpenMenu();
-    }
+        private System.Collections.IEnumerator ForceCursorLockNextFrame()
+        {
+            yield return null; // Ждем следующий кадр
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
 
-    public void OpenMenu()
-    {
-        _isMenuOpen = true;
-        inputModeSwitcher?.EnterUIMode(true);
+        #region Navigation
 
-        HideAllPanels();
+        private void OpenSettings()
+        {
+            HideAllPanels();
+            if (settingsPanel != null)
+                settingsPanel.gameObject.SetActive(true);
+        }
 
-        if (mainMenuPanel != null)
-            mainMenuPanel.gameObject.SetActive(true);
-    }
+        private void CloseSettings()
+        {
+            HideAllPanels();
+            if (mainMenuPanel != null)
+                mainMenuPanel.gameObject.SetActive(true);
+        }
 
-    public void CloseMenu()
-    {
-        _isMenuOpen = false;
-        HideAllPanels();
-        inputModeSwitcher?.ExitUIMode(true);
+        private void OpenSettingsAudio()
+        {
+            HideAllPanels();
+            if (settingsAudioPanel != null)
+                settingsAudioPanel.SetActive(true);
+        }
 
+        private void CloseSettingsAudio()
+        {
+            HideAllPanels();
+            if (settingsPanel != null)
+                settingsPanel.gameObject.SetActive(true);
+        }
 
-        StartCoroutine(ForceCursorLockNextFrame());
+        private void OpenSettingsInput()
+        {
+            HideAllPanels();
+            if (settingsInputPanel != null)
+                settingsInputPanel.gameObject.SetActive(true);
+        }
 
-    }
+        private void CloseSettingsInput()
+        {
+            HideAllPanels();
+            if (settingsPanel != null)
+                settingsPanel.gameObject.SetActive(true);
+        }
 
-    private System.Collections.IEnumerator ForceCursorLockNextFrame()
-    {
-        yield return null; // Ждем следующий кадр
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-    }
+        private void ShowQuitConfirm()
+        {
+            HideAllPanels();
+            if (confirmQuitPanel != null)
+                confirmQuitPanel.SetActive(true);
+        }
 
-    #region Navigation
+        public void CancelQuit()
+        {
+            HideAllPanels();
+            if (mainMenuPanel != null)
+                mainMenuPanel.gameObject.SetActive(true);
+        }
 
-    private void OpenSettings()
-    {
-        HideAllPanels();
-        if (settingsPanel != null)
-            settingsPanel.gameObject.SetActive(true);
-    }
+        #endregion
 
-    private void CloseSettings()
-    {
-        HideAllPanels();
-        if (mainMenuPanel != null)
-            mainMenuPanel.gameObject.SetActive(true);
-    }
-
-    private void OpenSettingsAudio()
-    {
-        HideAllPanels();
-        if (settingsAudioPanel != null)
-            settingsAudioPanel.SetActive(true);
-    }
-
-    private void CloseSettingsAudio()
-    {
-        HideAllPanels();
-        if (settingsPanel != null)
-            settingsPanel.gameObject.SetActive(true);
-    }
-
-    private void OpenSettingsInput()
-    {
-        HideAllPanels();
-        if (settingsInputPanel != null)
-            settingsInputPanel.gameObject.SetActive(true);
-    }
-
-    private void CloseSettingsInput()
-    {
-        HideAllPanels();
-        if (settingsPanel != null)
-            settingsPanel.gameObject.SetActive(true);
-    }
-
-    private void ShowQuitConfirm()
-    {
-        HideAllPanels();
-        if (confirmQuitPanel != null)
-            confirmQuitPanel.SetActive(true);
-    }
-
-    public void CancelQuit()
-    {
-        HideAllPanels();
-        if (mainMenuPanel != null)
-            mainMenuPanel.gameObject.SetActive(true);
-    }
-
-    #endregion
-
-    private void HideAllPanels()
-    {
-        if (mainMenuPanel != null) mainMenuPanel.gameObject.SetActive(false);
-        if (settingsPanel != null) settingsPanel.gameObject.SetActive(false);
-        if (settingsAudioPanel != null) settingsAudioPanel.SetActive(false);
-        if (settingsInputPanel != null) settingsInputPanel.gameObject.SetActive(false);
-        if (confirmQuitPanel != null) confirmQuitPanel.SetActive(false);
+        private void HideAllPanels()
+        {
+            if (mainMenuPanel != null) mainMenuPanel.gameObject.SetActive(false);
+            if (settingsPanel != null) settingsPanel.gameObject.SetActive(false);
+            if (settingsAudioPanel != null) settingsAudioPanel.SetActive(false);
+            if (settingsInputPanel != null) settingsInputPanel.gameObject.SetActive(false);
+            if (confirmQuitPanel != null) confirmQuitPanel.SetActive(false);
+        }
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using Blocks.Gameplay.Core;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slap.Bot
 {
     /// <summary>
     /// Универсальный визуальный контроллер для механики Slap.

@@ -3,37 +3,40 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class VolumeControl : MonoBehaviour
+namespace Assets.Casino.sound.SoundsScripts
 {
-    public string volumeParametr = "MasterVolume";
-    [SerializeField] public AudioMixer volumeMixer;
-    [SerializeField] public Slider volumeSlider;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] private float _multiplier = 20f;
-    private float _volumeValue;
-    private void Awake()
+    public class VolumeControl : MonoBehaviour
     {
-        volumeSlider.onValueChanged.AddListener(HadleSliderValueChanged);
-    }
-    private void HadleSliderValueChanged(float value)
-    {
-        var volumeValue = Mathf.Log10(value) * _multiplier;
-        volumeMixer.SetFloat(volumeParametr, volumeValue);
-    }
-    void Start()
-    {
-        _volumeValue = PlayerPrefs.GetFloat(volumeParametr, Mathf.Log10(volumeSlider.value) * _multiplier);
-        volumeSlider.value = Mathf.Pow(10f, _volumeValue / _multiplier);
-    }
+        public string volumeParametr = "MasterVolume";
+        [SerializeField] public AudioMixer volumeMixer;
+        [SerializeField] public Slider volumeSlider;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        [SerializeField] private float _multiplier = 20f;
+        private float _volumeValue;
+        private void Awake()
+        {
+            volumeSlider.onValueChanged.AddListener(HadleSliderValueChanged);
+        }
+        private void HadleSliderValueChanged(float value)
+        {
+            var volumeValue = Mathf.Log10(value) * _multiplier;
+            volumeMixer.SetFloat(volumeParametr, volumeValue);
+        }
+        void Start()
+        {
+            _volumeValue = PlayerPrefs.GetFloat(volumeParametr, Mathf.Log10(volumeSlider.value) * _multiplier);
+            volumeSlider.value = Mathf.Pow(10f, _volumeValue / _multiplier);
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+        // Update is called once per frame
+        void Update()
+        {
 
-    private void OnDisable()
-    {
-        PlayerPrefs.SetFloat(volumeParametr, _volumeValue);
+        }
+
+        private void OnDisable()
+        {
+            PlayerPrefs.SetFloat(volumeParametr, _volumeValue);
+        }
     }
 }

@@ -2,6 +2,8 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
+namespace Assets.Casino.Bank
+{
     /// <summary>
     /// Лёгкая структура для передачи данных о транзакции по сети.
     /// Реализует INetworkSerializable для эффективной сериализации в ClientRpc.
@@ -100,3 +102,4 @@ using UnityEngine;
             Debug.Log($"[VFX] Клиент получил транзакцию: {packet.Type} {packet.Amount} ({packet.Reason})");
         }
     }
+}

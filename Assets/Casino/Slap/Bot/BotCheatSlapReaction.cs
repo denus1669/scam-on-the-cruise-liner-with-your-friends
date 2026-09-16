@@ -1,28 +1,32 @@
+using Assets.Casino.Slap;
 using Unity.Netcode;
 using UnityEngine;
 
-public class BotCheatSlapReaction : ISlapReaction<BotSlapContext>
+namespace Assets.Casino.Slap.Bot
 {
-    public bool CanSlap(BotSlapContext context) =>
-           context.CheatController != null && context.CheatController.IsCheating;
-
-    public void Slap(ulong slapperClientId, BotSlapContext context) 
+    public class BotCheatSlapReaction : ISlapReaction<BotSlapContext>
     {
-        Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} ПОЙМАЛ бота на мухлеже!");
+        public bool CanSlap(BotSlapContext context) =>
+               context.CheatController != null && context.CheatController.IsCheating;
 
-        if (context.Router.CasinoBank != null)
+        public void Slap(ulong slapperClientId, BotSlapContext context)
         {
-            string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
-            bool actualWithdrawn = context.Router.CasinoBank.TryDeposit(
-                1,
-                slapperClientId,
-                "SlapCheatingPenalty",
-                tableType);
+            Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} ПОЙМАЛ бота на мухлеже!");
 
-            Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+            if (context.Router.CasinoBank != null)
+            {
+                string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
+                bool actualWithdrawn = context.Router.CasinoBank.TryDeposit(
+                    1,
+                    slapperClientId,
+                    "SlapCheatingPenalty",
+                    tableType);
+
+                Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+            }
+
+            context.CheatController.HandleCheatCaught(slapperClientId);
+            context.Router.TriggerEventClientRpc(BotSlapEventType.CheatSlapped);
         }
-
-        context.CheatController.HandleCheatCaught(slapperClientId);
-        context.Router.TriggerEventClientRpc(BotSlapEventType.CheatSlapped);
     }
 }

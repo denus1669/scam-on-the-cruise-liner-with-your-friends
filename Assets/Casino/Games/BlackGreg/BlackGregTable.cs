@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
-/// <summary>
-/// Компонент стола для игры в блэкджек.
-/// Наследует базовую логику GameTable и реализует ICardGameTable.
-/// </summary>
-namespace CasinoScripts
+namespace Assets.Casino.Games.BlackGreg
 {
-
+    /// <summary>
+    /// Компонент стола для игры в блэкджек.
+    /// Наследует базовую логику GameTable и реализует ICardGameTable.
+    /// </summary>
+    /// 
     public class BlackGregTable : GameTable, ICardGameTable
     {
         [Header("Card Settings")]

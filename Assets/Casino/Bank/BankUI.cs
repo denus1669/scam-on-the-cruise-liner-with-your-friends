@@ -1,9 +1,8 @@
 using UnityEngine;
 using TMPro;
 using Unity.Netcode;
-using Blocks.Gameplay.Core;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Bank
 {
     /// <summary>
     /// Клиентский UI-компонент для отображения баланса кассы и всплывающих уведомлений.

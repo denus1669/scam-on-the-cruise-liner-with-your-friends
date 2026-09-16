@@ -1,9 +1,8 @@
 using System;
 using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 
-namespace Blocks.Gameplay.Core
+
+namespace Assets.Casino.Attention
 {
     /// <summary>
     /// Отвечает ТОЛЬКО за сетевое состояние режима внимания.

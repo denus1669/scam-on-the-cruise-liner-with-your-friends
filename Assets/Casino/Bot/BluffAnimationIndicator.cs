@@ -1,33 +1,37 @@
 using UnityEngine;
 
-/// <summary>
-/// Глобальная заглушка анимации блефа бота.
-/// Видна ВСЕМ игрокам. В будущем будет заменена на настоящую анимацию.
-/// </summary>
-public class BluffAnimationIndicator : NetworkObjectVisibilityIndicator
+namespace Assets.Casino.Bot
 {
-    [Header("Зависимости")]
-    [SerializeField] private BotBluffController bluffController;
 
-    protected override void Awake()
+    /// <summary>
+    /// Глобальная заглушка анимации блефа бота.
+    /// Видна ВСЕМ игрокам. В будущем будет заменена на настоящую анимацию.
+    /// </summary>
+    public class BluffAnimationIndicator : NetworkObjectVisibilityIndicator
     {
-        base.Awake();
+        [Header("Зависимости")]
+        [SerializeField] private BotBluffController bluffController;
 
-        if (bluffController == null)
-            bluffController = GetComponent<BotBluffController>();
-    }
+        protected override void Awake()
+        {
+            base.Awake();
 
-    private void OnEnable()
-    {
-        if (bluffController != null)
-            bluffController.OnBluffStateChanged += HandleStateChanged;
-    }
+            if (bluffController == null)
+                bluffController = GetComponent<BotBluffController>();
+        }
 
-    private void OnDisable()
-    {
-        if (bluffController != null)
-            bluffController.OnBluffStateChanged -= HandleStateChanged;
+        private void OnEnable()
+        {
+            if (bluffController != null)
+                bluffController.OnBluffStateChanged += HandleStateChanged;
+        }
 
-        HideIndicator();
+        private void OnDisable()
+        {
+            if (bluffController != null)
+                bluffController.OnBluffStateChanged -= HandleStateChanged;
+
+            HideIndicator();
+        }
     }
 }

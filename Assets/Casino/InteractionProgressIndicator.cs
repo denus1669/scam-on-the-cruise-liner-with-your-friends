@@ -1,7 +1,8 @@
+using Assets.Casino.Test_Folder;
 using Blocks.Gameplay.Core;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino
 {
     /// <summary>
     /// Локальный индикатор удержания. 

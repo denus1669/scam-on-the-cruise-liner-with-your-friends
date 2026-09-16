@@ -2,49 +2,53 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Панель главного меню. Содержит кнопки и генерирует события.
-/// </summary>
-public class MainMenuPanel : MonoBehaviour
+namespace Assets.Casino.UI
 {
-    public event Action OnContinuePressed;
-    public event Action OnSettingsPressed;
-    public event Action OnQuitPressed;
 
-    [Header("Кнопки")]
-    [SerializeField] private Button continueButton;
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private Button quitButton;
-
-    private void OnEnable()
+    /// <summary>
+    /// Панель главного меню. Содержит кнопки и генерирует события.
+    /// </summary>
+    public class MainMenuPanel : MonoBehaviour
     {
-        continueButton?.onClick.AddListener(HandleContinue);
-        settingsButton?.onClick.AddListener(HandleSettings);
-        quitButton?.onClick.AddListener(HandleQuit);
-    }
+        public event Action OnContinuePressed;
+        public event Action OnSettingsPressed;
+        public event Action OnQuitPressed;
 
-    private void OnDisable()
-    {
-        continueButton?.onClick.RemoveListener(HandleContinue);
-        settingsButton?.onClick.RemoveListener(HandleSettings);
-        quitButton?.onClick.RemoveListener(HandleQuit);
-    }
+        [Header("Кнопки")]
+        [SerializeField] private Button continueButton;
+        [SerializeField] private Button settingsButton;
+        [SerializeField] private Button quitButton;
 
-    private void HandleContinue()
-    {
-        Debug.Log("[MainMenu] Продолжить игру.");
-        OnContinuePressed?.Invoke();
-    }
+        private void OnEnable()
+        {
+            continueButton?.onClick.AddListener(HandleContinue);
+            settingsButton?.onClick.AddListener(HandleSettings);
+            quitButton?.onClick.AddListener(HandleQuit);
+        }
 
-    private void HandleSettings()
-    {
-        Debug.Log("[MainMenu] Открыть настройки.");
-        OnSettingsPressed?.Invoke();
-    }
+        private void OnDisable()
+        {
+            continueButton?.onClick.RemoveListener(HandleContinue);
+            settingsButton?.onClick.RemoveListener(HandleSettings);
+            quitButton?.onClick.RemoveListener(HandleQuit);
+        }
 
-    private void HandleQuit()
-    {
-        Debug.Log("[MainMenu] Запрос на выход из игры.");
-        OnQuitPressed?.Invoke();
+        private void HandleContinue()
+        {
+            Debug.Log("[MainMenu] Продолжить игру.");
+            OnContinuePressed?.Invoke();
+        }
+
+        private void HandleSettings()
+        {
+            Debug.Log("[MainMenu] Открыть настройки.");
+            OnSettingsPressed?.Invoke();
+        }
+
+        private void HandleQuit()
+        {
+            Debug.Log("[MainMenu] Запрос на выход из игры.");
+            OnQuitPressed?.Invoke();
+        }
     }
 }

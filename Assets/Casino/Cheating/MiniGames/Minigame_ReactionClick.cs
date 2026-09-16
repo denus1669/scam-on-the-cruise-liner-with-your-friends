@@ -2,67 +2,70 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-/// <summary>
-/// Мини-игра: нажать кнопку, когда ползунок в зеленой зоне.
-/// </summary>
-public class Minigame_ReactionClick : MinigameBase
+namespace Assets.Casino.Cheating.MiniGames
 {
-    [Header("Настройки Реакции")]
-    [SerializeField] private Slider progressSlider;
-    [SerializeField] private float speed = 2f;
-    [SerializeField] private float targetMin = 0.2f;
-    [SerializeField] private float targetMax = 0.8f;
-
-    [Header("Visuals")]
-    [SerializeField] private RectTransform successZoneVisual; // Опционально: маркер зоны
-
-    private bool _movingRight = true;
-
-    protected override void OnGameStarted()
+    /// <summary>
+    /// Мини-игра: нажать кнопку, когда ползунок в зеленой зоне.
+    /// </summary>
+    public class Minigame_ReactionClick : MinigameBase
     {
-        _isPlaying = true;
-        _movingRight = true;
+        [Header("Настройки Реакции")]
+        [SerializeField] private Slider progressSlider;
+        [SerializeField] private float speed = 2f;
+        [SerializeField] private float targetMin = 0.2f;
+        [SerializeField] private float targetMax = 0.8f;
 
-        if (progressSlider != null)
-            progressSlider.value = 0f;
+        [Header("Visuals")]
+        [SerializeField] private RectTransform successZoneVisual; // Опционально: маркер зоны
 
-        // Можно использовать _contextData для изменения сложности, если нужно
-        // Например: if (_contextData == "HardCheat") speed *= 1.5f;
-    }
+        private bool _movingRight = true;
 
-    private void Update()
-    {
-        if (!_isPlaying) return;
-
-        if (progressSlider != null)
+        protected override void OnGameStarted()
         {
-            float step = speed * Time.deltaTime;
-            progressSlider.value += _movingRight ? step : -step;
+            _isPlaying = true;
+            _movingRight = true;
 
-            if (progressSlider.value >= 1f) _movingRight = false;
-            if (progressSlider.value <= 0f) _movingRight = true;
+            if (progressSlider != null)
+                progressSlider.value = 0f;
+
+            // Можно использовать _contextData для изменения сложности, если нужно
+            // Например: if (_contextData == "HardCheat") speed *= 1.5f;
         }
 
-        // Ввод: Пробел или Клик мышью
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        private void Update()
         {
-            CheckResult();
-        }
-    }
+            if (!_isPlaying) return;
 
-    private void CheckResult()
-    {
-        float val = progressSlider != null ? progressSlider.value : 0f;
+            if (progressSlider != null)
+            {
+                float step = speed * Time.deltaTime;
+                progressSlider.value += _movingRight ? step : -step;
 
-        if (val >= targetMin && val <= targetMax)
-        {
-            Debug.Log("[Minigame] Победа! (Реакция)");
-            _isPlaying = false;
-            WinGame();
+                if (progressSlider.value >= 1f) _movingRight = false;
+                if (progressSlider.value <= 0f) _movingRight = true;
+            }
+
+            // Ввод: Пробел или Клик мышью
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                CheckResult();
+            }
         }
-        else
+
+        private void CheckResult()
         {
-            Debug.Log("[Minigame] Промах! (Реакция)");
+            float val = progressSlider != null ? progressSlider.value : 0f;
+
+            if (val >= targetMin && val <= targetMax)
+            {
+                Debug.Log("[Minigame] Победа! (Реакция)");
+                _isPlaying = false;
+                WinGame();
+            }
+            else
+            {
+                Debug.Log("[Minigame] Промах! (Реакция)");
+            }
         }
     }
 }

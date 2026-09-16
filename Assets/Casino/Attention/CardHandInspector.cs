@@ -1,72 +1,76 @@
-using Blocks.Gameplay.Core;
+using Assets.Casino.Games.BlackGreg;
 using UnityEngine;
 
-/// <summary>
-/// Отвечает ТОЛЬКО за локальное отображение карт при просмотре.
-/// Ничего не знает о боте, его недовольстве или сети.
-/// </summary>
-
-[RequireComponent(typeof(AttentionTargetReceiver))]
-public class CardHandInspector : MonoBehaviour
+namespace Assets.Casino.Attention
 {
-    private AttentionTargetReceiver _attentionReceiver;
-    [SerializeField] private CardView[] _currentCards;
 
-    // Добавляем флаг состояния и счетчик детей
-    private bool _isFocused;
-    private int _lastChildCount;
+    /// <summary>
+    /// Отвечает ТОЛЬКО за локальное отображение карт при просмотре.
+    /// Ничего не знает о боте, его недовольстве или сети.
+    /// </summary>
 
-    private void Awake()
+    [RequireComponent(typeof(AttentionTargetReceiver))]
+    public class CardHandInspector : MonoBehaviour
     {
-        _attentionReceiver = GetComponent<AttentionTargetReceiver>();
-    }
+        private AttentionTargetReceiver _attentionReceiver;
+        [SerializeField] private CardView[] _currentCards;
 
-    private void OnEnable()
-    {
-        _attentionReceiver.OnAttentionEntered += HandleAttentionEnter;
-        _attentionReceiver.OnAttentionExited += HandleAttentionExit;
-    }
+        // Добавляем флаг состояния и счетчик детей
+        private bool _isFocused;
+        private int _lastChildCount;
 
-    private void OnDisable()
-    {
-        _attentionReceiver.OnAttentionEntered -= HandleAttentionEnter;
-        _attentionReceiver.OnAttentionExited -= HandleAttentionExit;
-    }
-    private void Update()
-    {
-        // Если игрок прямо сейчас смотрит на руку бота, следим за изменениями
-        if (_isFocused && transform.childCount != _lastChildCount)
+        private void Awake()
         {
-            // Количество дочерних объектов изменилось (бот взял или сбросил карту)
-            // Заново собираем массив и применяем видимость
+            _attentionReceiver = GetComponent<AttentionTargetReceiver>();
+        }
+
+        private void OnEnable()
+        {
+            _attentionReceiver.OnAttentionEntered += HandleAttentionEnter;
+            _attentionReceiver.OnAttentionExited += HandleAttentionExit;
+        }
+
+        private void OnDisable()
+        {
+            _attentionReceiver.OnAttentionEntered -= HandleAttentionEnter;
+            _attentionReceiver.OnAttentionExited -= HandleAttentionExit;
+        }
+        private void Update()
+        {
+            // Если игрок прямо сейчас смотрит на руку бота, следим за изменениями
+            if (_isFocused && transform.childCount != _lastChildCount)
+            {
+                // Количество дочерних объектов изменилось (бот взял или сбросил карту)
+                // Заново собираем массив и применяем видимость
+                RefreshCards(true);
+            }
+        }
+
+        private void HandleAttentionEnter(ulong watcherClientId)
+        {
+            _isFocused = true;
             RefreshCards(true);
         }
-    }
 
-    private void HandleAttentionEnter(ulong watcherClientId)
-    {
-        _isFocused = true;
-        RefreshCards(true);
-    }
-
-    private void HandleAttentionExit(ulong watcherClientId)
-    {
-        _isFocused = false;
-        RefreshCards(false);
-    }
-    private void RefreshCards(bool isVisible)
-    {
-        // Обновляем массив текущих карт
-        _currentCards = GetComponentsInChildren<CardView>(true);
-        // Запоминаем текущее количество объектов (чтобы отловить изменения в Update)
-        _lastChildCount = transform.childCount;
-
-        // Применяем видимость (показываем или скрываем)
-        if (_currentCards != null)
+        private void HandleAttentionExit(ulong watcherClientId)
         {
-            foreach (var card in _currentCards)
+            _isFocused = false;
+            RefreshCards(false);
+        }
+        private void RefreshCards(bool isVisible)
+        {
+            // Обновляем массив текущих карт
+            _currentCards = GetComponentsInChildren<CardView>(true);
+            // Запоминаем текущее количество объектов (чтобы отловить изменения в Update)
+            _lastChildCount = transform.childCount;
+
+            // Применяем видимость (показываем или скрываем)
+            if (_currentCards != null)
             {
-                if (card != null) card.SetVisible(isVisible);
+                foreach (var card in _currentCards)
+                {
+                    if (card != null) card.SetVisible(isVisible);
+                }
             }
         }
     }

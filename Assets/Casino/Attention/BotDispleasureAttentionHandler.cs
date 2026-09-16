@@ -1,6 +1,7 @@
+using Assets.Casino.Bot;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Attention
 {
     /// <summary>
     /// Отвечает ТОЛЬКО за передачу информации от приемника внимания 

@@ -1,7 +1,6 @@
-using System.Globalization;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Attention
 {
     /// <summary>
     /// Управляет визуальным объектом (например, моделью бинокля в руках).

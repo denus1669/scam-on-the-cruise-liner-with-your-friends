@@ -1,46 +1,49 @@
-using Blocks.Gameplay.Core;
 using UnityEngine;
 
-/// <summary>
-/// Отвечает ТОЛЬКО за включение/выключение луча сканера.
-/// </summary>
-
-[RequireComponent(typeof(PlayerAttentionController))]
-public class PlayerAttentionRaycasterHandler : MonoBehaviour
+namespace Assets.Casino.Attention
 {
-    [SerializeField] private AttentionRaycaster attentionRaycaster;
 
-    private PlayerAttentionController _playerAttentionController;
+    /// <summary>
+    /// Отвечает ТОЛЬКО за включение/выключение луча сканера.
+    /// </summary>
 
-    private void Awake()
+    [RequireComponent(typeof(PlayerAttentionController))]
+    public class PlayerAttentionRaycasterHandler : MonoBehaviour
     {
-        _playerAttentionController = GetComponent<PlayerAttentionController>();
-    }
+        [SerializeField] private AttentionRaycaster attentionRaycaster;
 
-    private void OnEnable()
-    {
-        if (_playerAttentionController == null)
+        private PlayerAttentionController _playerAttentionController;
+
+        private void Awake()
         {
-            return;
+            _playerAttentionController = GetComponent<PlayerAttentionController>();
         }
-        // Подписываемся только на локальное событие (луч нужен только нам)
-        _playerAttentionController.OnLocalAttentionChanged += ToggleRaycaster;
-    }
 
-    private void OnDisable()
-    {
-        if (_playerAttentionController == null)
+        private void OnEnable()
         {
-            return;
+            if (_playerAttentionController == null)
+            {
+                return;
+            }
+            // Подписываемся только на локальное событие (луч нужен только нам)
+            _playerAttentionController.OnLocalAttentionChanged += ToggleRaycaster;
         }
-        _playerAttentionController.OnLocalAttentionChanged -= ToggleRaycaster;
-    }   
-     
-    private void ToggleRaycaster(bool isAttentionActive)
-    {
-        if (attentionRaycaster != null)
+
+        private void OnDisable()
         {
-            attentionRaycaster.SetRaycasterActive(isAttentionActive);
+            if (_playerAttentionController == null)
+            {
+                return;
+            }
+            _playerAttentionController.OnLocalAttentionChanged -= ToggleRaycaster;
+        }
+
+        private void ToggleRaycaster(bool isAttentionActive)
+        {
+            if (attentionRaycaster != null)
+            {
+                attentionRaycaster.SetRaycasterActive(isAttentionActive);
+            }
         }
     }
 }

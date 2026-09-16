@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class VolumeInit : MonoBehaviour
+namespace Assets.Casino.sound.SoundsScripts
 {
-    public string volumeParametr = "MasterVolume";
-    [SerializeField] public AudioMixer volumeMixer;
-    void Start()
+    public class VolumeInit : MonoBehaviour
     {
-        var volumeValue = PlayerPrefs.GetFloat(volumeParametr, volumeParametr == "Slots" ? 0 : -80f);
-        volumeMixer.SetFloat(volumeParametr, volumeValue);
+        public string volumeParametr = "MasterVolume";
+        [SerializeField] public AudioMixer volumeMixer;
+        void Start()
+        {
+            var volumeValue = PlayerPrefs.GetFloat(volumeParametr, volumeParametr == "Slots" ? 0 : -80f);
+            volumeMixer.SetFloat(volumeParametr, volumeValue);
+        }
     }
 }

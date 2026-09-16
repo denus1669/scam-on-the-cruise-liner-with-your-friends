@@ -1,15 +1,19 @@
-using Unity.Netcode;
+using Assets.Casino.Games;
 
-/// <summary>
-/// Интерфейс для любого игрового поведения бота.
-/// </summary>
-public interface IBotGameBehaviour
+namespace Assets.Casino.Bot
 {
+
     /// <summary>
-    /// Инициализирует бота для работы с конкретным столом.
+    /// Интерфейс для любого игрового поведения бота.
     /// </summary>
-    /// <param name="table">Стол, реализующий IGameTable.</param>
-    void InitializeGame(IGameTable table);
-    void StartSession();
-    void EndSession();
+    public interface IBotGameBehaviour
+    {
+        /// <summary>
+        /// Инициализирует бота для работы с конкретным столом.
+        /// </summary>
+        /// <param name="table">Стол, реализующий IGameTable.</param>
+        void InitializeGame(IGameTable table);
+        void StartSession();
+        void EndSession();
+    }
 }

@@ -1,8 +1,8 @@
 using UnityEngine;
 using TMPro;
-using Blocks.Gameplay.Core; // Подключаем TextMeshPro
+using Blocks.Gameplay.Core;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.UI
 {
     /// <summary>
     /// Локальный UI-компонент, который слушает InteractionAddon 
