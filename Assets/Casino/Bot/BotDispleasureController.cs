@@ -109,6 +109,7 @@ namespace Assets.Casino.Bot
             if (!IsServer) return;
             AddInstantDispleasure(displeasureValue);
         }
+
         public void AddInstantDispleasure(float amount)
         {
             currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);

@@ -1,9 +1,5 @@
-using Assets.Casino;
 using Assets.Casino.Bank;
-using Blocks.Gameplay.Core;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -172,15 +168,14 @@ namespace Assets.Casino.Games
         public virtual void Occupy(ulong clientId)
         {
             if (!IsServer) return;
-
             if (IsOccupied)
             {
                 Debug.LogWarning($"[GameTable] Попытка занять уже занятый стол клиентом {clientId}");
                 return;
             }
 
-            isOccupied.Value = true;
-            occupiedByClientId.Value = clientId;
+            occupiedByClientId.Value = clientId; // ← СНАЧАЛА владелец
+            isOccupied.Value = true;             // ← ПОТОМ флаг занятости
             Debug.Log($"[GameTable] Стол занят клиентом {clientId}");
         }
 

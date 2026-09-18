@@ -49,8 +49,9 @@ namespace Assets.Casino.Bot
         /// Универсальный обработчик для bool-событий контроллеров.
         /// Наследники передают его как callback при подписке.
         /// </summary>
-        protected void HandleStateChanged(bool isActive)
+        protected virtual void HandleStateChanged(bool isActive)
         {
+            Debug.Log($"[{GetType().Name}] HandleStateChanged: {isActive}, MeshRenderer: {MeshRenderer != null}");
             if (isActive) ShowIndicator();
             else HideIndicator();
         }

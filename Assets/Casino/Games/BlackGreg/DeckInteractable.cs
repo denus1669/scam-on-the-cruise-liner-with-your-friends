@@ -53,7 +53,6 @@ namespace Assets.Casino.Games.BlackGreg
                 return;
             }
 
-
             ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
             blackGregTable.RequestDrawCardServerRpc(clientId);
             Debug.Log($"{clientId}");

@@ -154,7 +154,6 @@ namespace Assets.Casino.Cheating
 
             // 1. Оповещаем всех клиентов (для UI-эффектов, звуков)
             GameInterruptedClientRpc(accuserClientId);
-            ForceCloseMinigameClientRpc();
 
             // 2. Делегируем столу решение (форс-стоп, списание денег, уход бота)
             currentTable?.OnCheaterCaught(
@@ -165,7 +164,6 @@ namespace Assets.Casino.Cheating
             // 3. Сбрасываем состояние мухлежа
             CancelCheat();
 
-            ExposureManager.Instance?.AddExposure();
         }
 
         [ClientRpc]

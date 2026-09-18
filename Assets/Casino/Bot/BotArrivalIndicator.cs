@@ -4,7 +4,6 @@ using Assets.Casino.Games;
 
 namespace Assets.Casino.Bot
 {
-
     /// <summary>
     /// Индикатор, который показывается, когда бот прибыл к столу, 
     /// и скрывается, когда начинается игра.

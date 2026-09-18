@@ -44,17 +44,38 @@ namespace Assets.Casino.Bot
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
+        private readonly NetworkVariable<bool> _isPlaying = new(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
         public bool HasBotStood => _hasBotStood.Value;
+        public bool IsPlaying => _isPlaying.Value;
 
         public event Action<bool> OnBotStoodChanged;
-
-        protected bool isPlaying = false;
+        public event Action<bool> OnBotPlayChanged;
 
         /// <summary>
         /// Тип стола, с которым работает это поведение.
         /// </summary>
         public abstract System.Type SupportedTableType { get; }
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            _isPlaying.OnValueChanged += HandleBotPlayChanged;
+        }
 
+        public override void OnNetworkDespawn()
+        {
+            _isPlaying.OnValueChanged -= HandleBotPlayChanged;
+
+            if (gameTable != null && IsServer)
+            {
+                gameTable.OnGameStarted -= OnGameStarted;
+                gameTable.OnGameEnded -= OnGameEnded;
+            }
+            base.OnNetworkDespawn();
+        }
         protected virtual void Awake()
         {
             botAgent = GetComponent<BotAgent>();
@@ -79,21 +100,14 @@ namespace Assets.Casino.Bot
                 _hasBotStood.Value = false; // Сброс
                 NotifyBotStoodChangedClientRpc(false);
 
-
                 gameTable.OnGameStarted += OnGameStarted;
                 gameTable.OnGameEnded += OnGameEnded;
             }
         }
 
-        protected virtual void OnEnable()
-        {
-            if (!IsServer) return;
-
-        }
-
         protected virtual void OnDisable()
         {
-            if (isPlaying) EndSession();
+            if (IsPlaying) EndSession();
 
             if (gameTable != null && IsServer)
             {
@@ -110,16 +124,16 @@ namespace Assets.Casino.Bot
         public virtual void StartSession()
         {
             Debug.Log($"[BaseBotBehavior] Бот начал сессию на столе '{gameTable.TableName}'");
-            if (!IsServer || isPlaying) return;
-            isPlaying = true;
-
+            if (!IsServer || IsPlaying) return;
+            _isPlaying.Value = true;
             StartCoroutine(PlaySessionRoutine());
         }
 
         public virtual void EndSession()
         {
+            Debug.Log($"[BaseBotBehavior] Бот закончил сессию на столе '{gameTable.TableName}'");
             StopAllCoroutines();
-            isPlaying = false;
+            _isPlaying.Value = false;
         }
 
         private void OnGameStarted() => StartSession();
@@ -129,6 +143,7 @@ namespace Assets.Casino.Bot
             EndSession();
             _hasBotStood.Value = false;
             NotifyBotStoodChangedClientRpc(false);
+      
             if (botAgent != null) botAgent.GoToExit();
         }
 
@@ -136,7 +151,7 @@ namespace Assets.Casino.Bot
         {
             yield return new WaitForSeconds(UnityEngine.Random.Range(delayBetweenActionsMin, delayBetweenActionsMax));
 
-            while (isPlaying && gameTable.IsGameStarted)
+            while (IsPlaying && gameTable.IsGameStarted)
             {
                 yield return StartCoroutine(SuspiciousActionPhase());
 
@@ -230,15 +245,7 @@ namespace Assets.Casino.Bot
             yield break;
         }
 
-        public override void OnNetworkDespawn()
-        {
-            base.OnNetworkDespawn();
-            if (gameTable != null && IsServer)
-            {
-                gameTable.OnGameStarted -= OnGameStarted;
-                gameTable.OnGameEnded -= OnGameEnded;
-            }
-        }
+
 
 
         #region Abstract & Virtual Methods (Для наследников)
@@ -253,6 +260,11 @@ namespace Assets.Casino.Bot
         private void NotifyBotStoodChangedClientRpc(bool hasStood)
         {
             OnBotStoodChanged?.Invoke(hasStood);
+        }
+        private void HandleBotPlayChanged(bool previous, bool current)
+        {
+            Debug.Log($"[Server/NetVar] HandleBotPlayChanged: {current}. Подписчиков: {OnBotPlayChanged?.GetInvocationList().Length ?? 0}");
+            OnBotPlayChanged?.Invoke(current);
         }
         protected abstract bool EvaluateAndPerformGameAction();
         protected virtual float GetPersonalityCheatModifier() => personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);
