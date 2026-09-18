@@ -1,0 +1,22 @@
+{
+    "name": "CasinoScripts",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Netcode.Editor",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "Unity.Netcode.Runtime",
+        "Blocks.Gameplay.Core",
+        "Blocks.Gameplay.Core.Editor",
+        "Unity.Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

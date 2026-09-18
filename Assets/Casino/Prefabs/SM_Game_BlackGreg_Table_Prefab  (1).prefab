@@ -604,6 +604,7 @@ MonoBehaviour:
   startRotation: {x: 30, y: 180, z: 0}
   cardLimit: 10
   minCardsToFinish: 2
+  timeBeforeDiscard: 5
   playerHandData: []
   botHandData: []
 --- !u!1 &2474686349214915701
@@ -981,7 +982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckInteractable
   ShowTopMostFoldoutHeaderGroup: 1
-  blackjackTable: {fileID: 2518625619299382771}
+  blackGregTable: {fileID: 2518625619299382771}
   triggerMode: 0
   priority: 5
   promptText: "\u0412\u0437\u044F\u0442\u044C \u043A\u0430\u0440\u0442\u0443 (E)"
@@ -1093,6 +1094,7 @@ MonoBehaviour:
   blackGregTable: {fileID: 2518625619299382771}
   triggerMode: 0
   priority: 5
+  _timeToHold: 0.5
 --- !u!114 &3491580384908380077
 MonoBehaviour:
   m_ObjectHideFlags: 0

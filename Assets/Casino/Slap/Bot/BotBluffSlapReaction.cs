@@ -1,34 +1,25 @@
+using Assets.Casino.Slap;
 using Unity.Netcode;
 using UnityEngine;
 
-
-public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
+namespace Assets.Casino.Slap.Bot
 {
-    public bool CanSlap(BotSlapContext context) =>
-        context.BotBehaviour != null && context.BluffController.IsBluffing;
-
-    public void Slap(ulong slapperClientId, BotSlapContext context)
+    public class BotBluffSlapReaction : ISlapReaction<BotSlapContext>
     {
-        Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} купился на блеф!");
+        public bool CanSlap(BotSlapContext context) =>
+            context.BotBehaviour != null && context.BluffController.IsBluffing;
 
-        if (context.Router.CasinoBank != null)
+        public void Slap(ulong slapperClientId, BotSlapContext context)
         {
-            string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
-            int actualWithdrawn = context.Router.CasinoBank.TryWithdraw(
-                1,
-                slapperClientId,
-                "SlapBluffPenalty",
-                tableType);
+            Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} купился на блеф!");
 
-            Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+            // TODO: Логика штрафа за ложное обвинение в блефе
+            if (context.DispleasureController != null)
+            {
+                context.DispleasureController.AddInstantDispleasureServerRpc(40f); // Мгновенный штраф недовольства
+            }
+
+            context.Router.TriggerEventClientRpc(BotSlapEventType.BluffSlapped);
         }
-
-        // TODO: Логика штрафа за ложное обвинение в блефе
-        if (context.DispleasureController != null)
-        {
-            context.DispleasureController.AddInstantDispleasure(50f); // Мгновенный штраф недовольства
-        }
-
-        context.Router.TriggerEventClientRpc(BotSlapEventType.BluffSlapped);
     }
 }

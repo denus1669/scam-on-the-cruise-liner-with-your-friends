@@ -1,10 +1,10 @@
-
-using Blocks.Gameplay.Core;
 using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+namespace Assets.Casino.Attention
+{
     /// <summary>
     /// Выполняет рейкаст. Знает только об интерфейсах IAttentionTarget.
     /// Передает команды от игрока к объекту.
@@ -14,7 +14,7 @@ using UnityEngine;
         [Header("Настройки луча")]
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask attentionLayerMask = ~0;
-        [SerializeField] private float maxRayDistance = 10f; 
+        [SerializeField] private float maxRayDistance = 10f;
 
         private IAttentionTarget currentTarget;
         private Coroutine raycastCoroutine;
@@ -46,7 +46,7 @@ using UnityEngine;
         public void SetRaycasterActive(bool isActive)
         {
 
-        if (isActive)
+            if (isActive)
             {
                 if (raycastCoroutine == null)
                     raycastCoroutine = StartCoroutine(RaycastLoop());
@@ -88,7 +88,7 @@ using UnityEngine;
                     return;
                 }
 
-                IAttentionTarget newTarget = hit.collider.GetComponent<IAttentionTarget>();     
+                IAttentionTarget newTarget = hit.collider.GetComponent<IAttentionTarget>();
 
                 if (newTarget != currentTarget)
                 {
@@ -107,7 +107,7 @@ using UnityEngine;
             }
             else
             {
-            ClearCurrentTarget();
+                ClearCurrentTarget();
             }
         }
 
@@ -119,4 +119,5 @@ using UnityEngine;
                 currentTarget = null;
             }
         }
+    }
 }

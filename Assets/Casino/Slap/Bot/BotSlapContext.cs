@@ -1,26 +1,32 @@
+using Assets.Casino.Bot;
+using Assets.Casino.Cheating;
+using Assets.Casino.Games;
 using Unity.Netcode;
 
-public struct BotSlapContext
+namespace Assets.Casino.Slap.Bot
 {
-    public CheatController CheatController;
-    public BotBluffController BluffController;
-    public BaseBotBehaviour BotBehaviour;
-    public BotDispleasureController DispleasureController;
-    public BotSlapRouter Router;
-    public NetworkObject TargetNetworkObject;
-
-    // НОВОЕ: ссылка на агента бота для динамического получения стола
-    public BotAgent BotAgent;
-
-    // Вспомогательный метод для получения актуального TableType
-    public string GetCurrentTableType()
+    public struct BotSlapContext
     {
-        return BotAgent?.CurrentTable?.TableType ?? "Unknown";
-    }
+        public CheatController CheatController;
+        public BotBluffController BluffController;
+        public BaseBotBehaviour BotBehaviour;
+        public BotDispleasureController DispleasureController;
+        public BotSlapRouter Router;
+        public NetworkObject TargetNetworkObject;
 
-    // Вспомогательный метод для получения актуального стола
-    public IGameTable GetCurrentTable()
-    {
-        return BotAgent?.CurrentTable;
+        // НОВОЕ: ссылка на агента бота для динамического получения стола
+        public BotAgent BotAgent;
+
+        // Вспомогательный метод для получения актуального TableType
+        public string GetCurrentTableType()
+        {
+            return BotAgent?.CurrentTable?.TableType ?? "Unknown";
+        }
+
+        // Вспомогательный метод для получения актуального стола
+        public IGameTable GetCurrentTable()
+        {
+            return BotAgent?.CurrentTable;
+        }
     }
 }

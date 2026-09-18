@@ -4,36 +4,39 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Агрегированная статистика по одному игроку-сотруднику казино.
-/// </summary>
-[Serializable]
-public struct PlayerStatistics : INetworkSerializable
+namespace Assets.Casino.Bank
 {
-    public ulong PlayerId;
-    public int TotalDeposits;      // Сколько игрок принёс в кассу
-    public int TotalWithdraws;     // Сколько игрок забрал из кассы
-    public int TransactionCount;   // Общее количество операций
 
-    /// <summary>Чистый вклад в кассу (может быть отрицательным).</summary>
-    public int NetContribution => TotalDeposits - TotalWithdraws;
-
-    // Реализация сетевой сериализации для NGO
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    /// <summary>
+    /// Агрегированная статистика по одному игроку-сотруднику казино.
+    /// </summary>
+    [Serializable]
+    public struct PlayerStatistics : INetworkSerializable
     {
-        serializer.SerializeValue(ref PlayerId);
-        serializer.SerializeValue(ref TotalDeposits);
-        serializer.SerializeValue(ref TotalWithdraws);
-        serializer.SerializeValue(ref TransactionCount);
-    }
-}
+        public ulong PlayerId;
+        public int TotalDeposits;      // Сколько игрок принёс в кассу
+        public int TotalWithdraws;     // Сколько игрок забрал из кассы
+        public int TransactionCount;   // Общее количество операций
 
-/// <summary>
-/// Серверный сборщик статистики.
-/// Слушает события кассы, ведёт сырой лог и агрегирует данные по игрокам.
-/// НЕ занимается UI, графиками или VFX — только хранит и отдаёт данные.
-/// </summary>
-public class StatisticsCollector : NetworkBehaviour
+        /// <summary>Чистый вклад в кассу (может быть отрицательным).</summary>
+        public int NetContribution => TotalDeposits - TotalWithdraws;
+
+        // Реализация сетевой сериализации для NGO
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref PlayerId);
+            serializer.SerializeValue(ref TotalDeposits);
+            serializer.SerializeValue(ref TotalWithdraws);
+            serializer.SerializeValue(ref TransactionCount);
+        }
+    }
+
+    /// <summary>
+    /// Серверный сборщик статистики.
+    /// Слушает события кассы, ведёт сырой лог и агрегирует данные по игрокам.
+    /// НЕ занимается UI, графиками или VFX — только хранит и отдаёт данные.
+    /// </summary>
+    public class StatisticsCollector : NetworkBehaviour
     {
         [Header("Зависимости")]
         [SerializeField] private CasinoBank casinoBank;
@@ -55,35 +58,35 @@ public class StatisticsCollector : NetworkBehaviour
         public event Action<PlayerStatistics[]> OnClientStatsUpdated;
 
 
-    [ClientRpc]
-    private void PushStatsToClientsClientRpc(PlayerStatistics[] statsArray)
-    {
-        OnClientStatsUpdated?.Invoke(statsArray);
-    }
-
-    /// <summary>
-    /// Клиент запрашивает актуальный снапшот статистики (например, при входе в лобби).
-    /// </summary>
-    [ServerRpc]
-    public void RequestCurrentStatsServerRpc(ServerRpcParams rpcParams = default)
-    {
-        var statsArray = _playerStats.Values.ToArray();
-
-        // Отправляем данные только тому клиенту, который их запросил
-        ClientRpcParams clientParams = new ClientRpcParams
+        [ClientRpc]
+        private void PushStatsToClientsClientRpc(PlayerStatistics[] statsArray)
         {
-            Send = { TargetClientIds = new[] { rpcParams.Receive.SenderClientId } }
-        };
+            OnClientStatsUpdated?.Invoke(statsArray);
+        }
 
-        PushStatsToClientClientRpc(statsArray, clientParams);
-    }
+        /// <summary>
+        /// Клиент запрашивает актуальный снапшот статистики (например, при входе в лобби).
+        /// </summary>
+        [ServerRpc]
+        public void RequestCurrentStatsServerRpc(ServerRpcParams rpcParams = default)
+        {
+            var statsArray = _playerStats.Values.ToArray();
 
-    [ClientRpc]
-    private void PushStatsToClientClientRpc(PlayerStatistics[] statsArray, ClientRpcParams clientParams = default)
-    {
-        OnClientStatsUpdated?.Invoke(statsArray);
-    }
-    private void Reset()
+            // Отправляем данные только тому клиенту, который их запросил
+            ClientRpcParams clientParams = new ClientRpcParams
+            {
+                Send = { TargetClientIds = new[] { rpcParams.Receive.SenderClientId } }
+            };
+
+            PushStatsToClientClientRpc(statsArray, clientParams);
+        }
+
+        [ClientRpc]
+        private void PushStatsToClientClientRpc(PlayerStatistics[] statsArray, ClientRpcParams clientParams = default)
+        {
+            OnClientStatsUpdated?.Invoke(statsArray);
+        }
+        private void Reset()
         {
             casinoBank = GetComponentInParent<CasinoBank>();
         }
@@ -131,7 +134,7 @@ public class StatisticsCollector : NetworkBehaviour
             {
                 PushStatsToClientsClientRpc(_playerStats.Values.ToArray());
             }
-    }
+        }
 
         private void UpdatePlayerStats(BankTransaction transaction)
         {
@@ -195,3 +198,4 @@ public class StatisticsCollector : NetworkBehaviour
             Debug.Log($"[Statistics] (заглушка) Исход раунда: игрок {playerId}, стол {tableType}, результат {outcome}, мухлеж {wasCheatInvolved}");
         }
     }
+}

@@ -1,65 +1,70 @@
 using TMPro;
 using UnityEngine;
+using Assets.Casino.PhaseDay.GameStatePhase;
 
-/// <summary>
-/// UI-компонент для отображения таймера обратного отсчёта.
-/// Активен только во время GamePhase.
-/// </summary>
-public class TimerUI : MonoBehaviour
+namespace Assets.Casino.PhaseDay
 {
-    [Header("UI элементы")]
-    [SerializeField] private TextMeshProUGUI timerText;
-    [SerializeField] private GameObject timerPanel; // Панель для скрытия/показа
 
-    [Header("Настройки форматирования")]
-    [SerializeField] private string formatString = "Осталось: {0:00}:{1:00}";
-
-    private void OnEnable()
+    /// <summary>
+    /// UI-компонент для отображения таймера обратного отсчёта.
+    /// Активен только во время GamePhase.
+    /// </summary>
+    public class TimerUI : MonoBehaviour
     {
-        var manager = GameSessionManager.Instance;
-        if (manager != null)
-        {
-            manager.OnStateChanged += HandleStateChanged;
-            manager.OnTimerTick += HandleTimerTick;
+        [Header("UI элементы")]
+        [SerializeField] private TextMeshProUGUI timerText;
+        [SerializeField] private GameObject timerPanel; // Панель для скрытия/показа
 
-            // Обновляем начальное состояние
-            HandleStateChanged(manager.CurrentState);
-            if (manager.CurrentState == GameState.DayActive)
+        [Header("Настройки форматирования")]
+        [SerializeField] private string formatString = "Осталось: {0:00}:{1:00}";
+
+        private void OnEnable()
+        {
+            var manager = GameSessionManager.Instance;
+            if (manager != null)
             {
-                HandleTimerTick(manager.TimeRemaining);
+                manager.OnStateChanged += HandleStateChanged;
+                manager.OnTimerTick += HandleTimerTick;
+
+                // Обновляем начальное состояние
+                HandleStateChanged(manager.CurrentState);
+                if (manager.CurrentState == GameState.DayActive)
+                {
+                    HandleTimerTick(manager.TimeRemaining);
+                }
             }
         }
-    }
 
-    private void OnDisable()
-    {
-        var manager = GameSessionManager.Instance;
-        if (manager != null)
+        private void OnDisable()
         {
-            manager.OnStateChanged -= HandleStateChanged;
-            manager.OnTimerTick -= HandleTimerTick;
+            var manager = GameSessionManager.Instance;
+            if (manager != null)
+            {
+                manager.OnStateChanged -= HandleStateChanged;
+                manager.OnTimerTick -= HandleTimerTick;
+            }
         }
-    }
 
-    private void HandleStateChanged(GameState state)
-    {
-        // Показываем таймер только во время GamePhase
-        bool shouldShow = (state == GameState.DayActive);
-
-        if (timerPanel != null)
+        private void HandleStateChanged(GameState state)
         {
-            timerPanel.SetActive(shouldShow);
+            // Показываем таймер только во время GamePhase
+            bool shouldShow = (state == GameState.DayActive);
+
+            if (timerPanel != null)
+            {
+                timerPanel.SetActive(shouldShow);
+            }
         }
-    }
 
-    private void HandleTimerTick(float remainingSeconds)
-    {
-        if (timerText != null)
+        private void HandleTimerTick(float remainingSeconds)
         {
-            int minutes = Mathf.FloorToInt(remainingSeconds / 60f);
-            int seconds = Mathf.FloorToInt(remainingSeconds % 60f);
+            if (timerText != null)
+            {
+                int minutes = Mathf.FloorToInt(remainingSeconds / 60f);
+                int seconds = Mathf.FloorToInt(remainingSeconds % 60f);
 
-            timerText.text = string.Format(formatString, minutes, seconds);
+                timerText.text = string.Format(formatString, minutes, seconds);
+            }
         }
     }
 }

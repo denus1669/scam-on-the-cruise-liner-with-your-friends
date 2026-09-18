@@ -1,6 +1,7 @@
+using Assets.Casino.Slots;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slots
 {
     /// <summary>
     /// Компонент для визуализации и звуков слот-машины.

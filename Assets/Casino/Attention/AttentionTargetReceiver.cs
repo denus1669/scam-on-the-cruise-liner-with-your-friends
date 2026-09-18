@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Attention
 {
     /// <summary>
     /// Вешается на коллайдер объекта, на который можно смотреть.

@@ -2,6 +2,8 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
+namespace Assets.Casino.Bank
+{
     /// <summary>
     /// Хранилище и оператор кассы казино.
     /// Отвечает ТОЛЬКО за баланс и валидацию операций.
@@ -35,9 +37,9 @@ using UnityEngine;
             _balance.OnValueChanged += HandleBalanceChanged;
             OnBalanceChanged?.Invoke(0, _balance.Value);
 
-    }
+        }
 
-    public override void OnNetworkDespawn()
+        public override void OnNetworkDespawn()
         {
             _balance.OnValueChanged -= HandleBalanceChanged;
             base.OnNetworkDespawn();
@@ -113,3 +115,4 @@ using UnityEngine;
             OnTransactionCompleted?.Invoke(transaction);
         }
     }
+}

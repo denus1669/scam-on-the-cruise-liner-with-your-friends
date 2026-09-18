@@ -1,128 +1,135 @@
+using Assets.Casino.Bank;
+using Assets.Casino.Bot;
+using Assets.Casino.Cheating;
+using Assets.Casino.Slap;
 using Blocks.Gameplay.Core;
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public enum BotSlapEventType { CheatSlapped, BluffSlapped, IdleSlapped }
-
-/// <summary>
-/// Маршрутизатор шлепков для бота с использованием паттерна "Стратегия".
-/// </summary>
-[RequireComponent(typeof(BotAgent))]
-public class BotSlapRouter : NetworkBehaviour, IInteractable
+namespace Assets.Casino.Slap.Bot
 {
-    [SerializeField] private CasinoBank casinoBank;
-    public CasinoBank CasinoBank => casinoBank;
+    public enum BotSlapEventType { CheatSlapped, BluffSlapped, IdleSlapped }
 
-    private BotSlapContext _context;
-    private List<ISlapReaction<BotSlapContext>> _reactions;
-
-    [SerializeField] private string promptText = "Шлёпнуть по рукам (E)";
-
-
-    public InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
-    public int Priority => 10;
-    public string InteractionPromptText => promptText;
-
-    public float HoldDuration => 0f;
-
-
-    // Глобальные события (для анимаций, звуков, VFX на всех клиентах)
-    public event Action OnCheatSlapped;
-    public event Action OnBluffSlapped;
-    public event Action OnIdleSlapped;
-
-
-    public override void OnNetworkSpawn()
+    /// <summary>
+    /// Маршрутизатор шлепков для бота с использованием паттерна "Стратегия".
+    /// </summary>
+    [RequireComponent(typeof(BotAgent))]
+    public class BotSlapRouter : NetworkBehaviour, IInteractable
     {
-        base.OnNetworkSpawn();
+        [SerializeField] private CasinoBank casinoBank;
+        public CasinoBank CasinoBank => casinoBank;
 
-        if (casinoBank == null && IsServer)
+        private BotSlapContext _context;
+        private List<ISlapReaction<BotSlapContext>> _reactions;
+
+        [SerializeField] private string promptText = "Шлёпнуть по рукам (E)";
+
+
+        public InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
+        public int Priority => 10;
+        public string InteractionPromptText => promptText;
+
+        public float HoldDuration => 0f;
+
+
+        // Глобальные события (для анимаций, звуков, VFX на всех клиентах)
+        public event Action OnCheatSlapped;
+        public event Action OnBluffSlapped;
+        public event Action OnIdleSlapped;
+
+
+        public override void OnNetworkSpawn()
         {
-            casinoBank = FindAnyObjectByType<CasinoBank>();
-            if (casinoBank == null)
+            base.OnNetworkSpawn();
+
+            if (casinoBank == null && IsServer)
             {
-                Debug.LogWarning($"[BotSlapRouter] {gameObject.name}: CasinoBank не найден. " +
-                                 $"Штрафы за шлепки не будут работать.");
+                casinoBank = FindAnyObjectByType<CasinoBank>();
+                if (casinoBank == null)
+                {
+                    Debug.LogWarning($"[BotSlapRouter] {gameObject.name}: CasinoBank не найден. " +
+                                     $"Штрафы за шлепки не будут работать.");
+                }
             }
         }
-    }
 
 
-    private void Awake()
-    {
-        _context = new BotSlapContext
+        private void Awake()
         {
-            CheatController = GetComponent<CheatController>(),
-            BluffController = GetComponent<BotBluffController>(),
-            BotBehaviour = GetComponent<BaseBotBehaviour>(),
-            DispleasureController = GetComponent<BotDispleasureController>(),
-            TargetNetworkObject = GetComponent<NetworkObject>(),
-            Router = this,
-            BotAgent = GetComponent<BotAgent>()  
-        };
+            _context = new BotSlapContext
+            {
+                CheatController = GetComponent<CheatController>(),
+                BluffController = GetComponent<BotBluffController>(),
+                BotBehaviour = GetComponent<BaseBotBehaviour>(),
+                DispleasureController = GetComponent<BotDispleasureController>(),
+                TargetNetworkObject = GetComponent<NetworkObject>(),
+                Router = this,
+                BotAgent = GetComponent<BotAgent>()
+            };
 
-        // ПОРЯДОК ВАЖЕН: Роутер пойдет по списку сверху вниз.
-        // Последней должна быть IdleSlapReaction (так как она всегда возвращает true).
-        _reactions = new List<ISlapReaction<BotSlapContext>>
+            // ПОРЯДОК ВАЖЕН: Роутер пойдет по списку сверху вниз.
+            // Последней должна быть IdleSlapReaction (так как она всегда возвращает true).
+            _reactions = new List<ISlapReaction<BotSlapContext>>
         {
             new BotCheatSlapReaction(),
             new BotBluffSlapReaction(),
             new BotIdleSlapReaction()
         };
-    }
-
-    public void ExecuteSlap(ulong slapperClientId)
-    {
-        if (!IsServer)
-        {
-            RequestSlapServerRpc(slapperClientId);
-            return;
         }
 
-        ResolveSlap(slapperClientId);
-    }
-
-    [Rpc(SendTo.Server)]
-    private void RequestSlapServerRpc(ulong slapperClientId) => ResolveSlap(slapperClientId);
-
-    private void ResolveSlap(ulong slapperClientId)
-    {
-        // Проходим по всем стратегиям и ищем ту, которая подходит под текущее состояние
-        foreach (var reaction in _reactions)
+        public void ExecuteSlap(ulong slapperClientId)
         {
-            if (reaction.CanSlap(_context))
+            if (!IsServer)
             {
-                reaction.Slap(slapperClientId, _context);
-                break;
+                RequestSlapServerRpc(slapperClientId);
+                return;
+            }
+
+            ResolveSlap(slapperClientId);
+        }
+
+        [Rpc(SendTo.Server)]
+        private void RequestSlapServerRpc(ulong slapperClientId) => ResolveSlap(slapperClientId);
+
+        private void ResolveSlap(ulong slapperClientId)
+        {
+            // Проходим по всем стратегиям и ищем ту, которая подходит под текущее состояние
+            foreach (var reaction in _reactions)
+            {
+                if (reaction.CanSlap(_context))
+                {
+                    reaction.Slap(slapperClientId, _context);
+                    break;
+                }
             }
         }
-    }
 
-    // --- Сетевая синхронизация событий для визуальных эффектов ---
-    [Rpc(SendTo.Everyone)]
-    public void TriggerEventClientRpc(BotSlapEventType eventType)
-    {
-        switch (eventType)
+        // --- Сетевая синхронизация событий для визуальных эффектов ---
+        [Rpc(SendTo.Everyone)]
+        public void TriggerEventClientRpc(BotSlapEventType eventType)
         {
-            case BotSlapEventType.CheatSlapped:
-                OnCheatSlapped?.Invoke();
-                break;
-            case BotSlapEventType.BluffSlapped:
-                OnBluffSlapped?.Invoke();
-                break;
-            case BotSlapEventType.IdleSlapped:
-                OnIdleSlapped?.Invoke();
-                break;
+            switch (eventType)
+            {
+                case BotSlapEventType.CheatSlapped:
+                    OnCheatSlapped?.Invoke();
+                    break;
+                case BotSlapEventType.BluffSlapped:
+                    OnBluffSlapped?.Invoke();
+                    break;
+                case BotSlapEventType.IdleSlapped:
+                    OnIdleSlapped?.Invoke();
+                    break;
+            }
         }
-    }
 
-    public bool CanInteract(GameObject interactor) => true; // Бота можно шлепать всегда
+        public bool CanInteract(GameObject interactor) => true; // Бота можно шлепать всегда
 
-    public void Interact(GameObject interactor)
-    {
-        ulong slapperId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        ExecuteSlap(slapperId);
+        public void Interact(GameObject interactor)
+        {
+            ulong slapperId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+            ExecuteSlap(slapperId);
+        }
     }
 }

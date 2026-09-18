@@ -1,20 +1,21 @@
 using UnityEngine;
 using Blocks.Gameplay.Core;
-using System;
 
-
-public class AttentionGameListener : MonoBehaviour
+namespace Assets.Casino.Attention
 {
-    [SerializeField] private GameEvent onAttentionEvent;
-    [SerializeField] private PlayerAttentionController playerAttentionController;
-
-    private void OnEnable() => onAttentionEvent?.RegisterListener(OnAttentionActivated);
-
-    private void OnDisable() => onAttentionEvent?.UnregisterListener(OnAttentionActivated);
-
-
-    private void OnAttentionActivated()
+    public class AttentionGameListener : MonoBehaviour
     {
-        playerAttentionController?.ToggleAttentionLocal();
+        [SerializeField] private GameEvent onAttentionEvent;
+        [SerializeField] private PlayerAttentionController playerAttentionController;
+
+        private void OnEnable() => onAttentionEvent?.RegisterListener(OnAttentionActivated);
+
+        private void OnDisable() => onAttentionEvent?.UnregisterListener(OnAttentionActivated);
+
+
+        private void OnAttentionActivated()
+        {
+            playerAttentionController?.ToggleAttentionLocal();
+        }
     }
 }

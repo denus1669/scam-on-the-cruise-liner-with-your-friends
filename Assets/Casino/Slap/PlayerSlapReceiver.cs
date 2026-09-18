@@ -1,8 +1,9 @@
+using Blocks.Gameplay.Core;
 using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slap
 {
     /// <summary>
     /// Ядро механики шлепка. Управляет расчетом силы, сетевой синхронизацией,

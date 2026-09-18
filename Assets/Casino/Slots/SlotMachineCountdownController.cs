@@ -1,7 +1,9 @@
 using UnityEngine;
 using Unity.Netcode;
+using Assets.Casino.Test_Folder;
+using Assets.Casino.Slots;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slots
 {
     /// <summary>
     /// Контроллер 3D прогресс-бара обратного отсчета до взрыва сломанного автомата.

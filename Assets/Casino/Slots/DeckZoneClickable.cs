@@ -1,37 +1,40 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
-public class DeckZoneClickable : MonoBehaviour
+namespace Assets.Casino.Slots
 {
-    [Tooltip("Объект, который будет включаться при наведении (например, меш с outline-материалом)")]
-    [SerializeField] private GameObject highlightVisual;
-
-    private void OnMouseEnter()
+    [RequireComponent(typeof(Collider))]
+    public class DeckZoneClickable : MonoBehaviour
     {
-        if (highlightVisual != null)
-            highlightVisual.SetActive(true);
-    }
+        [Tooltip("Объект, который будет включаться при наведении (например, меш с outline-материалом)")]
+        [SerializeField] private GameObject highlightVisual;
 
-    private void OnMouseExit()
-    {
-        if (highlightVisual != null)
-            highlightVisual.SetActive(false);
-    }
-
-    private void OnMouseDown()
-    {
-        // Скрываем подсветку при клике
-        if (highlightVisual != null)
-            highlightVisual.SetActive(false);
-
-        // Напрямую обращаемся к менеджеру и говорим, что зона выбрана!
-        if (DeckCutManager.Instance != null)
+        private void OnMouseEnter()
         {
-            DeckCutManager.Instance.OnZoneSelected();
+            if (highlightVisual != null)
+                highlightVisual.SetActive(true);
         }
-        else
+
+        private void OnMouseExit()
         {
-            Debug.LogError("DeckCutManager не найден на сцене! Убедитесь, что он есть.");
+            if (highlightVisual != null)
+                highlightVisual.SetActive(false);
+        }
+
+        private void OnMouseDown()
+        {
+            // Скрываем подсветку при клике
+            if (highlightVisual != null)
+                highlightVisual.SetActive(false);
+
+            // Напрямую обращаемся к менеджеру и говорим, что зона выбрана!
+            if (DeckCutManager.Instance != null)
+            {
+                DeckCutManager.Instance.OnZoneSelected();
+            }
+            else
+            {
+                Debug.LogError("DeckCutManager не найден на сцене! Убедитесь, что он есть.");
+            }
         }
     }
 }

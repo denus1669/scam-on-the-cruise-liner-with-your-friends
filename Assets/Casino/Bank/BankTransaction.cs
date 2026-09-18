@@ -1,3 +1,5 @@
+namespace Assets.Casino.Bank
+{
 
     /// <summary>
     /// Тип изменения баланса кассы.
@@ -33,3 +35,4 @@
         /// <summary>Серверное время операции для сортировки в статистике.</summary>
         public double Timestamp;
     }
+}

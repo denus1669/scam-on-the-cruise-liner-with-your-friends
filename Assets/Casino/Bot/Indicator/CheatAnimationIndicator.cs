@@ -1,35 +1,40 @@
+using Assets.Casino.Cheating;
 using UnityEngine;
 
-/// <summary>
-/// Глобальная заглушка анимации мухлежа бота.
-/// Видна ВСЕМ игрокам. В будущем будет заменена на настоящую анимацию.
-/// </summary>
-/// 
-
-public class CheatAnimationIndicator : NetworkObjectVisibilityIndicator
+namespace Assets.Casino.Bot.Indicator
 {
-    [Header("Зависимости")]
-    [SerializeField] private CheatController cheatController;
 
-    protected override void Awake()
+    /// <summary>
+    /// Глобальная заглушка анимации мухлежа бота.
+    /// Видна ВСЕМ игрокам. В будущем будет заменена на настоящую анимацию.
+    /// </summary>
+    /// 
+
+    public class CheatAnimationIndicator : NetworkObjectVisibilityIndicator
     {
-        base.Awake();
+        [Header("Зависимости")]
+        [SerializeField] private CheatController cheatController;
 
-        if (cheatController == null)
-            cheatController = GetComponent<CheatController>();
-    }
+        protected override void Awake()
+        {
+            base.Awake();
 
-    private void OnEnable()
-    {
-        if (cheatController != null)
-            cheatController.OnCheatingStateChanged += HandleStateChanged;
-    }
+            if (cheatController == null)
+                cheatController = GetComponent<CheatController>();
+        }
 
-    private void OnDisable()
-    {
-        if (cheatController != null)
-            cheatController.OnCheatingStateChanged -= HandleStateChanged;
+        private void OnEnable()
+        {
+            if (cheatController != null)
+                cheatController.OnCheatingStateChanged += HandleStateChanged;
+        }
 
-        HideIndicator();
+        private void OnDisable()
+        {
+            if (cheatController != null)
+                cheatController.OnCheatingStateChanged -= HandleStateChanged;
+
+            HideIndicator();
+        }
     }
 }

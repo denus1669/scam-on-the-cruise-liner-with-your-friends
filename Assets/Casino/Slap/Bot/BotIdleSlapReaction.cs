@@ -1,32 +1,23 @@
+using Assets.Casino.Slap;
 using Unity.Netcode;
 using UnityEngine;
 
-public class BotIdleSlapReaction : ISlapReaction<BotSlapContext>
+namespace Assets.Casino.Slap.Bot
 {
-    public bool CanSlap(BotSlapContext context) => true;
-
-    public void Slap(ulong slapperClientId, BotSlapContext context)
+    public class BotIdleSlapReaction : ISlapReaction<BotSlapContext>
     {
-        Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} ударил бота без причины!");
+        public bool CanSlap(BotSlapContext context) => true;
 
-        if (context.Router.CasinoBank != null)
+        public void Slap(ulong slapperClientId, BotSlapContext context)
         {
-            string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
-            int actualWithdrawn = context.Router.CasinoBank.TryWithdraw(
-                1,
-                slapperClientId,
-                "SlapIdlePenalty",
-                tableType);
+            Debug.Log($"[Slap-Стратегия] Игрок {slapperClientId} ударил бота без причины!");
 
-            Debug.Log($"[Slap] Фактически списано: {actualWithdrawn}. Стол: {tableType}");
+            if (context.DispleasureController != null)
+            {
+                context.DispleasureController.AddInstantDispleasureServerRpc(40f); // Мгновенный штраф недовольства
+            }
+
+            context.Router.TriggerEventClientRpc(BotSlapEventType.IdleSlapped);
         }
-
-
-        if (context.DispleasureController != null)
-        {
-            context.DispleasureController.AddInstantDispleasure(10f); // Мгновенный штраф недовольства
-        }
-
-        context.Router.TriggerEventClientRpc(BotSlapEventType.IdleSlapped);
     }
 }

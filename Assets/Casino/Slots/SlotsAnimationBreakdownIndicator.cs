@@ -1,37 +1,41 @@
+using Assets.Casino.Bot;
 using UnityEngine;
 
-public class SlotsAnimationBreakdownIndicator : NetworkObjectVisibilityIndicator
+namespace Assets.Casino.Slots
 {
-    
-    [Header("Зависимости")] 
-    [SerializeField] private SlotMachine slotMachine;
-
-    protected override void Awake()
+    public class SlotsAnimationBreakdownIndicator : NetworkObjectVisibilityIndicator
     {
-        base.Awake();
 
-        if (slotMachine == null)
-            slotMachine = GetComponent<SlotMachine>();
+        [Header("Зависимости")]
+        [SerializeField] private SlotMachine slotMachine;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (slotMachine == null)
+                slotMachine = GetComponent<SlotMachine>();
+        }
+
+        private void OnEnable()
+        {
+            if (slotMachine != null)
+                slotMachine.OnSlotMachineBreakdownChanged += HandleBotStoodChanged;
+        }
+
+        private void OnDisable()
+        {
+            if (slotMachine != null)
+                slotMachine.OnSlotMachineBreakdownChanged -= HandleBotStoodChanged;
+        }
+
+        private void HandleBotStoodChanged(bool hasStood)
+        {
+            if (hasStood)
+                ShowIndicator();
+            else
+                HideIndicator();
+        }
+
     }
-
-    private void OnEnable()
-    {
-        if (slotMachine != null)
-            slotMachine.OnSlotMachineBreakdownChanged += HandleBotStoodChanged;
-    }
-
-    private void OnDisable()
-    {
-        if (slotMachine != null)
-            slotMachine.OnSlotMachineBreakdownChanged -= HandleBotStoodChanged;
-    }
-
-    private void HandleBotStoodChanged(bool hasStood)
-    {
-        if (hasStood)
-            ShowIndicator();
-        else
-            HideIndicator();
-    }
-
 }

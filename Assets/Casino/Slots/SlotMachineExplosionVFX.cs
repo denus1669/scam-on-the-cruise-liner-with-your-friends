@@ -1,8 +1,9 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections;
+using Assets.Casino.Slots;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slots
 {
     /// <summary>
     /// Клиентский компонент визуальных эффектов взрыва автомата.

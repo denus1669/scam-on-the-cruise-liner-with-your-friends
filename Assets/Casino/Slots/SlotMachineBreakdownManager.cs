@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Assets.Casino.Slots;
+using Assets.Casino.Bot;
 
-namespace Blocks.Gameplay.Core
+namespace Assets.Casino.Slots
 {
     /// <summary>
     /// Менеджер, управляющий таймерами поломок и взрывов. 
@@ -274,7 +276,7 @@ namespace Blocks.Gameplay.Core
             {
                 if (bot != null && bot.IsSpawned)
                 {
-                    bot.AddInstantDispleasure(explodeDispleasureAmount);
+                    bot.AddInstantDispleasureServerRpc(explodeDispleasureAmount);
                     affectedBots++;
                 }
             }

@@ -1,51 +1,61 @@
 using Blocks.Gameplay.Core;
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Интерактивный объект "Колода карт".
-/// При взаимодействии даёт команду столу выдать карту игроку.
-/// </summary>
-public class DeckInteractable : NetworkBehaviour, IInteractable
+namespace Assets.Casino.Games.BlackGreg
 {
-    [Header("Стол")]
-    [SerializeField] private BlackGregTable blackjackTable;
 
-    [Header("Настройки взаимодействия")]
-    [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
-    [SerializeField] private int priority = 0;
-    [SerializeField] private string promptText = "Взять карту (E)";
-
-    public InteractionTriggerMode TriggerMode => triggerMode;
-    public int Priority => priority;
-    public string InteractionPromptText => promptText;
-
-    public float HoldDuration => 0f;
-
-    public bool CanInteract(GameObject interactor)
+    /// <summary>
+    /// Интерактивный объект "Колода карт".
+    /// При взаимодействии даёт команду столу выдать карту игроку.
+    /// </summary>
+    public class DeckInteractable : NetworkBehaviour, IInteractable
     {
+        [Header("Стол")]
+        [SerializeField] private BlackGregTable blackGregTable;
 
-        if (blackjackTable == null || !blackjackTable.IsOccupied || !blackjackTable.IsBotReachedTable)
+        [Header("Настройки взаимодействия")]
+        [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
+        [SerializeField] private int priority = 0;
+        [SerializeField] private string promptText = "Взять карту (E)";
+
+        public InteractionTriggerMode TriggerMode => triggerMode;
+        public int Priority => priority;
+        public string InteractionPromptText => promptText;
+
+        public float HoldDuration => 0f;
+
+        public bool CanInteract(GameObject interactor)
         {
-            return false;
+            if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
+            {
+                Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
+                return false;
+            }
+
+            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+
+            if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId)
+            {
+                Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
+                return false;
+            }
+
+            Debug.Log($"blackGregTable.playersInGameArea.Contains(clientId) == {blackGregTable.playersInGameArea.Contains(clientId)}");
+            return blackGregTable.playersInGameArea.Contains(clientId);
         }
 
-        ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        return clientId == blackjackTable.OccupiedByClientId;
-    }
-
-    public void Interact(GameObject interactor)
-    {
-
-        if (!IsSpawned || blackjackTable == null)
+        public void Interact(GameObject interactor)
         {
-            return;
+
+            if (!IsSpawned || blackGregTable == null)
+            {
+                return;
+            }
+
+            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+            blackGregTable.RequestDrawCardServerRpc(clientId);
+            Debug.Log($"{clientId}");
         }
-            
-
-        ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-        blackjackTable.RequestDrawCardServerRpc(clientId);
-
     }
 }

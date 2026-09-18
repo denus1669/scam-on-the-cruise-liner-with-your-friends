@@ -1,6 +1,7 @@
 using System;
 
-
+namespace Assets.Casino.Bank
+{
     /// <summary>
     /// Контракт кассы казино.
     /// Позволяет другим системам (столам, контроллерам мухлежа, шлепков) взаимодействовать
@@ -42,3 +43,4 @@ using System;
         /// <returns>Фактически списанная сумма (может быть меньше запрошенной).</returns>
         int TryWithdraw(int amount, ulong operatorId, string reason, string tableType = null);
     }
+}
