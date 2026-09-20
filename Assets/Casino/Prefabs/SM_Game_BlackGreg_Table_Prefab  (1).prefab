@@ -868,6 +868,7 @@ GameObject:
   - component: {fileID: 2124519288584938238}
   - component: {fileID: 5922960392779340418}
   - component: {fileID: 6130116825614958920}
+  - component: {fileID: 4935368456632209242}
   - component: {fileID: 7507513536452532806}
   m_Layer: 8
   m_Name: SM_Game_BlackGreg_Deck
@@ -986,6 +987,26 @@ MonoBehaviour:
   triggerMode: 0
   priority: 5
   promptText: "\u0412\u0437\u044F\u0442\u044C \u043A\u0430\u0440\u0442\u0443 (E)"
+--- !u!114 &4935368456632209242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5995463456884369819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 853203a2f7ad17649898cb31650de930, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Games.BlackGreg.DeckHighlighter
+  ShowTopMostFoldoutHeaderGroup: 1
+  highlightRenderers:
+  - {fileID: 2124519288584938238}
+  availableColor: {r: 0, g: 1, b: 0.25, a: 1}
+  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
+  emissionIntensity: 102.7
+  deckInteractable: {fileID: 6130116825614958920}
+  availabilityCheckInterval: 0.25
 --- !u!114 &7507513536452532806
 MonoBehaviour:
   m_ObjectHideFlags: 0

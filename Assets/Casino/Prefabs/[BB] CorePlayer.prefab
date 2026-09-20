@@ -620,6 +620,8 @@ MonoBehaviour:
   currentCheatAction: {fileID: 0}
   characterAnimator: {fileID: 178504057993001136}
   _minigameManager: {fileID: 571656227073775018}
+  displeasurePerSecond: 5
+  specificTargetBot: {fileID: 0}
 --- !u!114 &4719748944516136402
 MonoBehaviour:
   m_ObjectHideFlags: 0

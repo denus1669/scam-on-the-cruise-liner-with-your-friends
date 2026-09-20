@@ -6,6 +6,16 @@ using UnityEngine;
 namespace Blocks.Gameplay.Core
 {
     /// <summary>
+    /// Опциональная возможность: объект умеет визуально выделяться.
+    /// Реализуется только теми объектами, которым нужна подсветка.
+    /// </summary>
+    public interface IHighlightable
+    {
+        void SetAvailableHighlight(bool state); // «сюда можно навестись»
+        void SetFocusHighlight(bool state);     // «ты навёлся»
+    }
+
+    /// <summary>
     /// A Player Addon that manages interactions with objects in the world (IInteractable).
     /// It detects targets via raycast (look) and proximity (nearby), manages the "focus" state,
     /// and triggers interactions via input or collision.
@@ -93,7 +103,7 @@ namespace Blocks.Gameplay.Core
             if (m_PlayerManager.IsOwner)
             {
                 onInteractPressed.UnregisterListener(TryInteract);
-                onInteractReleased.UnregisterListener(CancelHold); // Отписка
+                onInteractReleased.UnregisterListener(CancelHold); 
                 ClearFocus();
             }
         }
@@ -121,6 +131,7 @@ namespace Blocks.Gameplay.Core
 
         /// <summary>
         /// Handles interaction cooldowns and continuously searches for the best interactable target.
+        /// Manages local focus highlight state.
         /// </summary>
         private void Update()
         {
@@ -189,12 +200,16 @@ namespace Blocks.Gameplay.Core
 
         #region Private Methods
 
+        /// <summary>
+        /// Сбрасывает текущую цель фокуса и выключает локальную подсветку.
+        /// </summary>
         private void ClearFocus()
         {
-
-                m_CurrentFocusedInteractable = null;
-                // Сообщаем UI, что фокус потерян
-                OnFocusExitLocal?.Invoke();
+            //Снимаем локальную подсветку фокуса перед сбросом ссылки
+            SetFocusHighlight(m_CurrentFocusedInteractable, false);
+            m_CurrentFocusedInteractable = null;
+            // Сообщаем UI, что фокус потерян
+            OnFocusExitLocal?.Invoke();
 
         }
 
@@ -254,15 +269,23 @@ namespace Blocks.Gameplay.Core
                 }
             }
 
+            // Обрабатываем смену фокуса и управляем локальной подсветкой
             if (bestTarget != m_CurrentFocusedInteractable)
             {
+                // Снимаем подсветку со старой цели
+                SetFocusHighlight(m_CurrentFocusedInteractable, false);
+
                 m_CurrentFocusedInteractable = bestTarget;
 
                 // Automatically interact when entering focus for OnFocusEnter trigger mode
                 if (m_CurrentFocusedInteractable != null)
                 {
+                    // Накладываем подсветку на новую цель
+                    SetFocusHighlight(m_CurrentFocusedInteractable, true);
+
                     // Сообщаем UI, что мы смотрим на новую цель
                     OnFocusEnterLocal?.Invoke(m_CurrentFocusedInteractable);
+
                     if (m_CurrentFocusedInteractable.TriggerMode == InteractionTriggerMode.OnFocusEnter)
                     {
                         m_CurrentFocusedInteractable.Interact(gameObject);
@@ -274,6 +297,40 @@ namespace Blocks.Gameplay.Core
                     OnFocusExitLocal?.Invoke();
                 }
             }
+        }
+
+        /// <summary>
+        /// Управляет локальной подсветкой фокуса (SetFocusHighlight) для конкретной цели.
+        /// Вызывается при смене фокуса или его потере.
+        /// </summary>
+        /// <param name="target">Цель взаимодействия.</param>
+        /// <param name="state">true - включить подсветку, false - выключить.</param>
+        private void SetFocusHighlight(IInteractable target, bool state)
+        {
+            if (!IsValid(target))
+                return;
+
+            if (target is IHighlightable highlightable)
+            {
+                highlightable.SetFocusHighlight(state);
+            }
+        }
+
+        /// <summary>
+        /// Проверяет, что ссылка на IInteractable все еще существует 
+        /// (защита от уничтоженных GameObject, так как IInteractable - это интерфейс).
+        /// </summary>
+        /// <param name="interactable">Проверяемый объект.</param>
+        /// <returns>true, если объект валиден и не уничтожен.</returns>
+        private bool IsValid(IInteractable interactable)
+        {
+            if (interactable == null)
+                return false;
+
+            if (interactable is Component component)
+                return component != null;
+
+            return true;
         }
 
         /// <summary>

@@ -71,7 +71,7 @@ Material:
     - _AtlasSize: {r: 12.115, g: 8.635, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 1, b: 0.0791831, a: 1}
     - _FaceIndex: {r: 0, g: 5, b: 0, a: 0}
-    - _ModifierColor: {r: 0.8018868, g: 0.38203096, b: 0.38203096, a: 1}
+    - _ModifierColor: {r: 0.8018868, g: 0.38203093, b: 0.38203093, a: 1}
     - _NewValueIndex: {r: 0, g: 0, b: 0, a: 0}
     - _PlaceholderIndex: {r: 1, g: 1, b: 0, a: 0}
     - _ShirtIndex: {r: 0, g: 5, b: 0, a: 0}

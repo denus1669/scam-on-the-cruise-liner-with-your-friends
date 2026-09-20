@@ -57,5 +57,36 @@ namespace Assets.Casino.Games.BlackGreg
             blackGregTable.RequestDrawCardServerRpc(clientId);
             Debug.Log($"{clientId}");
         }
+
+        /// <summary>
+        /// Возвращает true, если хотя бы один игрок сейчас может взаимодействовать с колодой.
+        ///
+        /// Этот метод используется подсветкой доступности.
+        /// Он повторяет логику CanInteract, но без конкретного игрока-взаимодействующего.
+        /// </summary>
+        public bool HasAnyAvailableInteractor()
+        {
+            // Если стола нет или бот еще не дошел до стола, взаимодействовать нельзя.
+            if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
+            {
+                return false;
+            }
+
+            // Если в игровой зоне нет игроков, взаимодействовать некому.
+            if (blackGregTable.playersInGameArea == null || blackGregTable.playersInGameArea.Count == 0)
+            {
+                return false;
+            }
+
+            // Если стол занят, взаимодействовать может только владелец стола,
+            // и только если он находится в игровой зоне.
+            if (blackGregTable.IsOccupied)
+            {
+                return blackGregTable.playersInGameArea.Contains(blackGregTable.OccupiedByClientId);
+            }
+
+            // Если стол не занят, любой игрок из игровой зоны может взаимодействовать.
+            return true;
+        }
     }
 }
