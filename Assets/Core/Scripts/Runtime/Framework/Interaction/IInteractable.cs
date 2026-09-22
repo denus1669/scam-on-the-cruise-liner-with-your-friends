@@ -40,6 +40,12 @@ namespace Blocks.Gameplay.Core
         /// >0 = требуется удержание.
         /// </summary>
         float HoldDuration { get; }
+
+        /// <summary>
+        /// Возвращает true, если хотя бы один игрок может взаимодействовать с объектом.
+        /// Используется для подсветки доступности.
+        /// </summary>
+        bool HasAnyAvailableInteractor();
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using Assets.Casino.Slots;
+﻿using Assets.Casino.Games.BlackGreg;
+using Assets.Casino.Slots;
 using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace Assets.Casino.Slots
     /// Отвечает ТОЛЬКО за отображение UI (через интерфейс IInteractable) и передачу ввода игрока в ядро.
     /// Учитывает три состояния автомата: исправен, сломан, взорван.
     /// </summary>
-    public class SlotMachineInteractable : NetworkBehaviour, IInteractable, IHoldReleaseInteractable
+    public class SlotMachineInteractable : InteractableBase, IHoldReleaseInteractable
     {
         [Header("Слот-машина (Ядро)")]
         [SerializeField] private SlotMachine slotMachine;
@@ -28,15 +29,15 @@ namespace Assets.Casino.Slots
         private bool m_LastIsBroken;
         private bool m_LastIsExploded;
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
 
         /// <summary>
         /// Динамическое время удержания.
         /// Для взорванных автоматов - 0 (мгновенное нажатие, без удержания).
         /// Для сломанных - заданное время для починки.
         /// </summary>
-        public float HoldDuration
+        public override float HoldDuration
         {
             get
             {
@@ -53,7 +54,7 @@ namespace Assets.Casino.Slots
         /// <summary>
         /// Динамический текст подсказки, зависящий от состояния ядра.
         /// </summary>
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -94,7 +95,7 @@ namespace Assets.Casino.Slots
         /// Определяет, может ли объект быть в фокусе и показывать текст подсказки.
         /// Возвращает true для сломанных И взорванных автоматов, чтобы текст показывался в обоих случаях.
         /// </summary>
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (slotMachine == null)
                 return false;
@@ -104,11 +105,16 @@ namespace Assets.Casino.Slots
             return slotMachine.IsBroken || slotMachine.IsExploded;
         }
 
+        public override bool HasAnyAvailableInteractor()
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
         /// Выполняется после успешного удержания/нажатия кнопки.
         /// Для взорванных автоматов просто показывает сообщение и ничего не делает.
         /// </summary>
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             if (!IsSpawned || slotMachine == null)
                 return;

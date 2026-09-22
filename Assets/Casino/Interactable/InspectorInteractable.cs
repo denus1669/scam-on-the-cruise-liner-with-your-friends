@@ -10,7 +10,7 @@ namespace Assets.Casino.Inspector
     /// Позволяет игроку зажать E, чтобы остановить инспектора на N секунд.
     /// После использования уходит на перезарядку.
     /// </summary>
-    public class InspectorInteractable : NetworkBehaviour, IInteractable, IHoldReleaseInteractable
+    public class InspectorInteractable : InteractableBase, IHoldReleaseInteractable
     {
         [Header("Инспектор")]
         [SerializeField] private InspectorAgent inspector;
@@ -27,18 +27,18 @@ namespace Assets.Casino.Inspector
         private bool _lastIsStopped;
         private float _lastCooldownRemaining = -1f;
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
 
         /// <summary>
         /// Время удержания для виджета загрузки.
         /// </summary>
-        public float HoldDuration => distractHoldDuration;
+        public override float HoldDuration => distractHoldDuration;
 
         /// <summary>
         /// Динамический текст подсказки.
         /// </summary>
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -80,7 +80,7 @@ namespace Assets.Casino.Inspector
         /// <summary>
         /// Может ли игрок взаимодействовать с инспектором.
         /// </summary>
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (inspector == null)
                 return false;
@@ -89,10 +89,15 @@ namespace Assets.Casino.Inspector
             return !inspector.IsStoppedByPlayer && inspector.GetInteractionCooldownRemaining() <= 0f;
         }
 
+        public override bool HasAnyAvailableInteractor()
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
         /// Вызывается после успешного удержания кнопки.
         /// </summary>
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             if (!IsSpawned || inspector == null)
                 return;

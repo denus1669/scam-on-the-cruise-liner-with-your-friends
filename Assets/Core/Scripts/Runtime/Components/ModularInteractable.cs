@@ -506,6 +506,11 @@ namespace Blocks.Gameplay.Core
             }
         }
 
+        public bool HasAnyAvailableInteractor()
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
     }
 }

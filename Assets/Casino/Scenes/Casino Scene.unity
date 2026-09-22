@@ -7227,6 +7227,10 @@ PrefabInstance:
       propertyPath: casinoBank
       value: 
       objectReference: {fileID: 441953932}
+    - target: {fileID: 3007702709166185952, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      propertyPath: outlineMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3491580384908380077, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 628825481
@@ -7250,6 +7254,10 @@ PrefabInstance:
     - target: {fileID: 4241009712326279512, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4935368456632209242, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      propertyPath: outlineWidth
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5922912095996169477, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_Mesh
@@ -7407,10 +7415,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 843788501}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8483914747108541557, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1254299382}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
 --- !u!4 &1087630455 stripped
 Transform:
@@ -8170,32 +8175,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1767880020610294462, guid: 87901355faa94af491178ea1358f13c9, type: 3}
   m_PrefabInstance: {fileID: 1254031423}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1254299378 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8483914747108541557, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
-  m_PrefabInstance: {fileID: 1087630454}
-  m_PrefabAsset: {fileID: 0}
---- !u!65 &1254299382
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1254299378}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.5, y: 0.19, z: 0.5}
-  m_Center: {x: 0.12, y: -0.03, z: -0.15}
 --- !u!1001 &1260561361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14209,34 +14188,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7434657271151909052, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
       insertIndex: -1
       addedObject: {fileID: 169433091511401387}
-    - targetCorrespondingSourceObject: {fileID: 8415625205617085565, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 169433091511401376}
   m_SourcePrefab: {fileID: 100100000, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
---- !u!1 &169433091511401375 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8415625205617085565, guid: db30452b437d9d64687f8cca247eaeac, type: 3}
-  m_PrefabInstance: {fileID: 169433091511401372}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &169433091511401376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 169433091511401375}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8940ec2402f225b46aabb95ba801f3f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DayActiveInteractable
-  ShowTopMostFoldoutHeaderGroup: 1
-  triggerMode: 0
-  priority: 10
-  promptText: "\u041D\u0430\u0447\u0430\u0442\u044C \u0434\u0435\u043D\u044C (E)"
-  _firstDoorPart: {fileID: 169433091511401375}
-  _doorOpenPart: {fileID: 0}
-  _pivotPoint: 0
 --- !u!4 &169433091511401381 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 310469032186031550, guid: db30452b437d9d64687f8cca247eaeac, type: 3}

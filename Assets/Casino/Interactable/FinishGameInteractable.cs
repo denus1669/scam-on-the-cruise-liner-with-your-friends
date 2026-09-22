@@ -1,18 +1,16 @@
-using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
 using Assets.Casino.Games.BlackGreg;
 
 namespace Assets.Casino.Games
 {
-
     /// <summary>
     /// Интерактивный объект для завершения игры.
     /// Двухступенчатая система:
     /// 1. Удержание 2 сек → вскрыть карты (RevealHands)
     /// 2. Мгновенно → завершить партию (FinishGame)
     /// </summary>
-    public class FinishGameInteractable : NetworkBehaviour, IInteractable
+    public class FinishGameInteractable : InteractableBase
     {
         [Header("Стол")]
         [SerializeField] private BlackGregTable blackGregTable;
@@ -29,18 +27,18 @@ namespace Assets.Casino.Games
         private bool m_LastCanReveal;
         private bool m_LastCanFinish;
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
 
         /// <summary>
         /// Динамическое время удержания: 2 сек для Reveal, 0 сек для Finish.
         /// </summary>
-        public float HoldDuration => blackGregTable != null && blackGregTable.IsRevealed ? 0f : _timeToHold;
+        public override float HoldDuration => blackGregTable != null && blackGregTable.IsRevealed ? 0f : _timeToHold;
 
         /// <summary>
         /// Динамический текст подсказки.
         /// </summary>
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -69,7 +67,7 @@ namespace Assets.Casino.Games
         /// <summary>
         /// Определяет, может ли объект быть в фокусе.
         /// </summary>
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (blackGregTable == null || !blackGregTable.IsOccupied || !blackGregTable.IsGameStarted)
                 return false;
@@ -84,7 +82,7 @@ namespace Assets.Casino.Games
         /// <summary>
         /// Выполняется после успешного удержания/нажатия кнопки.
         /// </summary>
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             if (!IsSpawned || blackGregTable == null)
                 return;
@@ -101,6 +99,20 @@ namespace Assets.Casino.Games
             {
                 blackGregTable.FinishGameServerRpc(clientId);
             }*/
+        }
+
+        /// <summary>
+        /// Возвращает true, если хотя бы один игрок сейчас может взаимодействовать с объектом завершения игры.
+        /// Используется подсветкой доступности.
+        /// </summary>
+        public override bool HasAnyAvailableInteractor()
+        {
+            // Стол должен быть занят и игра должна быть начата
+            if (blackGregTable == null || !blackGregTable.IsOccupied || !blackGregTable.IsGameStarted)
+                return false;
+
+            // Если условия выполнены, владелец стола может взаимодействовать
+            return true;
         }
     }
 }

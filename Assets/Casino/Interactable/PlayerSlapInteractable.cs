@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Assets.Casino.Slap
 {
     [RequireComponent(typeof(PlayerSlapReceiver))]
-    public class PlayerSlapInteractable : MonoBehaviour, IHoldReleaseInteractable
+    public class PlayerSlapInteractable : InteractableBase, IHoldReleaseInteractable
     {
         [Header("Компоненты")]
         [SerializeField] private PlayerSlapReceiver slapReceiver;
@@ -31,11 +31,11 @@ namespace Assets.Casino.Slap
 
         private string m_CachedPrompt;
 
-        public InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
-        public int Priority => interactionPriority;
-        public float HoldDuration => maxHoldDuration;
+        public override InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
+        public override int Priority => interactionPriority;
+        public override float HoldDuration => maxHoldDuration;
 
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -52,7 +52,7 @@ namespace Assets.Casino.Slap
             if (slapReceiver == null) slapReceiver = GetComponent<PlayerSlapReceiver>();
         }
 
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (slapReceiver == null) return false;
 
@@ -67,7 +67,7 @@ namespace Assets.Casino.Slap
             return true;
         }
 
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             TriggerSlapEvent(interactor, maxHoldDuration);
         }
@@ -109,6 +109,11 @@ namespace Assets.Casino.Slap
 
                 slapReceiver.InitiateSlap(slapperId, chargeTime, slapperPosition, slapperForward);
             }
+        }
+
+        public override bool HasAnyAvailableInteractor()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Assets.Casino.Cheating
     /// Компонент мухлежа, висящий на СТОЛЕ (или конкретном месте за столом).
     /// Теперь он не привязан к владельцу игрока, а проверяет входящего игрока.
     /// </summary>
-    public class TableCheatInteractable : NetworkBehaviour, IInteractable
+    public class TableCheatInteractable : InteractableBase
     {
         [SerializeField] GameTable thisTableComponent;
 
@@ -23,21 +23,23 @@ namespace Assets.Casino.Cheating
         [SerializeField] private string promptText = "Мухлевать (E)";
 
         [SerializeField] private BlackGregCheatAction availableCheats;
+        private PlayerCheatController _ownerCheatController;
+
 
 
         // Ссылка на контроллер мухлежа теперь берется динамически у игрока, который взаимодействует
         // Или можно иметь ссылку на общий менеджер стола, если логика общая
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
-        public float HoldDuration => 0f;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
+        public override float HoldDuration => 0f;
 
         // Кэш для текста подсказки (опционально, можно упростить)
         private string m_CachedPrompt;
         private bool m_LastCanCheat;
         private GameObject m_LastTarget;
 
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -54,7 +56,7 @@ namespace Assets.Casino.Cheating
         /// Проверка возможности взаимодействия.
         /// interactor — этоGameObject игрока, который нажал кнопку или навел курсор.
         /// </summary>
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (interactor == null) return false;
 
@@ -93,7 +95,7 @@ namespace Assets.Casino.Cheating
             return true;
         }
 
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             if (!IsSpawned) return;
 
@@ -109,6 +111,30 @@ namespace Assets.Casino.Cheating
 
             // Вызываем метод на контроллере игрока
             cheatController.RequestCheatServerRpc(availableCheats.CheatForCodeName);
+        }
+
+        /// <summary>
+        /// Возвращает true, если владелец стола сейчас может использовать мухлеж.
+        /// Используется подсветкой доступности на сервере.
+        /// </summary>
+        public override bool HasAnyAvailableInteractor()
+        {
+            // Базовые проверки стола
+            if (thisTableComponent == null || !thisTableComponent.IsGameStarted || !thisTableComponent.IsOccupied)
+                return false;
+
+            ulong ownerId = thisTableComponent.OccupiedByClientId;
+            if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(ownerId, out var client))
+                return false;
+
+            var playerObj = client.PlayerObject;
+            if (playerObj == null)
+                return false;
+
+            var ctrl = playerObj.GetComponent<PlayerCheatController>()
+                    ?? playerObj.GetComponentInChildren<PlayerCheatController>();
+
+            return ctrl != null && ctrl.CanCheat();
         }
     }
 }

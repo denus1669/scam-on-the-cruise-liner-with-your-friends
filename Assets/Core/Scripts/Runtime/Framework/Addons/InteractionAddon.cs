@@ -308,9 +308,11 @@ namespace Blocks.Gameplay.Core
         private void SetFocusHighlight(IInteractable target, bool state)
         {
             if (!IsValid(target))
+            {
                 return;
+            }
 
-            if (target is IHighlightable highlightable)
+            if (target is Component component && component.TryGetComponent<IHighlightable>(out var highlightable))
             {
                 highlightable.SetFocusHighlight(state);
             }
@@ -325,10 +327,14 @@ namespace Blocks.Gameplay.Core
         private bool IsValid(IInteractable interactable)
         {
             if (interactable == null)
+            {
                 return false;
+            }
 
             if (interactable is Component component)
+            {
                 return component != null;
+            }
 
             return true;
         }

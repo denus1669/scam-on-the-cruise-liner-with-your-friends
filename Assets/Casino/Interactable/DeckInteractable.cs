@@ -9,7 +9,7 @@ namespace Assets.Casino.Games.BlackGreg
     /// Интерактивный объект "Колода карт".
     /// При взаимодействии даёт команду столу выдать карту игроку.
     /// </summary>
-    public class DeckInteractable : NetworkBehaviour, IInteractable
+    public class DeckInteractable : InteractableBase
     {
         [Header("Стол")]
         [SerializeField] private BlackGregTable blackGregTable;
@@ -19,13 +19,13 @@ namespace Assets.Casino.Games.BlackGreg
         [SerializeField] private int priority = 0;
         [SerializeField] private string promptText = "Взять карту (E)";
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
-        public string InteractionPromptText => promptText;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
+        public override string InteractionPromptText => promptText;
 
-        public float HoldDuration => 0f;
+        public override float HoldDuration => 0f;
 
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
             {
@@ -45,7 +45,7 @@ namespace Assets.Casino.Games.BlackGreg
             return blackGregTable.playersInGameArea.Contains(clientId);
         }
 
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
 
             if (!IsSpawned || blackGregTable == null)
@@ -64,7 +64,7 @@ namespace Assets.Casino.Games.BlackGreg
         /// Этот метод используется подсветкой доступности.
         /// Он повторяет логику CanInteract, но без конкретного игрока-взаимодействующего.
         /// </summary>
-        public bool HasAnyAvailableInteractor()
+        public override bool HasAnyAvailableInteractor()
         {
             // Если стола нет или бот еще не дошел до стола, взаимодействовать нельзя.
             if (blackGregTable == null || !blackGregTable.IsBotReachedTable)

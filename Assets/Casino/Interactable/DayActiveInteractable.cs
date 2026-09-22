@@ -6,7 +6,7 @@ using Assets.Casino.PhaseDay.GameStatePhase;
 
 namespace Assets.Casino.PhaseDay.GameStateActivate
 {
-    public class DayActiveInteractable : NetworkBehaviour, IInteractable
+    public class DayActiveInteractable : InteractableBase
     {
         [Header("Настройки взаимодействия")]
         [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
@@ -20,11 +20,11 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         private string m_CachedPrompt;
         private GameState m_LastState;
 
-        public InteractionTriggerMode TriggerMode => triggerMode;
-        public int Priority => priority;
-        public float HoldDuration => 0f;
+        public override InteractionTriggerMode TriggerMode => triggerMode;
+        public override int Priority => priority;
+        public override float HoldDuration => 0f;
 
-        public string InteractionPromptText
+        public override string InteractionPromptText
         {
             get
             {
@@ -45,7 +45,7 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
             }
         }
 
-        public bool CanInteract(GameObject interactor)
+        public override bool CanInteract(GameObject interactor)
         {
             var manager = GameSessionManager.Instance;
             if (manager == null) return false;
@@ -54,7 +54,7 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
             return manager.CurrentState == GameState.Preparing;
         }
 
-        public void Interact(GameObject interactor)
+        public override void Interact(GameObject interactor)
         {
             if (!IsSpawned) return;
 
@@ -117,6 +117,15 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         {
             if (_firstDoorPart != null) _firstDoorPart.SetActive(true);
             if (_doorOpenPart != null) _doorOpenPart.transform.localEulerAngles = Vector3.zero;
+        }
+
+        public override bool HasAnyAvailableInteractor()
+        {
+            var manager = GameSessionManager.Instance;
+            if (manager == null) return false;
+
+            // Объект доступен, если игра находится в фазе подготовки
+            return manager.CurrentState == GameState.Preparing;
         }
     }
 }

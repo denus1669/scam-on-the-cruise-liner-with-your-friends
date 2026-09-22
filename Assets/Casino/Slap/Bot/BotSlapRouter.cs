@@ -131,5 +131,10 @@ namespace Assets.Casino.Slap.Bot
             ulong slapperId = interactor.GetComponent<NetworkObject>().OwnerClientId;
             ExecuteSlap(slapperId);
         }
+
+        public bool HasAnyAvailableInteractor()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
