@@ -42,11 +42,8 @@ namespace Assets.Casino.Games
         /// <summary>Срабатывает при изменении занятости бота. Параметр: true — бот занял место, false — освободил.</summary>
         event Action<bool> OnBotOccupancyChanged;
 
-        /// <summary>Срабатывает, когда игра началась (gameInProgress стал true).</summary>
-        event Action OnGameStarted;
-
-        /// <summary>Срабатывает, когда игра завершилась (gameInProgress стал false).</summary>
-        event Action OnGameEnded;
+        /// <summary>Срабатывает, когда меняется состояние игры.</summary>
+        event Action<bool> OnGameStateChanged;
 
         /// <summary>Занять стол игроком. Вызывается только на сервере.</summary>
         /// <param name="clientId">ID клиента, который занимает стол.</param>
@@ -88,6 +85,9 @@ namespace Assets.Casino.Games
 
         bool CanAssignBot();
 
-        void BotReachedTable(bool reached);
+        public void OnBotReachedTableChanged(bool previous, bool current);
+        public event Action<bool> OnBotReachedTableStateChanged;
+
+        public void BotReachedTable(bool reached);
     }
 }

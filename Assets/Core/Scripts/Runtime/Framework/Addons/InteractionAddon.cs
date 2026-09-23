@@ -13,6 +13,7 @@ namespace Blocks.Gameplay.Core
     {
         void SetAvailableHighlight(bool state); // «сюда можно навестись»
         void SetFocusHighlight(bool state);     // «ты навёлся»
+        bool CanHighlight(GameObject interactor);
     }
 
     /// <summary>

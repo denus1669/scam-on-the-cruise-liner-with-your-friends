@@ -1,6 +1,7 @@
+using Assets.Casino.Games.BlackGreg;
+using Blocks.Gameplay.Core;
 using Unity.Netcode;
 using UnityEngine;
-using Assets.Casino.Games.BlackGreg;
 
 namespace Assets.Casino.Games
 {
@@ -18,7 +19,6 @@ namespace Assets.Casino.Games
         [Header("Настройки взаимодействия")]
         [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
         [SerializeField] private int priority = 5;
-
         [SerializeField] private float _timeToHold = 1f;
 
         // Кэш для оптимизации обновления текста подсказки
@@ -56,7 +56,6 @@ namespace Assets.Casino.Games
                     m_CachedPrompt = blackGregTable == null ? "Стол недоступен" :
                         !gameStarted ? "Игра не началась" :
                         canReveal ? "Вскрыть карты (Удерживайте E)" :
-                        //canFinish ? "Завершить партию (E)" :
                         "Бот не закончил ходить или Игрок не взял 2 карты";
                 }
 
@@ -93,26 +92,6 @@ namespace Assets.Casino.Games
             {
                 blackGregTable.RevealHandsServerRpc(clientId);
             }
-
-            /*
-            else if (blackGregTable.CanPlayerFinish())
-            {
-                blackGregTable.FinishGameServerRpc(clientId);
-            }*/
-        }
-
-        /// <summary>
-        /// Возвращает true, если хотя бы один игрок сейчас может взаимодействовать с объектом завершения игры.
-        /// Используется подсветкой доступности.
-        /// </summary>
-        public override bool HasAnyAvailableInteractor()
-        {
-            // Стол должен быть занят и игра должна быть начата
-            if (blackGregTable == null || !blackGregTable.IsOccupied || !blackGregTable.IsGameStarted)
-                return false;
-
-            // Если условия выполнены, владелец стола может взаимодействовать
-            return true;
         }
     }
 }

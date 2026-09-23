@@ -79,8 +79,7 @@ namespace Assets.Casino.Bot
             if (_subscribedTable != null)
             {
                 // Подписываемся на начало игры
-                _subscribedTable.OnGameStarted += HandleGameStarted;
-                _subscribedTable.OnGameEnded += HandleGameEnded;
+                _subscribedTable.OnGameStateChanged += HandleGameStateChanged;
             }
             else
             {
@@ -95,8 +94,7 @@ namespace Assets.Casino.Bot
         {
             if (_subscribedTable != null)
             {
-                _subscribedTable.OnGameStarted -= HandleGameStarted;
-                _subscribedTable.OnGameEnded -= HandleGameEnded;
+                _subscribedTable.OnGameStateChanged -= HandleGameStateChanged;
                 _subscribedTable = null;
             }
         }
@@ -104,12 +102,7 @@ namespace Assets.Casino.Bot
         /// <summary>
         /// Срабатывает при начале игры на конкретном столе.
         /// </summary3>
-        private void HandleGameStarted()
-        {
-            HideIndicator();
-        }
-
-        private void HandleGameEnded()
+        private void HandleGameStateChanged(bool isGameStarted)
         {
             HideIndicator();
         }

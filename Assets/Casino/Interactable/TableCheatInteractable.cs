@@ -1,9 +1,6 @@
-using Assets.Casino;
 using Assets.Casino.Cheating.BlackGregCheats;
 using Assets.Casino.Games;
 using Blocks.Gameplay.Core;
-using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -43,11 +40,6 @@ namespace Assets.Casino.Cheating
         {
             get
             {
-                // Текст может зависеть от состояния конкретного игрока, но для простоты
-                // часто используют статический текст, а проверку делают в CanInteract.
-                // Если нужно динамически менять текст ("Вы уже мухлюете"), нужно знать, кто смотрит.
-                // В текущей архитектуре InteractionAddon передает цель, но не всегда контекст для UI.
-                // Для начала оставим статический или простой текст.
                 return promptText;
             }
         }
@@ -61,11 +53,9 @@ namespace Assets.Casino.Cheating
             if (interactor == null) return false;
 
             // 2. Получаем компоненты игрока, который взаимодействует
-            // Предполагаем, что у игрока есть CorePlayerManager или аналогичный идентификатор
             var playerManager = interactor.GetComponent<CorePlayerManager>();
             if (playerManager == null)
             {
-                // Пробуем найти в детях, если интерактор - корень, а менеджер ниже
                 playerManager = interactor.GetComponentInChildren<CorePlayerManager>();
             }
 
@@ -111,30 +101,6 @@ namespace Assets.Casino.Cheating
 
             // Вызываем метод на контроллере игрока
             cheatController.RequestCheatServerRpc(availableCheats.CheatForCodeName);
-        }
-
-        /// <summary>
-        /// Возвращает true, если владелец стола сейчас может использовать мухлеж.
-        /// Используется подсветкой доступности на сервере.
-        /// </summary>
-        public override bool HasAnyAvailableInteractor()
-        {
-            // Базовые проверки стола
-            if (thisTableComponent == null || !thisTableComponent.IsGameStarted || !thisTableComponent.IsOccupied)
-                return false;
-
-            ulong ownerId = thisTableComponent.OccupiedByClientId;
-            if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(ownerId, out var client))
-                return false;
-
-            var playerObj = client.PlayerObject;
-            if (playerObj == null)
-                return false;
-
-            var ctrl = playerObj.GetComponent<PlayerCheatController>()
-                    ?? playerObj.GetComponentInChildren<PlayerCheatController>();
-
-            return ctrl != null && ctrl.CanCheat();
         }
     }
 }

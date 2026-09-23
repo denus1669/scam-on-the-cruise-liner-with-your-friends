@@ -16,7 +16,6 @@ namespace Assets.Casino.Games
     /// <summary>
     /// Абстрактный базовый класс для всех игровых столов.
     /// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
-    /// Управляет занятостью игроком и ботом, взаимодействием с игроком, а также жизненным циклом игры.
     /// Конкретные игры наследуют этот класс и добавляют свою механику.
     /// </summary>
     public abstract class GameTable : NetworkBehaviour, IGameTable
@@ -26,6 +25,12 @@ namespace Assets.Casino.Games
         [Header("Экономика")]
         [SerializeField] protected CasinoBank casinoBank;
         [SerializeField] private int anteAmount = 1;
+
+        [Header("Ссылки")]
+        [SerializeField] private BoxCollider boxCollider;
+        private Vector3 readyGameCollider = new Vector3(0, 0, -1);
+        private Vector3 waitingGameCollider = new Vector3(0, -100, 1);
+
 
         public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
 
@@ -90,10 +95,9 @@ namespace Assets.Casino.Games
         /// <inheritdoc />
         public event Action<bool> OnBotOccupancyChanged;
         /// <inheritdoc />
-        public event Action OnGameStarted;
+        public event Action<bool> OnGameStateChanged;
         /// <inheritdoc />
-        public event Action OnGameEnded;
-
+        public event Action<bool> OnBotReachedTableStateChanged;
 
 
         // ---------- Unity / NetworkBehaviour ----------
@@ -106,7 +110,8 @@ namespace Assets.Casino.Games
             isOccupied.OnValueChanged += OnIsOccupiedChanged;
             gameInProgress.OnValueChanged += OnGameProgressChanged;
             isBotOccupied.OnValueChanged += OnBotOccupiedChanged;
-
+            boxCollider.center = waitingGameCollider;
+            isBotReachedTable.OnValueChanged += OnBotReachedTableChanged;
             if (NetworkManager.Singleton != null)
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
 
@@ -114,15 +119,19 @@ namespace Assets.Casino.Games
 
         public override void OnNetworkDespawn()
         {
-            base.OnNetworkDespawn();
             GameTableManager.Instance?.UnregisterTable(this);
 
             isOccupied.OnValueChanged -= OnIsOccupiedChanged;
             gameInProgress.OnValueChanged -= OnGameProgressChanged;
             isBotOccupied.OnValueChanged -= OnBotOccupiedChanged;
+            boxCollider.center = waitingGameCollider;
+            isBotReachedTable.OnValueChanged -= OnBotReachedTableChanged;
+
 
             if (NetworkManager.Singleton != null)
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+
+            base.OnNetworkDespawn();
         }
 
         // ---------- Обработчики изменений NetworkVariable ----------
@@ -140,12 +149,13 @@ namespace Assets.Casino.Games
 
         public void OnGameProgressChanged(bool previous, bool current)
         {
-            if (current)
-                OnGameStarted?.Invoke();
-            else
-                OnGameEnded?.Invoke();
+            OnGameStateChanged?.Invoke(current);
         }
 
+        public void OnBotReachedTableChanged(bool previous, bool current)
+        {
+            OnBotReachedTableStateChanged?.Invoke(current); 
+        }
 
 
         // ---------- RPC для занятия/освобождения игрока ----------
@@ -228,6 +238,7 @@ namespace Assets.Casino.Games
 
         public void BotReachedTable(bool reached)
         {
+            boxCollider.center = readyGameCollider;
             isBotReachedTable.Value = reached;
         }
 
@@ -250,6 +261,8 @@ namespace Assets.Casino.Games
             isBotOccupied.Value = false;
             isBotReachedTable.Value = false;
             GameTableManager.Instance?.NotifyTableFreed();
+
+            boxCollider.center = waitingGameCollider;
 
             Debug.Log($"[GameTable] Бот убран из-за стола.");
         }

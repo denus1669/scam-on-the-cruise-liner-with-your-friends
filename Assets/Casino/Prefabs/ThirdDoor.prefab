@@ -132,9 +132,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5941157284171297125}
-    - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1722687387605538429}
   m_SourcePrefab: {fileID: 100100000, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
 --- !u!1 &1936783384959663572 stripped
 GameObject:
@@ -174,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2933429162
+  GlobalObjectIdHash: 347354945
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -224,23 +221,3 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &1722687387605538429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936783384959663572}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
-  _interactable: {fileID: 1112137370543010156}
-  availabilityCheckInterval: 0.5
-  _outline: {fileID: 5941157284171297125}

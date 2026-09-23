@@ -71,8 +71,7 @@ namespace Assets.Casino.Bot
 
             if (gameTable != null && IsServer)
             {
-                gameTable.OnGameStarted -= OnGameStarted;
-                gameTable.OnGameEnded -= OnGameEnded;
+                gameTable.OnGameStateChanged -= OnGameStateChanged;
             }
             base.OnNetworkDespawn();
         }
@@ -89,8 +88,7 @@ namespace Assets.Casino.Bot
             // Отписка от предыдущего стола (защита от двойной подписки)
             if (gameTable != null && IsServer)
             {
-                gameTable.OnGameStarted -= OnGameStarted;
-                gameTable.OnGameEnded -= OnGameEnded;
+                gameTable.OnGameStateChanged -= OnGameStateChanged;
             }
 
             gameTable = table;
@@ -100,8 +98,7 @@ namespace Assets.Casino.Bot
                 _hasBotStood.Value = false; // Сброс
                 NotifyBotStoodChangedClientRpc(false);
 
-                gameTable.OnGameStarted += OnGameStarted;
-                gameTable.OnGameEnded += OnGameEnded;
+                gameTable.OnGameStateChanged += OnGameStateChanged;
             }
         }
 
@@ -111,8 +108,7 @@ namespace Assets.Casino.Bot
 
             if (gameTable != null && IsServer)
             {
-                gameTable.OnGameStarted -= OnGameStarted;
-                gameTable.OnGameEnded -= OnGameEnded;
+                gameTable.OnGameStateChanged -= OnGameStateChanged;
                 gameTable = null;
             }
         }
@@ -136,15 +132,20 @@ namespace Assets.Casino.Bot
             _isPlaying.Value = false;
         }
 
-        private void OnGameStarted() => StartSession();
-
-        private void OnGameEnded()
+        private void OnGameStateChanged(bool isGameStarted)
         {
-            EndSession();
-            _hasBotStood.Value = false;
-            NotifyBotStoodChangedClientRpc(false);
-      
-            if (botAgent != null) botAgent.GoToExit();
+            if (isGameStarted)
+            {
+                StartSession();
+            }
+            else
+            {
+                EndSession();
+                _hasBotStood.Value = false;
+                NotifyBotStoodChangedClientRpc(false);
+
+                if (botAgent != null) botAgent.GoToExit();
+            }
         }
 
         protected virtual IEnumerator PlaySessionRoutine()
@@ -244,9 +245,6 @@ namespace Assets.Casino.Bot
 
             yield break;
         }
-
-
-
 
         #region Abstract & Virtual Methods (Для наследников)
         protected virtual void OnBotFinishedSession()

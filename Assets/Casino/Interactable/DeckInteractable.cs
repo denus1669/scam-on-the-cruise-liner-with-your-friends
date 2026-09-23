@@ -1,14 +1,11 @@
-using Blocks.Gameplay.Core;
+using Assets.Casino.Games.BlackGreg;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Assets.Casino.Games.BlackGreg
+namespace Assets.Casino.Interactable
 {
-
-    /// <summary>
-    /// Интерактивный объект "Колода карт".
-    /// При взаимодействии даёт команду столу выдать карту игроку.
-    /// </summary>
+    [RequireComponent(typeof(DeckHighlighter))]
     public class DeckInteractable : InteractableBase
     {
         [Header("Стол")]
@@ -19,74 +16,132 @@ namespace Assets.Casino.Games.BlackGreg
         [SerializeField] private int priority = 0;
         [SerializeField] private string promptText = "Взять карту (E)";
 
+        private bool _localAvailabilityCache;
+        private ulong _eligibleClientId = ulong.MaxValue;
+
+        public override event Action<bool> OnAvailabilityChanged;
+
         public override InteractionTriggerMode TriggerMode => triggerMode;
         public override int Priority => priority;
         public override string InteractionPromptText => promptText;
-
         public override float HoldDuration => 0f;
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (blackGregTable != null)
+            {
+                // Подписываемся на встроенные события GameTable
+                blackGregTable.OnOccupantChanged += HandleOccupantChanged;
+                blackGregTable.OnBotReachedTableStateChanged += HandleBotReachedTableChanged;
+                blackGregTable.playersInGameArea.OnListChanged += HandlePlayersInAreaChanged;
+            }
+
+            // Первичный расчет на сервере при спавне
+            if (IsServer) EvaluateAndPushAvailability();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (blackGregTable != null)
+            {
+                blackGregTable.OnOccupantChanged -= HandleOccupantChanged;
+                blackGregTable.OnBotReachedTableStateChanged -= HandleBotReachedTableChanged;
+                blackGregTable.playersInGameArea.OnListChanged -= HandlePlayersInAreaChanged;
+            }
+            base.OnNetworkDespawn();
+        }
+
+        private void HandleOccupantChanged(ulong clientId) => EvaluateAndPushAvailability();
+        private void HandleBotReachedTableChanged(bool reached) => EvaluateAndPushAvailability();
+        private void HandlePlayersInAreaChanged(NetworkListEvent<ulong> change) => EvaluateAndPushAvailability();
+
+        /// <summary>
+        /// Серверная логика: вычисляет, кому доступна колода, и пушит состояние конкретному клиенту.
+        /// </summary>
+        private void EvaluateAndPushAvailability()
+        {
+            if (!IsServer || blackGregTable == null) return;
+
+            ulong targetClientId = ulong.MaxValue;
+            bool isAvailable = false;
+
+            if (blackGregTable.IsBotReachedTable)
+            {
+                if (blackGregTable.IsOccupied)
+                {
+                    if (blackGregTable.playersInGameArea.Contains(blackGregTable.OccupiedByClientId))
+                    {
+                        targetClientId = blackGregTable.OccupiedByClientId;
+                        isAvailable = true;
+                    }
+                }
+                else if (blackGregTable.playersInGameArea.Count > 0)
+                {
+                    targetClientId = blackGregTable.playersInGameArea[0];
+                    isAvailable = true;
+                }
+            }
+
+            // Если целевой игрок сменился, гасим подсветку у старого
+            if (_eligibleClientId != targetClientId && _eligibleClientId != ulong.MaxValue)
+            {
+                UpdateAvailabilityClientRpc(false, RpcTarget.Single(_eligibleClientId, RpcTargetUse.Temp));
+            }
+
+            _eligibleClientId = targetClientId;
+
+            // Отправляем актуальный статус новому (или текущему) целевому игроку
+            if (targetClientId != ulong.MaxValue)
+            {
+                UpdateAvailabilityClientRpc(isAvailable, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+            }
+        }
+
+        /// <summary>
+        /// Отправляет статус доступности конкретному клиенту.
+        /// </summary>
+        [Rpc(SendTo.SpecifiedInParams)]
+        private void UpdateAvailabilityClientRpc(bool isAvailable, RpcParams rpcParams = default)
+        {
+            // Так как RPC пришел только целевому клиенту, строгая проверка LocalClientId больше не нужна,
+            // но можно оставить для paranoia-безопасности.
+            if (NetworkManager.Singleton.LocalClientId != rpcParams.Receive.SenderClientId)
+            {
+                // В редких случаях (например, смена владельца объекта) может сработать.
+            }
+
+            if (_localAvailabilityCache != isAvailable)
+            {
+                _localAvailabilityCache = isAvailable;
+                OnAvailabilityChanged?.Invoke(_localAvailabilityCache); // Пуш в DeckHighlighter
+            }
+        }
+
+        public override bool HasAnyAvailableInteractor() => _localAvailabilityCache;
 
         public override bool CanInteract(GameObject interactor)
         {
-            if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
-            {
-                Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
-                return false;
-            }
+            if (blackGregTable == null || !blackGregTable.IsBotReachedTable) return false;
+            if (!interactor.TryGetComponent<NetworkObject>(out var netObj)) return false;
 
-            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
+            ulong clientId = netObj.OwnerClientId;
 
-            if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId)
-            {
-                Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
-                return false;
-            }
+            // Жесткая серверная проверка: игрок должен быть тем самым "eligible"
+            if (clientId != _eligibleClientId) return false;
 
-            Debug.Log($"blackGregTable.playersInGameArea.Contains(clientId) == {blackGregTable.playersInGameArea.Contains(clientId)}");
+            if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId) return false;
+
             return blackGregTable.playersInGameArea.Contains(clientId);
         }
 
         public override void Interact(GameObject interactor)
         {
+            if (!IsSpawned || blackGregTable == null) return;
+            if (!interactor.TryGetComponent<NetworkObject>(out var netObj)) return;
 
-            if (!IsSpawned || blackGregTable == null)
-            {
-                return;
-            }
-
-            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
-            blackGregTable.RequestDrawCardServerRpc(clientId);
-            Debug.Log($"{clientId}");
-        }
-
-        /// <summary>
-        /// Возвращает true, если хотя бы один игрок сейчас может взаимодействовать с колодой.
-        ///
-        /// Этот метод используется подсветкой доступности.
-        /// Он повторяет логику CanInteract, но без конкретного игрока-взаимодействующего.
-        /// </summary>
-        public override bool HasAnyAvailableInteractor()
-        {
-            // Если стола нет или бот еще не дошел до стола, взаимодействовать нельзя.
-            if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
-            {
-                return false;
-            }
-
-            // Если в игровой зоне нет игроков, взаимодействовать некому.
-            if (blackGregTable.playersInGameArea == null || blackGregTable.playersInGameArea.Count == 0)
-            {
-                return false;
-            }
-
-            // Если стол занят, взаимодействовать может только владелец стола,
-            // и только если он находится в игровой зоне.
-            if (blackGregTable.IsOccupied)
-            {
-                return blackGregTable.playersInGameArea.Contains(blackGregTable.OccupiedByClientId);
-            }
-
-            // Если стол не занят, любой игрок из игровой зоны может взаимодействовать.
-            return true;
+            blackGregTable.RequestDrawCardServerRpc(netObj.OwnerClientId);
         }
     }
 }

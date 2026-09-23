@@ -41,6 +41,7 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
                         _ => promptText
                     };
                 }
+
                 return m_CachedPrompt;
             }
         }
@@ -49,8 +50,10 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         {
             var manager = GameSessionManager.Instance;
             if (manager == null) return false;
+
             if (!interactor.TryGetComponent<NetworkObject>(out var netObj)) return false;
             if (!netObj.IsPlayerObject) return false;
+
             return manager.CurrentState == GameState.Preparing;
         }
 
@@ -68,8 +71,6 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
             }
 
             Debug.Log("[DayActiveInteractable] Игрок запрашивает начало дня!");
-
-            // ТОЛЬКО запрос на сервер. Никаких визуальных RPC с клиента!
             manager.StartDayServerRpc();
         }
 
@@ -89,6 +90,7 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
+
             if (GameSessionManager.Instance != null)
             {
                 GameSessionManager.Instance.OnStateChanged -= HandleGameStateChanged;
@@ -119,12 +121,15 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
             if (_doorOpenPart != null) _doorOpenPart.transform.localEulerAngles = Vector3.zero;
         }
 
+        /// <summary>
+        /// Возвращает true, если сейчас фаза подготовки и любой игрок может начать день.
+        /// Используется подсветкой доступности на сервере.
+        /// </summary>
         public override bool HasAnyAvailableInteractor()
         {
             var manager = GameSessionManager.Instance;
             if (manager == null) return false;
 
-            // Объект доступен, если игра находится в фазе подготовки
             return manager.CurrentState == GameState.Preparing;
         }
     }

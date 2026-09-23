@@ -275,8 +275,8 @@ GameObject:
   - component: {fileID: 3650631399135838528}
   - component: {fileID: 6888928867452377717}
   - component: {fileID: 7972927995644333975}
-  - component: {fileID: 3337432195911844118}
   - component: {fileID: 7568414655896645474}
+  - component: {fileID: 1584770154544591882}
   m_Layer: 0
   m_Name: duplicated_31
   m_TagString: Untagged
@@ -395,26 +395,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &3337432195911844118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8415625205617085565}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
-  _interactable: {fileID: 7568414655896645474}
-  availabilityCheckInterval: 0.5
-  _outline: {fileID: 7972927995644333975}
 --- !u!114 &7568414655896645474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -434,3 +414,21 @@ MonoBehaviour:
   _firstDoorPart: {fileID: 8415625205617085565}
   _doorOpenPart: {fileID: 0}
   _pivotPoint: 0
+--- !u!114 &1584770154544591882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8415625205617085565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b42728d65ce4bc849850100232080f36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.PhaseDay.GameStateActivate.DayActiveHighlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 7568414655896645474}
+  availabilityCheckInterval: 0.5

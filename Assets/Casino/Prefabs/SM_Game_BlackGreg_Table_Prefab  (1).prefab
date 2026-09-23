@@ -115,7 +115,6 @@ GameObject:
   - component: {fileID: 1127418169066214694}
   - component: {fileID: 836935205322205608}
   - component: {fileID: 3007702709166185952}
-  - component: {fileID: 4138809694479856283}
   m_Layer: 8
   m_Name: Cheat_Fruits
   m_TagString: Untagged
@@ -277,26 +276,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &4138809694479856283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1814784862263712626}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
-  _interactable: {fileID: 1127418169066214694}
-  availabilityCheckInterval: 0.25
-  _outline: {fileID: 3007702709166185952}
 --- !u!1 &1880648699059819228
 GameObject:
   m_ObjectHideFlags: 0
@@ -312,7 +291,6 @@ GameObject:
   - component: {fileID: 6396608815522279897}
   - component: {fileID: 6723188540656855793}
   - component: {fileID: 3138502152423392131}
-  - component: {fileID: 866805537208365104}
   m_Layer: 8
   m_Name: Cheat_Book
   m_TagString: Untagged
@@ -474,26 +452,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &866805537208365104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1880648699059819228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
-  _interactable: {fileID: 6396608815522279897}
-  availabilityCheckInterval: 0.25
-  _outline: {fileID: 3138502152423392131}
 --- !u!1 &2259073397725740046
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,6 +632,7 @@ MonoBehaviour:
   botWaitPoint: {fileID: 3974921355653741915}
   casinoBank: {fileID: 0}
   anteAmount: 1
+  boxCollider: {fileID: 3467946546298104546}
   cardViewPrefab: {fileID: 4864356117138935605}
   playerHandParent: {fileID: 0}
   botHandParent: {fileID: 0}
@@ -969,7 +928,7 @@ GameObject:
   - component: {fileID: 6130116825614958920}
   - component: {fileID: 7507513536452532806}
   - component: {fileID: 6502746088795593968}
-  - component: {fileID: 1172609660955141262}
+  - component: {fileID: 1890824464188027256}
   m_Layer: 8
   m_Name: SM_Game_BlackGreg_Deck
   m_TagString: Untagged
@@ -1130,7 +1089,7 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &1172609660955141262
+--- !u!114 &1890824464188027256
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1139,17 +1098,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 5995463456884369819}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 0, g: 1, b: 0.25, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Games.BlackGreg.DeckHighlighter
+  availableColor: {r: 0.17626214, g: 1, b: 0, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
   _interactable: {fileID: 6130116825614958920}
-  availabilityCheckInterval: 0.25
-  _outline: {fileID: 6502746088795593968}
+  availabilityCheckInterval: 0.5
 --- !u!1 &8414284823830620282
 GameObject:
   m_ObjectHideFlags: 0
@@ -1195,7 +1152,6 @@ GameObject:
   - component: {fileID: 3491580384908380077}
   - component: {fileID: 4660143762433488144}
   - component: {fileID: 1332734366359416866}
-  - component: {fileID: 2643249832472458579}
   m_Layer: 8
   m_Name: FinishGame
   m_TagString: Untagged
@@ -1289,7 +1245,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8483914747108541557}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
@@ -1300,26 +1256,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &2643249832472458579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8483914747108541557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9f6b3fbf9f096e4ebdacb5f0b4609aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Blocks.Gameplay.Core.InteractableHighlighter
-  ShowTopMostFoldoutHeaderGroup: 1
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.9, b: 0, a: 1}
-  availableOutlineWidth: 2
-  focusOutlineWidth: 6
-  _interactable: {fileID: 2271716410447823971}
-  availabilityCheckInterval: 0.25
-  _outline: {fileID: 1332734366359416866}
 --- !u!1001 &4690196379915661615
 PrefabInstance:
   m_ObjectHideFlags: 0
