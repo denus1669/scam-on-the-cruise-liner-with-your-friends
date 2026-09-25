@@ -3480,51 +3480,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1508163988813165307, guid: 0ac8839224eb4b6e9995aad70bed16d9, type: 3}
   m_PrefabInstance: {fileID: 521504249}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &524284087
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 524284089}
-  - component: {fileID: 524284088}
-  m_Layer: 0
-  m_Name: HighlightService
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &524284088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 524284087}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ce8ae73f911934598856a373052090, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::HighlightService
-  _verboseLog: 1
---- !u!4 &524284089
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 524284087}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.80974, y: 3.01807, z: 1.78885}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &524358918 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3388065165414455427, guid: a708e3d70195da14f9b5e67f13e50a50, type: 3}
@@ -4464,7 +4419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &698027261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4485,8 +4440,8 @@ MonoBehaviour:
   - {fileID: 2115033780}
   - {fileID: 1767329362}
   - {fileID: 201275332}
-  minBreakTime: 30
-  maxBreakTime: 50
+  minBreakTime: 10
+  maxBreakTime: 10
   timeBeforeExplode: 30
   explodeDispleasureAmount: 50
   syncInterval: 0.1
@@ -5664,6 +5619,8 @@ GameObject:
   - component: {fileID: 840628812}
   - component: {fileID: 840628811}
   - component: {fileID: 840628810}
+  - component: {fileID: 840628816}
+  - component: {fileID: 840628815}
   m_Layer: 8
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -5807,6 +5764,42 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 840628808}
   m_Mesh: {fileID: -3111100884641205727, guid: 128f47ada3ce499f933ae6ffc05f8260, type: 3}
+--- !u!114 &840628815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840628808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 840628811}
+  availabilityCheckInterval: 0.5
+--- !u!114 &840628816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840628808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.QuickOutline.Scripts.Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &843788500
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7298,7 +7291,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4241009712326279512, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4935368456632209242, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: outlineWidth
@@ -9883,6 +9876,8 @@ GameObject:
   - component: {fileID: 1544992761}
   - component: {fileID: 1544992760}
   - component: {fileID: 1544992759}
+  - component: {fileID: 1544992765}
+  - component: {fileID: 1544992764}
   m_Layer: 8
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -10026,6 +10021,42 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1544992757}
   m_Mesh: {fileID: -3111100884641205727, guid: 128f47ada3ce499f933ae6ffc05f8260, type: 3}
+--- !u!114 &1544992764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544992757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 1544992760}
+  availabilityCheckInterval: 0.5
+--- !u!114 &1544992765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544992757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.QuickOutline.Scripts.Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!4 &1562632752 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6bd24dfd7d49d1d41a6cea8bfaa234f1, type: 3}
@@ -12303,7 +12334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1948044416
 Transform:
   m_ObjectHideFlags: 0
@@ -13700,6 +13731,8 @@ GameObject:
   - component: {fileID: 2134864362}
   - component: {fileID: 2134864361}
   - component: {fileID: 2134864360}
+  - component: {fileID: 2134864366}
+  - component: {fileID: 2134864365}
   m_Layer: 8
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -13843,6 +13876,42 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2134864358}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2134864365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134864358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 2134864361}
+  availabilityCheckInterval: 0.5
+--- !u!114 &2134864366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134864358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.QuickOutline.Scripts.Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1001 &2138254809
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15430,4 +15499,3 @@ SceneRoots:
   - {fileID: 1657279805}
   - {fileID: 416231942}
   - {fileID: 93925471}
-  - {fileID: 524284089}

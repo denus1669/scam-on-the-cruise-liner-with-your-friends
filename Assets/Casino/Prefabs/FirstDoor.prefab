@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 171528263
+  GlobalObjectIdHash: 3499271816
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -276,7 +276,7 @@ GameObject:
   - component: {fileID: 6888928867452377717}
   - component: {fileID: 7972927995644333975}
   - component: {fileID: 7568414655896645474}
-  - component: {fileID: 1584770154544591882}
+  - component: {fileID: 5589733937544627063}
   m_Layer: 0
   m_Name: duplicated_31
   m_TagString: Untagged
@@ -414,7 +414,7 @@ MonoBehaviour:
   _firstDoorPart: {fileID: 8415625205617085565}
   _doorOpenPart: {fileID: 0}
   _pivotPoint: 0
---- !u!114 &1584770154544591882
+--- !u!114 &5589733937544627063
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -423,9 +423,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8415625205617085565}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b42728d65ce4bc849850100232080f36, type: 3}
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.PhaseDay.GameStateActivate.DayActiveHighlighter
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
   availableColor: {r: 1, g: 1, b: 1, a: 1}
   focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   availableWidth: 2

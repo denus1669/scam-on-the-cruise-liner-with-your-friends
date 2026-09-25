@@ -1,11 +1,12 @@
 using Assets.Casino.Games.BlackGreg;
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace Assets.Casino.Interactable
 {
-    [RequireComponent(typeof(DeckHighlighter))]
+    [RequireComponent(typeof(HighlighterInteractable))]
     public class DeckInteractable : InteractableBase
     {
         [Header("Стол")]
@@ -17,7 +18,8 @@ namespace Assets.Casino.Interactable
         [SerializeField] private string promptText = "Взять карту (E)";
 
         private bool _localAvailabilityCache;
-        private ulong _eligibleClientId = ulong.MaxValue;
+        private readonly HashSet<ulong> _highlightedClients = new();
+
 
         public override event Action<bool> OnAvailabilityChanged;
 
@@ -64,39 +66,44 @@ namespace Assets.Casino.Interactable
         {
             if (!IsServer || blackGregTable == null) return;
 
-            ulong targetClientId = ulong.MaxValue;
-            bool isAvailable = false;
+            // 1. Считаем новое множество тех, кому должно быть доступно
+            var newTargets = new HashSet<ulong>();
 
             if (blackGregTable.IsBotReachedTable)
             {
                 if (blackGregTable.IsOccupied)
                 {
+                    // Доступно только тому, кто занял, и только если он ещё в зоне
                     if (blackGregTable.playersInGameArea.Contains(blackGregTable.OccupiedByClientId))
-                    {
-                        targetClientId = blackGregTable.OccupiedByClientId;
-                        isAvailable = true;
-                    }
+                        newTargets.Add(blackGregTable.OccupiedByClientId);
                 }
-                else if (blackGregTable.playersInGameArea.Count > 0)
+                else
                 {
-                    targetClientId = blackGregTable.playersInGameArea[0];
-                    isAvailable = true;
+                    // Свободен — доступно всем в зоне
+                    foreach (var id in blackGregTable.playersInGameArea)
+                        newTargets.Add(id);
                 }
             }
 
-            // Если целевой игрок сменился, гасим подсветку у старого
-            if (_eligibleClientId != targetClientId && _eligibleClientId != ulong.MaxValue)
+            // 2. Гасим тех, кто был подсвечен, но больше не должен
+            foreach (var id in _highlightedClients)
             {
-                UpdateAvailabilityClientRpc(false, RpcTarget.Single(_eligibleClientId, RpcTargetUse.Temp));
+                if (!newTargets.Contains(id))
+                    UpdateAvailabilityClientRpc(false, RpcTarget.Single(id, RpcTargetUse.Temp));
             }
 
-            _eligibleClientId = targetClientId;
-
-            // Отправляем актуальный статус новому (или текущему) целевому игроку
-            if (targetClientId != ulong.MaxValue)
+            // 3. Включаем/обновляем тех, кто должен быть подсвечен
+            foreach (var id in newTargets)
             {
-                UpdateAvailabilityClientRpc(isAvailable, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+                // Если нужно слать только при изменении — оборачиваем в проверку
+                if (!_highlightedClients.Contains(id))
+                    UpdateAvailabilityClientRpc(true, RpcTarget.Single(id, RpcTargetUse.Temp));
             }
+
+            // 4. Синхронизируем состояние
+            _highlightedClients.Clear();
+            foreach (var id in newTargets)
+                _highlightedClients.Add(id);
         }
 
         /// <summary>
@@ -105,13 +112,6 @@ namespace Assets.Casino.Interactable
         [Rpc(SendTo.SpecifiedInParams)]
         private void UpdateAvailabilityClientRpc(bool isAvailable, RpcParams rpcParams = default)
         {
-            // Так как RPC пришел только целевому клиенту, строгая проверка LocalClientId больше не нужна,
-            // но можно оставить для paranoia-безопасности.
-            if (NetworkManager.Singleton.LocalClientId != rpcParams.Receive.SenderClientId)
-            {
-                // В редких случаях (например, смена владельца объекта) может сработать.
-            }
-
             if (_localAvailabilityCache != isAvailable)
             {
                 _localAvailabilityCache = isAvailable;
@@ -123,16 +123,19 @@ namespace Assets.Casino.Interactable
 
         public override bool CanInteract(GameObject interactor)
         {
-            if (blackGregTable == null || !blackGregTable.IsBotReachedTable) return false;
-            if (!interactor.TryGetComponent<NetworkObject>(out var netObj)) return false;
+            if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
+            {
+                Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
+                return false;
+            }
 
-            ulong clientId = netObj.OwnerClientId;
+            ulong clientId = interactor.GetComponent<NetworkObject>().OwnerClientId;
 
-            // Жесткая серверная проверка: игрок должен быть тем самым "eligible"
-            if (clientId != _eligibleClientId) return false;
-
-            if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId) return false;
-
+            if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId)
+            {
+                Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
+                return false;
+            }
             return blackGregTable.playersInGameArea.Contains(clientId);
         }
 

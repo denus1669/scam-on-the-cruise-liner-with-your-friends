@@ -110,7 +110,8 @@ namespace Assets.Casino.Games
             isOccupied.OnValueChanged += OnIsOccupiedChanged;
             gameInProgress.OnValueChanged += OnGameProgressChanged;
             isBotOccupied.OnValueChanged += OnBotOccupiedChanged;
-            boxCollider.center = waitingGameCollider;
+            if (boxCollider != null)
+                boxCollider.center = waitingGameCollider;
             isBotReachedTable.OnValueChanged += OnBotReachedTableChanged;
             if (NetworkManager.Singleton != null)
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
@@ -124,7 +125,8 @@ namespace Assets.Casino.Games
             isOccupied.OnValueChanged -= OnIsOccupiedChanged;
             gameInProgress.OnValueChanged -= OnGameProgressChanged;
             isBotOccupied.OnValueChanged -= OnBotOccupiedChanged;
-            boxCollider.center = waitingGameCollider;
+            if (boxCollider != null)
+                boxCollider.center = waitingGameCollider;
             isBotReachedTable.OnValueChanged -= OnBotReachedTableChanged;
 
 
@@ -238,7 +240,8 @@ namespace Assets.Casino.Games
 
         public void BotReachedTable(bool reached)
         {
-            boxCollider.center = readyGameCollider;
+            if (boxCollider != null)
+                boxCollider.center = readyGameCollider;
             isBotReachedTable.Value = reached;
         }
 
@@ -262,7 +265,8 @@ namespace Assets.Casino.Games
             isBotReachedTable.Value = false;
             GameTableManager.Instance?.NotifyTableFreed();
 
-            boxCollider.center = waitingGameCollider;
+            if (boxCollider != null) 
+                boxCollider.center = waitingGameCollider;
 
             Debug.Log($"[GameTable] Бот убран из-за стола.");
         }

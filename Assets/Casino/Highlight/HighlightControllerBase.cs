@@ -45,7 +45,6 @@ public abstract class HighlightControllerBase : MonoBehaviour, IHighlightable
         SetFocusHighlight(false);
     }
 
-    // Вызывается локальным InteractionAddon'ом
     public virtual void SetAvailableHighlight(bool state)
     { 
         if ( _available != state)

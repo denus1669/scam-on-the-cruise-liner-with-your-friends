@@ -11,6 +11,8 @@ namespace Assets.Casino.Slots
     /// Отвечает ТОЛЬКО за отображение UI (через интерфейс IInteractable) и передачу ввода игрока в ядро.
     /// Учитывает три состояния автомата: исправен, сломан, взорван.
     /// </summary>
+    /// 
+    [RequireComponent(typeof(HighlighterInteractable))]
     public class SlotMachineInteractable : InteractableBase, IHoldReleaseInteractable
     {
         [Header("Слот-машина (Ядро)")]
@@ -32,6 +34,10 @@ namespace Assets.Casino.Slots
         public override InteractionTriggerMode TriggerMode => triggerMode;
         public override int Priority => priority;
 
+        // Локальный кэш доступности для клиента
+        private bool _localAvailabilityCache;
+
+        // Событие для Highlighter
         /// <summary>
         /// Динамическое время удержания.
         /// Для взорванных автоматов - 0 (мгновенное нажатие, без удержания).
@@ -105,11 +111,6 @@ namespace Assets.Casino.Slots
             return slotMachine.IsBroken || slotMachine.IsExploded;
         }
 
-        public override bool HasAnyAvailableInteractor()
-        {
-            throw new System.NotImplementedException();
-        }
-
         /// <summary>
         /// Выполняется после успешного удержания/нажатия кнопки.
         /// Для взорванных автоматов просто показывает сообщение и ничего не делает.
@@ -165,7 +166,78 @@ namespace Assets.Casino.Slots
 
         public void OnHoldStarted(GameObject interactor)
         {
-            throw new System.NotImplementedException();
         }
+
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (slotMachine != null)
+            {
+                // Подписываемся на изменения состояния автомата
+                slotMachine.OnOccupantChanged += HandleStateChanged;
+                slotMachine.OnSlotMachineBreakdownChanged += HandleStateChanged;
+                slotMachine.OnSlotMachineExplosionChanged += HandleStateChanged;
+
+                // Инициализация для Late Joiners
+                UpdateAvailabilityCache();
+            }
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (slotMachine != null)
+            {
+                slotMachine.OnOccupantChanged -= HandleStateChanged;
+                slotMachine.OnSlotMachineBreakdownChanged -= HandleStateChanged;
+                slotMachine.OnSlotMachineExplosionChanged -= HandleStateChanged;
+            }
+            base.OnNetworkDespawn();
+        }
+
+        private void HandleStateChanged() => UpdateAvailabilityCache();
+        private void HandleStateChanged(bool _) => UpdateAvailabilityCache();
+        private void HandleStateChanged(ulong _) => UpdateAvailabilityCache();
+
+        /// <summary>
+        /// Вычисляет доступность локально на клиенте на основе NetworkVariable.
+        /// </summary>
+        private void UpdateAvailabilityCache()
+        {
+            bool isAvailable = false;
+
+            if (slotMachine != null)
+            {
+                if (slotMachine.IsExploded)
+                {
+                    // Взорванный: доступен всем для просмотра текста
+                    isAvailable = true;
+                }
+                else if (slotMachine.IsBroken)
+                {
+                    if (slotMachine.IsOccupied)
+                    {
+                        // Сломанный и занятый: доступен ТОЛЬКО тому, кто чинит
+                        isAvailable = (NetworkManager.Singleton != null &&
+                                       NetworkManager.Singleton.LocalClientId == slotMachine.OccupiedByClientId);
+                    }
+                    else
+                    {
+                        // Сломанный и свободный: доступен всем
+                        isAvailable = true;
+                    }
+                }
+                // Если исправен - недоступен (isAvailable = false)
+            }
+
+            if (_localAvailabilityCache != isAvailable)
+            {
+                _localAvailabilityCache = isAvailable;
+                RaiseAvailabilityChanged(_localAvailabilityCache); // Пуш в Highlighter
+            }
+        }
+
+        public override bool HasAnyAvailableInteractor() => _localAvailabilityCache;
     }
 }

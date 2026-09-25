@@ -578,6 +578,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ecae97661d98794bac64ce1c81f3cad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.PlayerSlapInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
   slapReceiver: {fileID: 7814610562723482993}
   chargeTimeToMax: 2
   maxHoldDuration: 1.5

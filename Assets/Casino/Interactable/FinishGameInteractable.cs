@@ -11,6 +11,8 @@ namespace Assets.Casino.Games
     /// 1. Удержание 2 сек → вскрыть карты (RevealHands)
     /// 2. Мгновенно → завершить партию (FinishGame)
     /// </summary>
+    /// 
+    [RequireComponent(typeof(HighlighterInteractable))]
     public class FinishGameInteractable : InteractableBase
     {
         [Header("Стол")]
@@ -20,6 +22,10 @@ namespace Assets.Casino.Games
         [SerializeField] private InteractionTriggerMode triggerMode = InteractionTriggerMode.OnButtonPress;
         [SerializeField] private int priority = 5;
         [SerializeField] private float _timeToHold = 1f;
+        public override event System.Action<bool> OnAvailabilityChanged;
+
+        private bool _localAvailabilityCache;
+        private ulong _eligibleClientId = ulong.MaxValue;
 
         // Кэш для оптимизации обновления текста подсказки
         private string m_CachedPrompt;
@@ -62,6 +68,74 @@ namespace Assets.Casino.Games
                 return m_CachedPrompt;
             }
         }
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+
+            if (blackGregTable != null)
+            {
+                blackGregTable.OnOccupantChanged += HandleOccupantChanged;
+                blackGregTable.OnGameStateChanged += HandleGameStateChanged;
+            }
+
+            if (IsServer) EvaluateAndPushAvailability();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            if (blackGregTable != null)
+            {
+                blackGregTable.OnOccupantChanged -= HandleOccupantChanged;
+                blackGregTable.OnGameStateChanged -= HandleGameStateChanged;
+            }
+            base.OnNetworkDespawn();
+        }
+
+        private void HandleOccupantChanged(ulong clientId) => EvaluateAndPushAvailability();
+        private void HandleGameStateChanged(bool isStarted) => EvaluateAndPushAvailability();
+
+        private void EvaluateAndPushAvailability()
+        {
+            if (!IsServer || blackGregTable == null) return;
+
+            ulong targetClientId = ulong.MaxValue;
+            bool isAvailable = false;
+
+            // Доступно только если игра началась и стол занят владельцем
+            if (blackGregTable.IsGameStarted && blackGregTable.IsOccupied)
+            {
+                targetClientId = blackGregTable.OccupiedByClientId;
+                isAvailable = true;
+            }
+
+            // Гасим подсветку у старого eligible игрока
+            if (_eligibleClientId != targetClientId && _eligibleClientId != ulong.MaxValue)
+            {
+                UpdateAvailabilityClientRpc(false, RpcTarget.Single(_eligibleClientId, RpcTargetUse.Temp));
+            }
+
+            _eligibleClientId = targetClientId;
+
+            // Включаем подсветку у нового eligible игрока
+            if (targetClientId != ulong.MaxValue)
+            {
+                UpdateAvailabilityClientRpc(isAvailable, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+            }
+        }
+
+        [Rpc(SendTo.SpecifiedInParams)]
+        private void UpdateAvailabilityClientRpc(bool isAvailable, RpcParams rpcParams = default)
+        {
+            if (_localAvailabilityCache != isAvailable)
+            {
+                _localAvailabilityCache = isAvailable;
+                OnAvailabilityChanged?.Invoke(_localAvailabilityCache);
+            }
+        }
+
+        public override bool HasAnyAvailableInteractor() => _localAvailabilityCache;
+
 
         /// <summary>
         /// Определяет, может ли объект быть в фокусе.

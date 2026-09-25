@@ -14770,6 +14770,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 8299bb537af7656419e4e30437963fe8, type: 2}
+    - target: {fileID: 6936879655637228433, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
+      propertyPath: boxCollider
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7133188413716569847, guid: aabb77d3515381a46b2d612b09b3b3f6, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 

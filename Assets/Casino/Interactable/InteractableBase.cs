@@ -5,7 +5,6 @@ using UnityEngine;
 
 public abstract class InteractableBase : NetworkBehaviour, IInteractable
 {
-    public virtual event Action<bool> OnAvailabilityChanged;
 
     public virtual InteractionTriggerMode TriggerMode => InteractionTriggerMode.OnButtonPress;
 
@@ -14,7 +13,12 @@ public abstract class InteractableBase : NetworkBehaviour, IInteractable
     public virtual string InteractionPromptText => "Укажите промпт";
 
     public virtual float HoldDuration => 0;
+    public virtual event Action<bool> OnAvailabilityChanged;
 
+    protected void RaiseAvailabilityChanged(bool value)
+    {
+        OnAvailabilityChanged?.Invoke(value);
+    }
     public virtual bool CanInteract(GameObject interactor)
     {
         return false;
@@ -25,7 +29,7 @@ public abstract class InteractableBase : NetworkBehaviour, IInteractable
     }
     public virtual bool HasAnyAvailableInteractor()
     {
-        return true;
+        return false;
     }
     [Rpc(SendTo.Server)]
     public virtual void HasAnyAvailableInteractorServerRpc()

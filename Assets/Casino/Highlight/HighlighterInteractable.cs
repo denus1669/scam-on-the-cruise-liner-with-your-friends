@@ -1,17 +1,17 @@
 using Assets.Casino.Interactable;
+using Blocks.Gameplay.Core;
 using UnityEngine;
 
-[RequireComponent(typeof(DeckInteractable))]
-public class DeckHighlighter : HighlightControllerBase
+public class HighlighterInteractable : HighlightControllerBase
 {
     private void Reset()
     {
-        _interactable = GetComponent<DeckInteractable>();
+        _interactable = GetComponent<InteractableBase>();
     }
 
     private void OnEnable()
     {
-        if (_interactable == null) _interactable = GetComponent<DeckInteractable>();
+        if (_interactable == null) _interactable = GetComponent<InteractableBase>();
 
         // Подписываемся на изменения
         _interactable.OnAvailabilityChanged += SetAvailableHighlight;
@@ -25,5 +25,5 @@ public class DeckHighlighter : HighlightControllerBase
         if (_interactable != null)
             _interactable.OnAvailabilityChanged -= SetAvailableHighlight;
     }
-
+     
 }

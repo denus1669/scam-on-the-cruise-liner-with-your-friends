@@ -6,6 +6,7 @@ using Assets.Casino.PhaseDay.GameStatePhase;
 
 namespace Assets.Casino.PhaseDay.GameStateActivate
 {
+    [RequireComponent(typeof(HighlighterInteractable))]
     public class DayActiveInteractable : InteractableBase
     {
         [Header("Настройки взаимодействия")]
@@ -17,6 +18,11 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         [SerializeField] private GameObject _doorOpenPart;
         [SerializeField] private float _pivotPoint;
 
+        // Локальный кэш доступности
+        private bool _localAvailabilityCache;
+
+        // Событие для Highlighter
+        public override event System.Action<bool> OnAvailabilityChanged;
         private string m_CachedPrompt;
         private GameState m_LastState;
 
@@ -99,6 +105,10 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
 
         private void HandleGameStateChanged(GameState newState)
         {
+            // 1. Обновляем локальный кэш доступности
+            UpdateAvailabilityCache(newState);
+
+            // 2. Обновляем визуал двери
             if (newState == GameState.DayActive)
             {
                 OpenDoorVisuals();
@@ -108,7 +118,6 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
                 CloseDoorVisuals();
             }
         }
-
         private void OpenDoorVisuals()
         {
             if (_firstDoorPart != null) _firstDoorPart.SetActive(false);
@@ -122,15 +131,26 @@ namespace Assets.Casino.PhaseDay.GameStateActivate
         }
 
         /// <summary>
+        /// Вычисляет доступность локально на клиенте.
+        /// Так как GameState синхронизируется через NetworkVariable, 
+        /// это значение всегда совпадает с серверным без каких-либо RPC.
+        /// </summary>
+        private void UpdateAvailabilityCache(GameState currentState)
+        {
+            bool isAvailable = currentState == GameState.Preparing;
+
+            if (_localAvailabilityCache != isAvailable)
+            {
+                _localAvailabilityCache = isAvailable;
+                OnAvailabilityChanged?.Invoke(_localAvailabilityCache); // Пуш в Highlighter
+            }
+        }
+
+        /// <summary>
         /// Возвращает true, если сейчас фаза подготовки и любой игрок может начать день.
         /// Используется подсветкой доступности на сервере.
         /// </summary>
-        public override bool HasAnyAvailableInteractor()
-        {
-            var manager = GameSessionManager.Instance;
-            if (manager == null) return false;
+        public override bool HasAnyAvailableInteractor() => _localAvailabilityCache;
 
-            return manager.CurrentState == GameState.Preparing;
-        }
     }
 }
