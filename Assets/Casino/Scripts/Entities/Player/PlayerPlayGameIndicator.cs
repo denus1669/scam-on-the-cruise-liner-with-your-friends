@@ -20,7 +20,8 @@ public class PlayerPlayGameIndicator : NetworkObjectVisibilityIndicator
 
     private void OnEnable()
     {
-        var tables = FindObjectsOfType<GameTable>();
+        var tables = FindObjectsByType<GameTable>(FindObjectsSortMode.None);
+
         foreach (var table in tables)
         {
             table.OnOccupantChanged += HandleOccupantChanged;

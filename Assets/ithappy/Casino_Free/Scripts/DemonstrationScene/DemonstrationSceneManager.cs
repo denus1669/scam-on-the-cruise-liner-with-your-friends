@@ -7,8 +7,8 @@ namespace ithappy
     {
         private void Start()
         {
-            PlayerInput[] playerInputs = FindObjectsOfType<PlayerInput>();
-            PlayerCamera[] playerCameras = FindObjectsOfType<PlayerCamera>();
+            PlayerInput[] playerInputs = FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
+            PlayerCamera[] playerCameras = FindObjectsByType<PlayerCamera>(FindObjectsSortMode.None);
             
             if (playerInputs.Length == 0)
             {

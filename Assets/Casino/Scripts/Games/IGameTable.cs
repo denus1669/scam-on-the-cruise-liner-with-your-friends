@@ -72,7 +72,7 @@ namespace Assets.Casino.Games
         /// <param name="winnerClientId">ID клиента победителя (или ulong.MaxValue, если победил банк/бот).</param>
         /// <param name="isCheaterBot">Указывает, был ли пойманный читер ботом.</param>
         /// <param name="reason">Причина остановки (для логов и UI).</param>
-        void ForceStopGame(ulong winnerClientId, bool isCheaterBot, string reason);
+        void ForceStopGame(bool isCheaterBot, string reason);
 
 
         /// <summary>

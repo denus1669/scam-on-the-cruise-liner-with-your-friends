@@ -51,8 +51,9 @@ namespace Assets.Casino.Cheating
             base.OnNetworkDespawn();
         }
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             if (_minigameManager == null)
             {
                 _minigameManager = GetComponent<PlayerMinigameManager>();

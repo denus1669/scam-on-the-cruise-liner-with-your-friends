@@ -34,9 +34,9 @@ namespace Controller
         [SerializeField] private string m_MouseY = "Mouse Y";
         [SerializeField] private string m_MouseScroll = "Mouse ScrollWheel";
 
-        private float m_inputDurationTimer = 0f;
+        //private float m_inputDurationTimer = 0f;
 
-        private readonly float m_inputPressedTheshold = 0.15f;
+        //private readonly float m_inputPressedTheshold = 0.15f;
 
         private bool m_CrouchToggle = false;
 

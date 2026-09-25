@@ -82,9 +82,8 @@ namespace ithappy.Casino
                     <SlotMachineFeedback>(true);
             }
 
-            return FindObjectsOfType<SlotMachineFeedback>(true);
+            return FindObjectsByType<SlotMachineFeedback>(FindObjectsSortMode.None);
         }
-
         private List<GameObject> GetUniqueCharacterPrefabs()
         {
             List<GameObject> result = new List<GameObject>();

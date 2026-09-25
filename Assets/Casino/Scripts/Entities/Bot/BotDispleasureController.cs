@@ -126,7 +126,7 @@ namespace Assets.Casino.Bot
             Debug.LogWarning($"[Displeasure] Бот {gameObject.name} вышел из себя!");
             if (table != null)
             {
-                table.ForceStopGame(ulong.MaxValue, isCheaterBot: false, reason: "Harassment");
+                table.ForceStopGame(isCheaterBot: false, reason: "Harassment");
             }
             botAgent.GoToExit();
             ResetDispleasure();

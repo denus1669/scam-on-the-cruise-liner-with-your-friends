@@ -6,10 +6,10 @@ namespace Assets.Casino.Games.BlackGreg
 {
     /// <summary>
     /// Компонент стола для игры в блэкджек.
-    /// Наследует базовую логику GameTable и реализует ICardGameTable.
+    /// Наследует базовую логику PlayerGameTable и реализует ICardGameTable.
     /// </summary>
     /// 
-    public class BlackGregTable : GameTable, ICardGameTable
+    public class BlackGregTable : PlayerGameTable, ICardGameTable
     {
         [Header("Card Settings")]
         [SerializeField] private CardView cardViewPrefab;

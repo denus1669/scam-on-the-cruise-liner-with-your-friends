@@ -15,7 +15,6 @@ namespace Assets.Casino.PhaseDay
     {
         public static GameSessionManager Instance { get; private set; }
         public static event Action OnInstanceReady;
-        public static event Action OnInstanceDestroyed;
 
         [SerializeField] private DayConfiguration dayConfiguration;
         [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
@@ -138,7 +137,7 @@ namespace Assets.Casino.PhaseDay
                 if (table == null) continue; // <-- защита от уничтоженных столов
                 if (table.IsGameStarted)
                 {
-                    table.ForceStopGame(ulong.MaxValue, false, "DayEnded");
+                    table.ForceStopGame(false, "DayEnded");
                 }
             }
         }
