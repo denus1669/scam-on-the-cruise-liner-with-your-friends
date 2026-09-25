@@ -258,7 +258,12 @@ namespace Blocks.Gameplay.Core
                 return;
             }
 
+
             var root = m_UIDocument.rootVisualElement;
+            if (root == null)
+            {
+                return;
+            }
             CacheUIElements(root);
             ConfigureUIElements();
             QueryHUDElements(root);

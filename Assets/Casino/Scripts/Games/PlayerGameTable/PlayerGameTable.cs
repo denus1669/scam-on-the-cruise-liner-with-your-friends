@@ -3,6 +3,7 @@ using Assets.Casino.Games;
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerGameTableHighlighter))]
 public abstract class PlayerGameTable : GameTable
 {
     [Header("Экономика")]

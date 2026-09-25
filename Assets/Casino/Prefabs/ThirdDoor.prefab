@@ -120,18 +120,21 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7061109775814288889}
     - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3565280574615079969}
-    - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3692570601186686726}
     - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1112137370543010156}
     - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5941157284171297125}
+    - targetCorrespondingSourceObject: {fileID: -657187154202524288, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4227662110970192851}
   m_SourcePrefab: {fileID: 100100000, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
 --- !u!1 &1936783384959663572 stripped
 GameObject:
@@ -159,31 +162,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.8034631, y: 3.1176627, z: 3.4205742}
   m_Center: {x: 0.04387796, y: -0.884987, z: 1.352432}
---- !u!114 &3692570601186686726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1936783384959663572}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 347354945
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &1112137370543010156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,3 +199,51 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &4227662110970192851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936783384959663572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::HighlighterInteractable
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 1112137370543010156}
+  availabilityCheckInterval: 0.5
+--- !u!1 &6971726327227614469 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bb9f7f15778d94649b710e134efe6246, type: 3}
+  m_PrefabInstance: {fileID: 7782754491931637844}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7061109775814288889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6971726327227614469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 347354945
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0

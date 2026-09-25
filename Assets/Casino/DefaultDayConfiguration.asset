@@ -17,7 +17,7 @@ MonoBehaviour:
   botCount: 15
   botPrefabs:
   - {fileID: 5497669901684611537, guid: d007726a2e85d26429152e0348dec952, type: 3}
-  initialBotCount: 5
+  initialBotCount: 8
   spawnDelayMin: 1000
   spawnDelayMax: 1000
   dailyChipThresholds: 050000000500000005000000050000001e000000

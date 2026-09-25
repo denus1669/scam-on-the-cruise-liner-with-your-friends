@@ -1,7 +1,3 @@
-using Assets.Casino.Interactable;
-using Blocks.Gameplay.Core;
-using UnityEngine;
-
 public class HighlighterInteractable : HighlightControllerBase
 {
     private void Reset()
