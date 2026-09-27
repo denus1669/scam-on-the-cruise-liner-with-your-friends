@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: DefaultDayConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::DayConfiguration
   daysCount: 5
-  gamePhaseDuration: 40
+  gamePhaseDuration: 200
   botCount: 15
   botPrefabs:
   - {fileID: 5497669901684611537, guid: d007726a2e85d26429152e0348dec952, type: 3}
-  initialBotCount: 6
+  initialBotCount: 3
   spawnDelayMin: 1000
   spawnDelayMax: 1000
   dailyChipThresholds: 050000000500000005000000050000001e000000

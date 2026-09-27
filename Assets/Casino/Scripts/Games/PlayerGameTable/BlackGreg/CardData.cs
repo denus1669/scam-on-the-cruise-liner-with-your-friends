@@ -10,12 +10,25 @@ namespace Assets.Casino.Games.BlackGreg
         public CardRank rank;
         public CardType type;
 
-        public CardData(CardSuit suit, CardRank rank, CardType type)
+        public CardData(CardSuit suit, CardRank cardRank, CardType type)
         {
             this.suit = suit;
-            this.rank = rank;
+            this.rank = cardRank;
             this.type = type;
         }
+
+        /// <summary>
+        /// Базовое значение карты для подсчета очков.
+        /// Туз = 11, Картинки (J, Q, K) = 10, остальные по номиналу.
+        /// Примечание: Логика уменьшения значения Туза до 1 при переборе (>21) 
+        /// должна обрабатываться на уровне подсчета всей руки (CalculateHandValue).
+        /// </summary>
+        public int BaseValue => rank switch
+        {
+            CardRank.Ace => 11,
+            CardRank.Jack or CardRank.Queen or CardRank.King => 10,
+            _ => (int)rank
+        };
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -25,8 +38,6 @@ namespace Assets.Casino.Games.BlackGreg
         }
 
         public override string ToString() => $"{rank} of {suit} [{type}]";
-
-        // --- Методы ниже нужны, чтобы использовать структуру как ключ в Dictionary ---
 
         public bool Equals(CardData other)
         {
@@ -40,9 +51,7 @@ namespace Assets.Casino.Games.BlackGreg
 
         public override int GetHashCode()
         {
-            // Создаем уникальный хэш на основе всех трех значений
             return HashCode.Combine((int)suit, (int)rank, (int)type);
         }
-
     }
 }
