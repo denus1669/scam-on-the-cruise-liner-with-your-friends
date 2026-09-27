@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/Shooter/TestScenes/[BB] Shooter MultiplayerSession.unity
     guid: 7d42b85864099114e8d3c5e25250b013
   - enabled: 1
+    path: Assets/Casino/Scenes/Start Screen.unity
+    guid: 624df3b4d5aa4d04aa71a11670986dd2
+  - enabled: 1
     path: Assets/Casino/Scenes/Casino Scene.unity
     guid: dc44cb82490b1504bab5ed73c3b52ef5
   - enabled: 0

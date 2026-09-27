@@ -51,7 +51,6 @@ namespace Assets.Casino.Bot
         /// </summary>
         protected virtual void HandleStateChanged(bool isActive)
         {
-            Debug.Log($"[{GetType().Name}] HandleStateChanged: {isActive}, MeshRenderer: {MeshRenderer != null}");
             if (isActive) ShowIndicator();
             else HideIndicator();
         }

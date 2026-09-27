@@ -22,6 +22,7 @@ namespace Assets.Casino.Bot
 
         [Header("Точка выхода")]
         [SerializeField] private Transform exitPoint;
+        [SerializeField] private Transform waitPoint;
 
         private readonly NetworkVariable<bool> _isArrived = new NetworkVariable<bool>(
         false,
@@ -61,6 +62,7 @@ namespace Assets.Casino.Bot
             if (IsServer)
             {
                 exitPoint = FindExitPoint();
+                waitPoint = FindWaitPoint();
                 GoToRandomFreeTable();
             }
             else
@@ -344,7 +346,9 @@ namespace Assets.Casino.Bot
             // 5. Успешное прибытие
             navAgent.isStopped = true;
             movementCoroutine = null;
-            onArrived?.Invoke();
+
+            if(onArrived != null)
+                onArrived?.Invoke();
         }
         #endregion
 
@@ -447,15 +451,41 @@ namespace Assets.Casino.Bot
 
         #region Waiting for Free Table
 
-        private void WaitForFreeTable()
+        public void WaitForFreeTable()
         {
             if (isWaitingForTable) return;
             isWaitingForTable = true;
+
+            GoToWaitPoint();
 
             // [ИЗМЕНЕНО] Подписываемся только на ОДИН глобальный ивент Менеджера
             if (GameTableManager.Instance != null)
             {
                 GameTableManager.Instance.OnAnyTableFreed += OnAnyTableFreed;
+            }
+        }
+
+        private void GoToWaitPoint()
+        {
+            if (!IsServer) return;
+            SetArrived(false);
+
+            CancelMovement();
+
+            if (currentTable != null)
+            {
+                currentTable.RemoveBot();
+                currentTable = null;
+            }
+
+            if (waitPoint != null)
+            {
+                Debug.Log($"[BotAgent] Бот {gameObject.name} уходит в точку ожидания.");
+                MoveToTarget(waitPoint, null);
+            }
+            else
+            {
+                Debug.LogWarning($"[BotAgent] Точка ожидания не назначена. Бот {gameObject.name} остановлен.");
             }
         }
 
@@ -496,6 +526,23 @@ namespace Assets.Casino.Bot
             }
 
             Debug.LogError("[ExitPointFinder] Объект с тэгом или именем 'ExitPoint' не найден на сцене!");
+            return null;
+        }
+
+        public Transform FindWaitPoint()
+        {
+            GameObject exitObj = GameObject.FindWithTag("WaitPoint");
+            if (exitObj != null)
+                return exitObj.transform;
+
+            exitObj = GameObject.Find("WaitPoint");
+            if (exitObj != null)
+            {
+                Debug.LogWarning("[ExitPointFinder] Объект найден по имени, рекомендуется назначить тэг 'WaitPoint'.");
+                return exitObj.transform;
+            }
+
+            Debug.LogError("[ExitPointFinder] Объект с тэгом или именем 'WaitPoint' не найден на сцене!");
             return null;
         }
 

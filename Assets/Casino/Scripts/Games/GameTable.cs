@@ -209,7 +209,7 @@ namespace Assets.Casino.Games
             currentBot = bot;
             botNetworkObjectRef.Value = new NetworkObjectReference(bot);
             isBotOccupied.Value = true;
-            Debug.Log($"[GameTable] Бот {bot.GetEntityId()} занял место за столом.");
+            Debug.Log($"[GameTable] Бот {bot.NetworkObjectId} занял место за столом.");
         }
 
         public virtual void BotReachedTable(bool reached)

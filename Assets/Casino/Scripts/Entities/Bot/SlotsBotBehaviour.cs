@@ -185,6 +185,8 @@ namespace Assets.Casino.Bot
 
                 return true; // Продолжаем сессию на новом столе
             }
+            else
+                botAgent.WaitForFreeTable();
 
             return false; // Завершаем сессию
         }

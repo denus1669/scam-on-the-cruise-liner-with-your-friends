@@ -320,6 +320,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &75386294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 75386295}
+  m_Layer: 0
+  m_Name: WaitPoint
+  m_TagString: WaitPoint
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &75386295
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75386294}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.74094, y: 2.24932, z: 7.83}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &77919729
 GameObject:
   m_ObjectHideFlags: 0
@@ -4434,14 +4465,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.SlotMachineBreakdownManager
   ShowTopMostFoldoutHeaderGroup: 1
   slotMachines:
-  - {fileID: 1617491474}
-  - {fileID: 1965367739}
   - {fileID: 799224549}
-  - {fileID: 2115033780}
-  - {fileID: 1767329362}
+  - {fileID: 1965367739}
   - {fileID: 201275332}
-  minBreakTime: 10
-  maxBreakTime: 10
+  - {fileID: 1767329362}
+  minBreakTime: 60
+  maxBreakTime: 60
   timeBeforeExplode: 30
   explodeDispleasureAmount: 50
   syncInterval: 0.1
@@ -10583,6 +10612,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Slots Variant (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
       value: -46.88686
@@ -10685,17 +10718,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
   m_PrefabInstance: {fileID: 1617491472}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1617491474 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8145709116426912129, guid: 979800a05373b94498442d0af6798959, type: 3}
-  m_PrefabInstance: {fileID: 1617491472}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 486bc0f1faf862e40bbb38d33b9e022e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlotMachine
 --- !u!1001 &1621376481
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11113,7 +11135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1657279805
 Transform:
   m_ObjectHideFlags: 0
@@ -13027,7 +13049,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13843,17 +13865,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8510844761566985136, guid: 4775b9e8338a45f8abe2758cd8c2e799, type: 3}
   m_PrefabInstance: {fileID: 2103763578}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2115033780 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8145709116426912129, guid: 979800a05373b94498442d0af6798959, type: 3}
-  m_PrefabInstance: {fileID: 2002712128}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 486bc0f1faf862e40bbb38d33b9e022e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlotMachine
 --- !u!1 &2116557099
 GameObject:
   m_ObjectHideFlags: 0
@@ -14653,6 +14664,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 3045226472973687819, guid: 43ef6f1acc69ca24cb2749ab9ced226d, type: 3}
+      propertyPath: m_Speed
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 3144192425543349873, guid: 43ef6f1acc69ca24cb2749ab9ced226d, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -14835,7 +14850,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6650382390296371593, guid: 43ef6f1acc69ca24cb2749ab9ced226d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6818316841370619872, guid: 43ef6f1acc69ca24cb2749ab9ced226d, type: 3}
       propertyPath: m_Layer
@@ -15723,3 +15738,4 @@ SceneRoots:
   - {fileID: 1657279805}
   - {fileID: 416231942}
   - {fileID: 93925471}
+  - {fileID: 75386295}

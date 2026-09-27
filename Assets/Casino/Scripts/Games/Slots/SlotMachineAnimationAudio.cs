@@ -114,7 +114,6 @@ namespace Assets.Casino.Slots
         {
             if (isBroken)
             {
-                Debug.Log($"[SlotMachineVisuals] Автомат сломался!");
 
                 if (wheelAnimator != null)
                 {
