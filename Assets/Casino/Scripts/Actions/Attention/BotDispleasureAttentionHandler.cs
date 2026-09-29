@@ -1,12 +1,9 @@
 using Assets.Casino.Bot;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace Assets.Casino.Attention
 {
-    /// <summary>
-    /// Отвечает ТОЛЬКО за передачу информации от приемника внимания 
-    /// в контроллер недовольства бота.
-    /// </summary>
     [RequireComponent(typeof(AttentionTargetReceiver))]
     public class BotDispleasureAttentionHandler : MonoBehaviour
     {
@@ -14,15 +11,21 @@ namespace Assets.Casino.Attention
         [SerializeField] private BotDispleasureController botDispleasure;
 
         private AttentionTargetReceiver _attentionReceiver;
+        private ulong _localClientId;
 
         private void Awake()
         {
             _attentionReceiver = GetComponent<AttentionTargetReceiver>();
+
+            // Кэшируем ID локального клиента при старте, чтобы использовать его в OnDisable
+            if (NetworkManager.Singleton != null)
+            {
+                _localClientId = NetworkManager.Singleton.LocalClientId;
+            }
         }
 
         private void Reset()
         {
-            // Автопоиск при добавлении скрипта в редакторе
             botDispleasure = GetComponentInParent<BotDispleasureController>();
         }
 
@@ -36,6 +39,14 @@ namespace Assets.Casino.Attention
         {
             _attentionReceiver.OnAttentionEntered -= HandleAttentionEnter;
             _attentionReceiver.OnAttentionExited -= HandleAttentionExit;
+
+            // ГАРАНТИЯ: При уничтожении или деактивации этого компонента 
+            // мы принудительно сообщаем серверу, что игрок перестал смотреть.
+            // Это предотвращает "вечное" раздражение бота при дисконнекте игрока.
+            if (botDispleasure != null && _localClientId != 0)
+            {
+                botDispleasure.RemoveWatcherServerRpc(_localClientId);
+            }
         }
 
         private void HandleAttentionEnter(ulong watcherClientId)

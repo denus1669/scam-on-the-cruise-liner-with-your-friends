@@ -285,6 +285,8 @@ GameObject:
   - component: {fileID: 386570628561090758}
   - component: {fileID: 8262880651204589176}
   - component: {fileID: 4860884630546524510}
+  - component: {fileID: 2641061353582983763}
+  - component: {fileID: 8618909681432102683}
   m_Layer: 9
   m_Name: CardHandPosition
   m_TagString: Untagged
@@ -381,6 +383,34 @@ MonoBehaviour:
   cheatController: {fileID: 5227721383909466426}
   attentionReceiver: {fileID: 4782374077190005773}
   cheatIndicator: {fileID: 1196171496923494744}
+--- !u!114 &2641061353582983763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01ff64f3b684df4e991d4eebc7e1dab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Attention.PlayerAttentionController
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &8618909681432102683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3214826041473833782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dec2c46c87dfcf747b1b20b1c71408c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Scripts.Actions.Attention.BotCheatAttentionHighlighter
+  highlightConfig: {fileID: 11400000, guid: 21dc88355d6f070428c459ef0aff2388, type: 2}
+  cardsRoot: {fileID: 703854091639277208}
+  _cheatController: {fileID: 5227721383909466426}
 --- !u!1 &3475600998146616932
 GameObject:
   m_ObjectHideFlags: 0
@@ -527,7 +557,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8558609216288889962
 Transform:
   m_ObjectHideFlags: 0
@@ -945,6 +975,7 @@ MonoBehaviour:
   stoppingDistance: 1.5
   pathUpdateInterval: 0.2
   exitPoint: {fileID: 0}
+  waitPoint: {fileID: 0}
 --- !u!114 &4877028851096292619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -959,7 +990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BotDispleasureController
   ShowTopMostFoldoutHeaderGroup: 1
   maxDispleasure: 100
-  baseDispleasureRate: 1
+  baseDispleasureRate: 5
   decayRate: 2
   currentDispleasure:
     m_InternalValue: 0

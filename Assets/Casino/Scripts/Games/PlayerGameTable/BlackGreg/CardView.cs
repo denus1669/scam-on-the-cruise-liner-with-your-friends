@@ -62,6 +62,22 @@ namespace Assets.Casino.Games.BlackGreg
             highlither.SetOutlineColor(color);
         }
 
+        /// <summary>
+        /// Устанавливает интенсивность подсветки читерской карты (0 = выключено).
+        /// </summary>
+        public void SetCheatHighlight(float intensity)
+        {
+            if (_visualController != null)
+                _visualController.SetCheatGlow(intensity);
+        }
+
+        /// <summary>
+        /// Возвращает текущую интенсивность подсветки читерской карты.
+        /// </summary>
+        public float GetCheatHighlight()
+        {
+            return _visualController != null ? _visualController.GetCheatGlow() : 0f;
+        }
         // ========== Анимация подсчёта (пульсация) ==========
 
         /// <summary>
@@ -255,5 +271,7 @@ namespace Assets.Casino.Games.BlackGreg
 
             transform.localPosition = targetPos;
         }
+
+
     }
 }

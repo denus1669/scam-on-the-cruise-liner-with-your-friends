@@ -4,20 +4,21 @@ namespace Assets.Casino.Test_Folder
 {
     public class CardVisualController : MonoBehaviour
     {
-        [Header("Настройки лица")]
-        public Vector2 faceIndex;       // Координаты номинала (X, Y)
+        public Vector2 faceIndex;
+        public bool isVisible = true;
+        public Vector2 placeholderIndex;
 
-        [Header("Настройки для мультиплеера")]
-        public bool isVisible = true;    // Чекбокс: включено — видим лицо, выключено — заглушку
-        public Vector2 placeholderIndex; // Индекс заглушки для врагов
+        [Range(0f, 1f)]
+        [SerializeField] private float cheatGlow = 0f;
 
         private Renderer _renderer;
         private MaterialPropertyBlock _propBlock;
 
-        // Кэшируем ID свойств шейдера
         private static readonly int FaceId = Shader.PropertyToID("_FaceIndex");
         private static readonly int VisibleId = Shader.PropertyToID("_IsVisible");
         private static readonly int PlaceholderId = Shader.PropertyToID("_PlaceholderIndex");
+        private static readonly int CheatId = Shader.PropertyToID("_IsCheated");
+
 
         void Awake()
         {
@@ -26,11 +27,24 @@ namespace Assets.Casino.Test_Folder
             UpdateCardVisuals();
         }
 
-        // Обновление в реальном времени при изменении в инспекторе
         void OnValidate()
         {
             UpdateCardVisuals();
         }
+
+        /// <summary>
+        /// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЊ СЃРІРµС‡РµРЅРёСЏ С‡РёС‚РµСЂСЃРєРѕР№ РєР°СЂС‚С‹ (0 = РІС‹РєР»СЋС‡РµРЅРѕ).
+        /// </summary>
+        public void SetCheatGlow(float value)
+        {
+            cheatGlow = Mathf.Max(0f, value);
+            UpdateCardVisuals();
+        }
+
+        /// <summary>
+        /// Р’РѕР·РІСЂР°С‰Р°РµС‚ С‚РµРєСѓС‰СѓСЋ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЊ СЃРІРµС‡РµРЅРёСЏ.
+        /// </summary>
+        public float GetCheatGlow() => cheatGlow;
 
         public void UpdateCardVisuals()
         {
@@ -39,12 +53,10 @@ namespace Assets.Casino.Test_Folder
 
             _renderer.GetPropertyBlock(_propBlock);
 
-            // Устанавливаем координаты
             _propBlock.SetVector(FaceId, faceIndex);
             _propBlock.SetVector(PlaceholderId, placeholderIndex);
-
-            // Конвертируем bool в float (true = 1.0, false = 0.0)
             _propBlock.SetFloat(VisibleId, isVisible ? 1f : 0f);
+            _propBlock.SetFloat(CheatId, cheatGlow);
 
             _renderer.SetPropertyBlock(_propBlock);
         }

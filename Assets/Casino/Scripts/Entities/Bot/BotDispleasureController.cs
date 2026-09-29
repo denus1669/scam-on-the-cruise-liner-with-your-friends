@@ -6,48 +6,41 @@ using UnityEngine;
 
 namespace Assets.Casino.Bot
 {
-    /// <summary>
-    /// Управляет раздражением бота. Работает на сервере в методе Update.
-    /// Поддерживает интерфейс IAccusable для обработки обвинений в мухлеже.
-    /// </summary>
     [RequireComponent(typeof(BotAgent))]
     public class BotDispleasureController : NetworkBehaviour
     {
         [Header("Настройки недовольства")]
         [SerializeField] private float maxDispleasure = 100f;
-        [SerializeField] private float baseDispleasureRate = 5f; // Накопление в секунду
-        [SerializeField] private float decayRate = 2f;           // Спад в секунду, когда не смотрят
+        [SerializeField] private float baseDispleasureRate = 5f;
+        [SerializeField] private float decayRate = 2f;
 
         [SerializeField] private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
 
-        // Список ID игроков, которые прямо сейчас смотрят на бота
         private HashSet<ulong> watchers = new HashSet<ulong>();
         private BotAgent botAgent;
 
         public float MaxDispleasure => maxDispleasure;
-
-        public event Action<float> OnDispleasureChanged;
-
         public float CurrentDispleasure => currentDispleasure.Value;
+        public event Action<float> OnDispleasureChanged;
 
         private void Awake()
         {
             botAgent = GetComponent<BotAgent>();
         }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
             currentDispleasure.OnValueChanged += OnDispleasureValueChanged;
         }
+
         public override void OnNetworkDespawn()
         {
-
             currentDispleasure.OnValueChanged -= OnDispleasureValueChanged;
-
             watchers.Clear();
             base.OnNetworkDespawn();
         }
+
         private void OnDispleasureValueChanged(float oldValue, float newValue)
         {
             OnDispleasureChanged?.Invoke(newValue);
@@ -56,11 +49,9 @@ namespace Assets.Casino.Bot
         private void Update()
         {
             if (!IsServer) return;
-            /*
+
             IGameTable table = GetCurrentTable();
             if (table == null || !table.IsGameStarted) return;
-
-            float previousDispleasure = currentDispleasure.Value;
 
             if (watchers.Count > 0)
             {
@@ -72,18 +63,9 @@ namespace Assets.Casino.Bot
                     HandleMaxDispleasure(table);
                 }
             }
-            else if (currentDispleasure.Value > 0)
-            {
-                currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value - (decayRate * Time.deltaTime), 0f, maxDispleasure);
-            }
-
-            // Уведомляем подписчиков, только если значение действительно изменилось
-            if (!Mathf.Approximately(previousDispleasure, currentDispleasure.Value))
-            {
-                OnDispleasureChanged?.Invoke(currentDispleasure.Value);
-            }*/
+            // OnDispleasureChanged вызывается автоматически через OnValueChanged.
+            // Ручной вызов убран.
         }
-
 
         [Rpc(SendTo.Server)]
         public void AddWatcherServerRpc(ulong clientId)
@@ -96,12 +78,6 @@ namespace Assets.Casino.Bot
         {
             watchers.Remove(clientId);
         }
-
-        /// <summary>
-        /// Добавляет мгновенное количество раздражения (например, при ложном шлепке).
-        /// Вызывается только на сервере.
-        /// </summary>
-        /// 
 
         [Rpc(SendTo.Server)]
         public void AddInstantDispleasureServerRpc(float displeasureValue)
@@ -124,10 +100,12 @@ namespace Assets.Casino.Bot
         private void HandleMaxDispleasure(IGameTable table)
         {
             Debug.LogWarning($"[Displeasure] Бот {gameObject.name} вышел из себя!");
+
             if (table != null)
             {
                 table.ForceStopGame(isCheaterBot: false, reason: "Harassment");
             }
+
             botAgent.GoToExit();
             ResetDispleasure();
         }
@@ -135,16 +113,15 @@ namespace Assets.Casino.Bot
         public void ResetDispleasure()
         {
             if (!IsServer) return;
-            currentDispleasure.Value = 0f;
-            watchers.Clear();
 
-            OnDispleasureChanged?.Invoke(0f);
+            currentDispleasure.Value = 0f; // Триггерит OnValueChanged автоматически
+            watchers.Clear();
+            // Ручной вызов OnDispleasureChanged удалён — он уже вызван через OnValueChanged
         }
 
         private IGameTable GetCurrentTable()
         {
             return botAgent != null ? botAgent.CurrentTable : null;
         }
-
     }
 }

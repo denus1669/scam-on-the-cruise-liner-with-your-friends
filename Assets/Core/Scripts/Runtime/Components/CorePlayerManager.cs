@@ -131,6 +131,8 @@ namespace Blocks.Gameplay.Core
             {
                 addon.OnPlayerSpawn();
             }
+
+            coreMovement.PlayerRotationMode = CoreMovement.CouplingMode.Coupled;
         }
 
         public override void OnNetworkDespawn()

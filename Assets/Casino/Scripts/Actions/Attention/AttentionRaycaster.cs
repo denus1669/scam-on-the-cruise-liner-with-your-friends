@@ -15,6 +15,8 @@ namespace Assets.Casino.Attention
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask attentionLayerMask = ~0;
         [SerializeField] private float maxRayDistance = 10f;
+        [SerializeField] private float raycastInterval = 0.1f; // <-- Добавлено: частота проверки (10 раз в секунду)
+
 
         private IAttentionTarget currentTarget;
         private Coroutine raycastCoroutine;
@@ -67,7 +69,7 @@ namespace Assets.Casino.Attention
             while (true)
             {
                 PerformRaycast();
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(raycastInterval);
             }
         }
 
@@ -80,37 +82,36 @@ namespace Assets.Casino.Attention
 
             if (Physics.Raycast(origin, direction, out RaycastHit hit, maxRayDistance, attentionLayerMask))
             {
-                Debug.DrawLine(origin, hit.point, Color.green, 0.1f);
-
-                if (!hit.collider.isTrigger)
+                // Если попали в триггер
+                if (hit.collider.isTrigger)
                 {
-                    ClearCurrentTarget();
-                    return;
-                }
+                    IAttentionTarget newTarget = hit.collider.GetComponent<IAttentionTarget>();
 
-                IAttentionTarget newTarget = hit.collider.GetComponent<IAttentionTarget>();
-
-                if (newTarget != currentTarget)
-                {
-                    ClearCurrentTarget();
-                    currentTarget = newTarget;
-
-                    if (currentTarget != null)
+                    // Обновляем цель ТОЛЬКО если она реально изменилась
+                    if (newTarget != currentTarget)
                     {
-                        // 1. Вызываем метод самого интерфейса (возможно, там RPC логика самой цели)
-                        currentTarget.OnAttentionEnter(NetworkManager.Singleton.LocalClientId);
+                        ClearCurrentTarget();
+                        currentTarget = newTarget;
 
-                        // 2. Оповещаем все наши локальные скрипты (UI, Анализаторы, Звуки), что мы смотрим на цель
-                        OnTargetEnterLocal?.Invoke(currentTarget);
+                        if (currentTarget != null)
+                        {
+                            currentTarget.OnAttentionEnter(NetworkManager.Singleton.LocalClientId);
+                            // OnTargetEnterLocal?.Invoke(currentTarget); // Оставляем, если нужно UI
+                        }
                     }
+                }
+                else
+                {
+                    // Попали не в триггер - сбрасываем цель
+                    ClearCurrentTarget();
                 }
             }
             else
             {
+                // Ни во что не попали - сбрасываем цель
                 ClearCurrentTarget();
             }
         }
-
         private void ClearCurrentTarget()
         {
             if (currentTarget != null)
@@ -118,6 +119,14 @@ namespace Assets.Casino.Attention
                 currentTarget.OnAttentionExit(NetworkManager.Singleton.LocalClientId);
                 currentTarget = null;
             }
+        }
+
+        private void OnDisable()
+        {
+            // Гарантируем очистку цели при деактивации компонента, 
+            // чтобы сервер точно получил OnAttentionExit
+            ClearCurrentTarget();
+            SetRaycasterActive(false);
         }
     }
 }
