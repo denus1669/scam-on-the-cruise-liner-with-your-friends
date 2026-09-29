@@ -30,6 +30,9 @@ namespace Assets.Casino.Games.BlackGreg
             _originalScale = transform.localScale;
             _currentScore = 0;
             scoreText.text = "0";
+
+            // Скрываем счётчик при старте сцены/спавне
+            SetVisible(false);
         }
 
         /// <summary>

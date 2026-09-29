@@ -1460,6 +1460,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3974921355653741915}
     - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
+      propertyPath: deckPosition
+      value: 
+      objectReference: {fileID: 3550765235220193464}
+    - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
       propertyPath: cardViewPrefab
       value: 
       objectReference: {fileID: 4864356117138935605}
@@ -1483,6 +1487,10 @@ PrefabInstance:
       propertyPath: revealBotPosition
       value: 
       objectReference: {fileID: 3312975833861091647}
+    - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
+      propertyPath: timeBeforeDiscard
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
       propertyPath: playerScoreDisplay
       value: 
@@ -1634,6 +1642,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4699097917199096812}
     m_Modifications:
+    - target: {fileID: 1198017815525322716, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.089

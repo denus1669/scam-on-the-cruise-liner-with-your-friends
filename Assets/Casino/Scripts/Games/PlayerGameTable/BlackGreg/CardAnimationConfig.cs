@@ -11,6 +11,15 @@ namespace Assets.Casino.Games.BlackGreg
         public float countingPulseDuration = 0.3f;
         public float countingPulseScale = 1.2f;
 
+        [Header("Draw Card Animation")]
+        public float drawCardDuration = 0.5f;
+        public AnimationCurve drawCardCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+        [Header("Draw Animation")]
+        public Color drawHighlightColor = Color.white;
+        public float drawLiftHeight = 0.1f;
+        public float drawLiftDuration = 0.4f;
+
         [Header("Flying Number")]
         public float flyingNumberSpeed = 5f;
 

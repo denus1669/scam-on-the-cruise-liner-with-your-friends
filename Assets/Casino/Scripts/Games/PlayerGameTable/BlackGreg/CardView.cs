@@ -204,5 +204,56 @@ namespace Assets.Casino.Games.BlackGreg
 
             Destroy(gameObject);
         }
+
+        /// <summary>
+        /// Анимирует карту из колоды к целевой позиции в руке.
+        /// Позиции передаются в локальных координатах родителя.
+        /// </summary>
+        public void FlyFromDeck(Vector3 startLocalPos, Vector3 targetLocalPos, Quaternion targetLocalRot, float duration, AnimationCurve curve)
+        {
+            StartCoroutine(FlyFromDeckRoutine(startLocalPos, targetLocalPos, targetLocalRot, duration, curve));
+        }
+
+        private IEnumerator FlyFromDeckRoutine(Vector3 startLocalPos, Vector3 targetLocalPos, Quaternion targetLocalRot, float duration, AnimationCurve curve)
+        {
+            transform.localPosition = startLocalPos;
+            transform.localRotation = targetLocalRot;
+
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                float t = curve.Evaluate(elapsed / duration);
+                transform.localPosition = Vector3.Lerp(startLocalPos, targetLocalPos, t);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.localPosition = targetLocalPos;
+        }
+
+        /// <summary>
+        /// Плавный подъём карты для анимации ничьей (без резкого прыжка).
+        /// </summary>
+        public void PlayDrawAnimation()
+        {
+            StartCoroutine(DrawLiftRoutine());
+        }
+
+        private IEnumerator DrawLiftRoutine()
+        {
+            Vector3 startPos = transform.localPosition;
+            Vector3 targetPos = startPos + Vector3.up * animationConfig.drawLiftHeight;
+            float elapsed = 0f;
+
+            while (elapsed < animationConfig.drawLiftDuration)
+            {
+                transform.localPosition = Vector3.Lerp(startPos, targetPos, elapsed / animationConfig.drawLiftDuration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.localPosition = targetPos;
+        }
     }
 }

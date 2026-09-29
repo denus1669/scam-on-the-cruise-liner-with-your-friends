@@ -25,13 +25,14 @@ namespace Assets.Casino.Games.BlackGreg
         [SerializeField] private float spreadDistance = 0.22f;
         [SerializeField] private Vector3 startRotation = new Vector3(30, 180, 0);
         [SerializeField] private Transform discardPosition;
+        [SerializeField] private Transform deckPosition; 
 
         [Header("Game Rules")]
         [SerializeField] private int cardLimit = 10;
         [SerializeField] private int minCardsToFinish = 2;
 
         [Header("End Game")]
-        [SerializeField] private float timeBeforeDiscard = 5f;
+        [SerializeField] private float timeBeforeEvaluateResult = 2f;
 
         [Header("End Game Sequence Settings")]
         [SerializeField] private CardAnimationConfig animationConfig;
@@ -95,10 +96,10 @@ namespace Assets.Casino.Games.BlackGreg
             if (AddCardToHand(botHandData))
             {
                 CardData lastCard = botHandData[botHandData.Count - 1];
-                Debug.Log($"[BlackGregTable] Бот взял карту: {lastCard.rank} {lastCard.suit} (тип: {lastCard.type}). Текущий счёт: {CalculateHandValue(botHandData)}");
-                SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
-            }
+                Debug.Log($"[BlackGregTable] Бот взял карту: {lastCard.rank} {lastCard.suit}. Текущий счёт: {CalculateHandValue(botHandData)}");
 
+                DrawCardAnimatedClientRpc(lastCard, false, botHandData.Count - 1, OccupiedByClientId);
+            }
         }
 
         [Rpc(SendTo.Server)]
@@ -201,7 +202,6 @@ namespace Assets.Casino.Games.BlackGreg
             botHandData.Clear();
         }
 
-
         // ---------- Методы для игрока (вызываются UI) ----------
         public void PlayerDrawCard()
         {
@@ -209,18 +209,69 @@ namespace Assets.Casino.Games.BlackGreg
 
             if (!IsGameStarted)
             {
-                if (!CanStartGame())    // нет обоих участников – выходим
-                    return;
+                if (!CanStartGame()) return;
                 StartGame();
             }
 
             if (AddCardToHand(playerHandData))
             {
                 CardData lastCard = playerHandData[playerHandData.Count - 1];
-                Debug.Log($"[BlackGregTable] Игрок взял карту: {lastCard.rank} {lastCard.suit} (тип: {lastCard.type}). Текущий счёт: {CalculateHandValue(playerHandData)}");
-                SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+                Debug.Log($"[BlackGregTable] Игрок взял карту: {lastCard.rank} {lastCard.suit}. Текущий счёт: {CalculateHandValue(playerHandData)}");
+
+                DrawCardAnimatedClientRpc(lastCard, true, playerHandData.Count - 1, OccupiedByClientId);
             }
         }
+
+        [ClientRpc]
+        private void DrawCardAnimatedClientRpc(CardData newCard, bool isPlayer, int cardIndex, ulong playerClientId)
+        {
+            // Определяем родителя (рука игрока или бота)
+            Transform handParent = null;
+            if (isPlayer)
+            {
+                if (NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(playerClientId) is { } playerObj)
+                    handParent = FindChildByName(playerObj.transform, "CardHandPosition");
+                if (handParent == null) handParent = playerHandParent;
+            }
+            else
+            {
+                if (botNetworkObjectRef.Value.TryGet(out NetworkObject botObj))
+                    handParent = FindChildByName(botObj.transform, "CardHandPosition");
+                if (handParent == null) handParent = botHandParent;
+            }
+
+            if (handParent == null || cardViewPrefab == null || deckPosition == null) return;
+
+            // Обновляем данные на клиенте
+            if (!IsServer)
+            {
+                if (isPlayer)
+                    playerHandData.Add(newCard);
+                else
+                    botHandData.Add(newCard);
+            }
+
+            // Вычисляем позиции в локальных координатах родителя
+            Vector3 deckLocalPos = handParent.InverseTransformPoint(deckPosition.position);
+            Vector3 targetLocalPos = GetNextCardPosition(cardIndex);
+            Quaternion targetLocalRot = Quaternion.Euler(startRotation);
+
+            // Спавним карту
+            CardView view = Instantiate(cardViewPrefab, handParent);
+            view.SetCardData(newCard);
+            view.SetVisible(isPlayer);
+
+            // Запускаем анимацию
+            view.FlyFromDeck(deckLocalPos, targetLocalPos, targetLocalRot, animationConfig.drawCardDuration, animationConfig.drawCardCurve);
+
+            // Добавляем в список визуалов
+            if (isPlayer)
+                _playerSpawnedCardViews.Add(view);
+            else
+                _botSpawnedCardViews.Add(view);
+        }
+
+
 
         public void FinishGame()
         {
@@ -305,31 +356,67 @@ namespace Assets.Casino.Games.BlackGreg
             // 2. Подсчёт очков игрока
             yield return PlayScoreCountSequence(_playerSpawnedCardViews, playerHandData, playerScoreDisplay);
 
+            // 2. Визуализации результата
+            VisualiseResult(winner);
+
+            // 4. Пауза для демонстрации результата (настраивается в инспекторе стола)
+            yield return new WaitForSeconds(highlightPauseDuration);
+
+            // 5. Подтверждение завершения игры на сервере (очистка логических данных)
+            ConfirmGameEndServerRpc();
+            
+            // 6. Сброс карт
+            DiscardCards();
+
+            if (botScoreDisplay != null) botScoreDisplay.ResetScore();
+            if (playerScoreDisplay != null) playerScoreDisplay.ResetScore();
+        }
+        
+        private void VisualiseResult(string winner)
+        {
             // 1. Определяем карты победителя для акцента
             List<CardView> winnerCards = null;
-            if (winner == "player") winnerCards = _playerSpawnedCardViews;
-            else if (winner == "bot") winnerCards = _botSpawnedCardViews;
-
-            // 2. Подсветка и прыжок
-            if (winnerCards != null)
+            // 3. Визуализация результата
+            if (winner == "draw")
             {
-                foreach (var card in winnerCards)
+                // Ничья: обе руки подсвечиваются и плавно приподнимаются
+                foreach (var card in _botSpawnedCardViews)
                 {
                     if (card != null)
                     {
-                        card.SetHighlight(true, animationConfig.winnerHighlightColor);
-                        card.PlayJumpAnimation();
+                        card.SetHighlight(true, animationConfig.drawHighlightColor);
+                        card.PlayDrawAnimation();
+                    }
+                }
+                foreach (var card in _playerSpawnedCardViews)
+                {
+                    if (card != null)
+                    {
+                        card.SetHighlight(true, animationConfig.drawHighlightColor);
+                        card.PlayDrawAnimation();
                     }
                 }
             }
+            else
+            {
+                // Победа: карты победителя подсвечиваются и подпрыгивают
+                if (winner == "player") winnerCards = _playerSpawnedCardViews;
+                else if (winner == "bot") winnerCards = _botSpawnedCardViews;
+                // 2. Подсветка и прыжок
+                if (winnerCards != null)
+                {
+                    foreach (var card in winnerCards)
+                    {
+                        if (card != null)
+                        {
+                            card.SetHighlight(true, animationConfig.winnerHighlightColor);
+                            card.PlayJumpAnimation();
+                        }
 
-            // 3. Пауза для демонстрации результата (настраивается в инспекторе стола)
-            yield return new WaitForSeconds(highlightPauseDuration);
+                    }
 
-            // 4. Подтверждение завершения игры на сервере (очистка логических данных)
-            ConfirmGameEndServerRpc();
-
-            DiscardCards();
+                }
+            }
         }
 
         private void DiscardCards()
@@ -552,6 +639,10 @@ namespace Assets.Casino.Games.BlackGreg
         public override void Leave(ulong clientId)
         {
             base.Leave(clientId);
+                        if (IsServer)
+            {
+                SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
+            }
         }
         /// <summary>
         /// При занятии стола игроком (возвращение) синхронизируем руки с актуальным ID,
@@ -672,7 +763,7 @@ namespace Assets.Casino.Games.BlackGreg
             {
                 PutOnTablePlayerCards();
                 RevealHands();
-                Invoke("FinishGame", timeBeforeDiscard);
+                Invoke("FinishGame", timeBeforeEvaluateResult);
             }
         }
         public bool CanPlayerFinish()
