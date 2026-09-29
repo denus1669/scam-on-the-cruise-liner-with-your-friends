@@ -1091,13 +1091,21 @@ PrefabInstance:
       propertyPath: volumeParametr
       value: SlotsVolume
       objectReference: {fileID: 0}
+    - target: {fileID: 376007469613845971, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 748282553261089761, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1442583724620400894, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1442583724620400894, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1442583724620400894, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1191,6 +1199,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2537021015313358164, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2709519473066094680, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: audioButton
       value: 
@@ -1199,6 +1211,10 @@ PrefabInstance:
       propertyPath: inputButton
       value: 
       objectReference: {fileID: 8631347525443153762}
+    - target: {fileID: 3508701157982152330, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4620309416080199291, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1211,6 +1227,10 @@ PrefabInstance:
       propertyPath: interactionAddon
       value: 
       objectReference: {fileID: 3955545337037980288}
+    - target: {fileID: 6205718374547836663, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7161743260931353254, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -1239,18 +1259,30 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 7761638182123603722, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: minSensitivity
+      value: 0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 7838769987601223278, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7838769987601223278, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7924006917017218618, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7972766767120980117, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: inputModeSwitcher
       value: 
       objectReference: {fileID: 5942201885861022358}
+    - target: {fileID: 7972766767120980117, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+      propertyPath: settingsInputPanel
+      value: 
+      objectReference: {fileID: 6115448434467269015}
     - target: {fileID: 8492827476766850858, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
       propertyPath: inputModeSwitcher
       value: 
@@ -1317,6 +1349,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03936f74fa2de524eb4de43696a9c87b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InGameMenuController
+--- !u!114 &6115448434467269015 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7761638182123603722, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}
+  m_PrefabInstance: {fileID: 4569059322615951005}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80d4ba346a49d10449e67b3dbd83dad5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.UI.SettingsInputPanel
 --- !u!114 &8250126903835358271 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5554866384733346466, guid: 499c4c1609ead1840abaad5ea309b35f, type: 3}

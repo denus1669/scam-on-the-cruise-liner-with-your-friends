@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Assets.Casino.Slots;
 using Assets.Casino.Bot;
+using System.Collections;
 
 namespace Assets.Casino.Slots
 {
@@ -13,28 +13,11 @@ namespace Assets.Casino.Slots
     /// </summary>
     public class SlotMachineBreakdownManager : NetworkBehaviour
     {
+        [Header("Конфигурация")]
+        [SerializeField] private SlotMachineBreakdownConfig config;
+
         [Header("Список автоматов в казино")]
         [SerializeField] private List<SlotMachine> slotMachines = new List<SlotMachine>();
-
-        [Header("Настройки времени поломки (в секундах)")]
-        [SerializeField] private float minBreakTime = 10f;
-        [SerializeField] private float maxBreakTime = 30f;
-
-        [Header("Настройки взрыва")]
-        [Tooltip("Время в секундах, которое есть у игроков, чтобы починить автомат до взрыва")]
-        [SerializeField] private float timeBeforeExplode = 20f;
-
-        [Tooltip("Количество раздражения, которое получают все боты при взрыве автомата")]
-        [SerializeField] private float explodeDispleasureAmount = 50f;
-
-
-        [Header("Настройки синхронизации")]
-        [Tooltip("Как часто обновлять время до взрыва на клиентах (в секундах). Меньше = плавнее, но дороже")]
-        [SerializeField] private float syncInterval = 0.1f;
-
-        [Header("Настройки восстановления")]
-        [Tooltip("Задержка в секундах перед восстановлением автомата после взрыва (чтобы VFX успели отобразиться)")]
-        [SerializeField] private float restoreDelay = 3f;
 
         private float m_SyncTimer = 0f;
 
@@ -59,6 +42,11 @@ namespace Assets.Casino.Slots
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            if (config == null)
+            {
+                Debug.LogError($"[{nameof(SlotMachineBreakdownManager)}] SlotMachineBreakdownConfig не назначен!", this);
+            }
         }
 
         /// <summary>
@@ -79,6 +67,12 @@ namespace Assets.Casino.Slots
 
         public void StartBreakdownSession()
         {
+            if (config == null)
+            {
+                Debug.LogError($"[{nameof(SlotMachineBreakdownManager)}] Config is null!", this);
+                return;
+            }
+
             if (slotMachines == null || slotMachines.Count == 0)
             {
                 Debug.LogWarning($"[{nameof(SlotMachineBreakdownManager)}] Список slotMachines пуст. Добавьте автоматы в Инспекторе!", this);
@@ -90,7 +84,6 @@ namespace Assets.Casino.Slots
 
             foreach (var machine in slotMachines)
             {
-
                 if (machine == null) continue;
 
                 machine.Initialize(this);
@@ -98,7 +91,7 @@ namespace Assets.Casino.Slots
                 MachineTimerState timerState = new MachineTimerState
                 {
                     machine = machine,
-                    timeRemaining = Random.Range(minBreakTime, maxBreakTime)
+                    timeRemaining = Random.Range(config.minBreakTime, config.maxBreakTime)
                 };
 
                 m_ActiveTimers.Add(timerState);
@@ -115,6 +108,7 @@ namespace Assets.Casino.Slots
             UpdateExplosionTimers();
             UpdateTimeSynchronization();
         }
+
         /// <summary>
         /// Обновляет таймеры поломок автоматов.
         /// Когда таймер истекает, автомат ломается и добавляется в список ожидающих взрыва.
@@ -192,7 +186,7 @@ namespace Assets.Casino.Slots
             DistributeDispleasureToAllBots();
 
             // Запускаем восстановление с задержкой
-            StartCoroutine(RestoreMachineWithDelay(machine, restoreDelay));
+            StartCoroutine(RestoreMachineWithDelay(machine, config.restoreDelay));
         }
 
         /// <summary>
@@ -203,7 +197,7 @@ namespace Assets.Casino.Slots
         {
             m_SyncTimer += Time.deltaTime;
 
-            if (m_SyncTimer >= syncInterval)
+            if (m_SyncTimer >= config.syncInterval)
             {
                 m_SyncTimer = 0f;
 
@@ -230,15 +224,15 @@ namespace Assets.Casino.Slots
             MachineExplosionTimer explosionTimer = new MachineExplosionTimer
             {
                 machine = machine,
-                timeUntilExplode = timeBeforeExplode
+                timeUntilExplode = config.timeBeforeExplode
             };
 
             m_PendingExplosions.Add(explosionTimer);
 
             // ВАЖНО: сразу синхронизируем время с клиентами
-            machine.SetTimeToExplode(timeBeforeExplode);
+            machine.SetTimeToExplode(config.timeBeforeExplode);
 
-            Debug.Log($"<color=orange>[Менеджер поломок]</color> Автомат '{machine.slotMachineName}' сломан! До взрыва: {timeBeforeExplode} сек.");
+            Debug.Log($"<color=orange>[Менеджер поломок]</color> Автомат '{machine.slotMachineName}' сломан! До взрыва: {config.timeBeforeExplode} сек.");
         }
 
         private void ResetAllTimers()
@@ -250,7 +244,7 @@ namespace Assets.Casino.Slots
                 // Не сбрасываем таймеры для взорванных автоматов
                 if (!timerState.machine.IsExploded)
                 {
-                    timerState.timeRemaining = Random.Range(minBreakTime, maxBreakTime);
+                    timerState.timeRemaining = Random.Range(config.minBreakTime, config.maxBreakTime);
                 }
             }
         }
@@ -260,7 +254,6 @@ namespace Assets.Casino.Slots
         /// </summary>
         private void DistributeDispleasureToAllBots()
         {
-
             // Если кэш пуст, пытаемся обновить его
             CacheAllBots();
 
@@ -270,18 +263,17 @@ namespace Assets.Casino.Slots
                 return;
             }
 
-
             int affectedBots = 0;
             foreach (var bot in m_CachedBots)
             {
                 if (bot != null && bot.IsSpawned)
                 {
-                    bot.AddInstantDispleasureServerRpc(explodeDispleasureAmount);
+                    bot.AddInstantDispleasureServerRpc(config.explodeDispleasureAmount);
                     affectedBots++;
                 }
             }
 
-            Debug.Log($"<color=red>[ВЗРЫВ]</color> Распределено +{explodeDispleasureAmount} раздражения {affectedBots} ботам!");
+            Debug.Log($"<color=red>[ВЗРЫВ]</color> Распределено +{config.explodeDispleasureAmount} раздражения {affectedBots} ботам!");
         }
 
         /// <summary>
@@ -298,7 +290,7 @@ namespace Assets.Casino.Slots
         /// <summary>
         /// Восстанавливает автомат после задержки, чтобы VFX эффекты успели отобразиться.
         /// </summary>
-        private System.Collections.IEnumerator RestoreMachineWithDelay(SlotMachine machine, float delay)
+        private IEnumerator RestoreMachineWithDelay(SlotMachine machine, float delay)
         {
             yield return new WaitForSeconds(delay);
 
@@ -307,7 +299,6 @@ namespace Assets.Casino.Slots
                 machine.Restore();
             }
         }
-    
 
         /// <summary>
         /// Останавливает текущую сессию поломок. 

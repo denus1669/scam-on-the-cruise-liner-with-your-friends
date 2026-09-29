@@ -4450,7 +4450,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &698027261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4464,17 +4464,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.SlotMachineBreakdownManager
   ShowTopMostFoldoutHeaderGroup: 1
+  config: {fileID: 11400000, guid: 61ec16318f682db48835e99a96c08f3b, type: 2}
   slotMachines:
   - {fileID: 799224549}
   - {fileID: 1965367739}
   - {fileID: 201275332}
   - {fileID: 1767329362}
-  minBreakTime: 60
-  maxBreakTime: 60
-  timeBeforeExplode: 30
-  explodeDispleasureAmount: 50
-  syncInterval: 0.1
-  restoreDelay: 3
 --- !u!4 &698027262
 Transform:
   m_ObjectHideFlags: 0
@@ -5297,7 +5292,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11734,66 +11729,6 @@ Transform:
   - {fileID: 1182821383}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1750354030
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 11.537984
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.24
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.2883809
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5928652017297858488, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8245535484726476759, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      propertyPath: m_Name
-      value: 'SM_Game_BlackGreg_Card  '
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7524261295066063343, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-  m_SourcePrefab: {fileID: 100100000, guid: f1f8a00c13b0ddd4bafd2a67e5c30476, type: 3}
 --- !u!114 &1767329362 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8145709116426912129, guid: 979800a05373b94498442d0af6798959, type: 3}
@@ -12597,7 +12532,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1948044416
 Transform:
   m_ObjectHideFlags: 0
@@ -12782,7 +12717,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15812,4 +15747,3 @@ SceneRoots:
   - {fileID: 416231942}
   - {fileID: 93925471}
   - {fileID: 75386295}
-  - {fileID: 1750354030}

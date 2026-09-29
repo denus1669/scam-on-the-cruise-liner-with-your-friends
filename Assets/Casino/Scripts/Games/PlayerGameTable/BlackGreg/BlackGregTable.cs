@@ -12,6 +12,8 @@ namespace Assets.Casino.Games.BlackGreg
     /// 
     public class BlackGregTable : PlayerGameTable, ICardGameTable
     {
+        [Header("Конфигурация")]
+        [SerializeField] private BlackGregTableConfig config;
         [Header("Card Settings")]
         [SerializeField] private CardView cardViewPrefab;
         [SerializeField] private Transform cardTablePosition; // точка для сброшенных/нераспределённых карт
@@ -19,24 +21,12 @@ namespace Assets.Casino.Games.BlackGreg
         [SerializeField] private Transform revealBotPosition; // Куда выкладывать карты боту (це    нтр стола)
         [SerializeField] private Transform revealPlayerPosition; // Куда выкладывать карты игроку (центр стола)
 
-
         [Header("Positioning")]
-        [SerializeField] private Vector3 startPosition = new Vector3(0f, 0f, 0f);
-        [SerializeField] private float spreadDistance = 0.22f;
-        [SerializeField] private Vector3 startRotation = new Vector3(30, 180, 0);
         [SerializeField] private Transform discardPosition;
         [SerializeField] private Transform deckPosition; 
 
-        [Header("Game Rules")]
-        [SerializeField] private int cardLimit = 10;
-        [SerializeField] private int minCardsToFinish = 2;
-
-        [Header("End Game")]
-        [SerializeField] private float timeBeforeEvaluateResult = 2f;
-
         [Header("End Game Sequence Settings")]
         [SerializeField] private CardAnimationConfig animationConfig;
-        [SerializeField] private float highlightPauseDuration = 1.5f;
 
         [Header("Score Display")]
         [SerializeField] private HandScoreDisplay botScoreDisplay;
@@ -254,7 +244,7 @@ namespace Assets.Casino.Games.BlackGreg
             // Вычисляем позиции в локальных координатах родителя
             Vector3 deckLocalPos = handParent.InverseTransformPoint(deckPosition.position);
             Vector3 targetLocalPos = GetNextCardPosition(cardIndex);
-            Quaternion targetLocalRot = Quaternion.Euler(startRotation);
+            Quaternion targetLocalRot = Quaternion.Euler(config.startRotation);
 
             // Спавним карту
             CardView view = Instantiate(cardViewPrefab, handParent);
@@ -277,7 +267,7 @@ namespace Assets.Casino.Games.BlackGreg
         {
             if (!IsServer || !IsGameStarted || !_isRevealed.Value) return;
 
-            if (playerHandData.Count < minCardsToFinish || botHandData.Count < minCardsToFinish) return;
+            if (playerHandData.Count < config.minCardsToFinish || botHandData.Count < config.minCardsToFinish) return;
             if (!BotHasStood) return;
 
             int playerScore = CalculateHandValue(playerHandData);
@@ -360,7 +350,7 @@ namespace Assets.Casino.Games.BlackGreg
             VisualiseResult(winner);
 
             // 4. Пауза для демонстрации результата (настраивается в инспекторе стола)
-            yield return new WaitForSeconds(highlightPauseDuration);
+            yield return new WaitForSeconds(config.highlightPauseDuration);
 
             // 5. Подтверждение завершения игры на сервере (очистка логических данных)
             ConfirmGameEndServerRpc();
@@ -546,7 +536,7 @@ namespace Assets.Casino.Games.BlackGreg
         /// <returns>true, если карта успешно добавлена.</returns>
         private bool AddCardToHand(List<CardData> hand)
         {
-            if (hand.Count >= cardLimit) return false;
+            if (hand.Count >= config.cardLimit) return false;
 
             Card newCard = CardFactory.CreateRandomCard();
             hand.Add(new CardData(newCard.CardSuit, newCard.CardRank, newCard.CardType));
@@ -591,7 +581,7 @@ namespace Assets.Casino.Games.BlackGreg
             CardView view = Instantiate(cardViewPrefab, parent);
 
             view.transform.localPosition = GetNextCardPosition(cardIndex);
-            view.transform.localRotation = Quaternion.Euler(startRotation);
+            view.transform.localRotation = Quaternion.Euler(config.startRotation);
             view.SetCardData(cardData);
             view.SetVisible(isFaceUp);
             spawnedViews.Add(view);
@@ -599,7 +589,7 @@ namespace Assets.Casino.Games.BlackGreg
 
         private Vector3 GetNextCardPosition(int currentCardIndex)
         {
-            Vector3 position = startPosition;
+            Vector3 position = config.startPosition;
             if (currentCardIndex == 0)
             {
                 placeNextCardOnLeft = true;
@@ -608,13 +598,13 @@ namespace Assets.Casino.Games.BlackGreg
             if (placeNextCardOnLeft)
             {
                 int leftCount = (currentCardIndex + 1) / 2;
-                position.x = startPosition.x - leftCount * spreadDistance;
+                position.x = config.startPosition.x - leftCount * config.spreadDistance;
                 placeNextCardOnLeft = false;
             }
             else
             {
                 int rightCount = (currentCardIndex + 1) / 2;
-                position.x = startPosition.x + rightCount * spreadDistance;
+                position.x = config.startPosition.x + rightCount * config.spreadDistance;
                 placeNextCardOnLeft = true;
             }
             return position;
@@ -750,8 +740,8 @@ namespace Assets.Casino.Games.BlackGreg
         {
             if (!IsGameStarted) return false;
             if (_isRevealed.Value) return false;
-            if (playerHandData.Count < minCardsToFinish) return false;
-            if (botHandData.Count < minCardsToFinish) return false;
+            if (playerHandData.Count < config.minCardsToFinish) return false;
+            if (botHandData.Count < config.minCardsToFinish) return false;
             if (!BotHasStood) return false;
             return true;
         }
@@ -763,7 +753,7 @@ namespace Assets.Casino.Games.BlackGreg
             {
                 PutOnTablePlayerCards();
                 RevealHands();
-                Invoke("FinishGame", timeBeforeEvaluateResult);
+                Invoke("FinishGame", config.timeBeforeEvaluateResult);
             }
         }
         public bool CanPlayerFinish()

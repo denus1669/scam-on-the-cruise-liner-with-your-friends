@@ -1456,6 +1456,10 @@ PrefabInstance:
       value: 'SM_Game_BlackGreg_Table '
       objectReference: {fileID: 0}
     - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
+      propertyPath: config
+      value: 
+      objectReference: {fileID: 11400000, guid: 2c735ddd45a12f249816741fa717f505, type: 2}
+    - target: {fileID: 3069045012675212938, guid: 21107e3116e585147a1dbaa05fcc32f6, type: 3}
       propertyPath: botWaitPoint
       value: 
       objectReference: {fileID: 3974921355653741915}

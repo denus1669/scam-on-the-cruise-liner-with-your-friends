@@ -49,6 +49,11 @@ namespace Blocks.Gameplay.Core
         /// </summary>
         public CoreCameraMode ActiveCameraMode { get; private set; }
 
+        /// <summary>
+        /// Gets the current look sensitivity value.
+        /// </summary>
+        public float CurrentLookSensitivity => m_LookSensitivity;
+
         // Internal state for look angles and sensitivity.
         private float m_CurrentVerticalLookAngle;
         private float m_CurrentHorizontalLookAngle;
