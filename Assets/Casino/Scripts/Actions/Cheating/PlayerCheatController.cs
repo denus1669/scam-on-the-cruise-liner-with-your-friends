@@ -254,7 +254,7 @@ namespace Assets.Casino.Cheating
 
             while (IsCheating)
             {
-                AddDispleasureToBots();
+                //AddDispleasureToBots();
                 yield return wait;
             }
 

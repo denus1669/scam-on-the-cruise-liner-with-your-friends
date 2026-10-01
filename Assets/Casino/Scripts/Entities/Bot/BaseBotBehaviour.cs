@@ -2,6 +2,7 @@ using Assets.Casino.Cheating;
 using Assets.Casino.Games;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,10 +15,14 @@ namespace Assets.Casino.Bot
         Risky
     }
 
-    /// <summary>
-    /// Базовый класс для ИИ бота. Содержит универсальную логику: 
-    /// жизненный цикл сессии, мухлеж, блеф и реакции на игрока.
-    /// </summary>
+    public enum PlayerWatchState
+    {
+        Absent,
+        Present,
+        Watching
+    }
+
+    [RequireComponent(typeof(PlayerLookDetector))]
     public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
     {
         [Header("Универсальные настройки ИИ")]
@@ -31,6 +36,13 @@ namespace Assets.Casino.Bot
         [SerializeField] protected float baseCheatChance = 0.15f;
         [SerializeField] protected float baseBluffChance = 0.25f;
         [SerializeField] protected float watchedCheatMultiplier = 0.1f;
+
+        [Tooltip("Множитель шанса читерства, когда игроков нет рядом")]
+        [SerializeField] protected float absentCheatMultiplier = 1.5f;
+
+        [Header("Обнаружение наблюдения")]
+        [Tooltip("Компонент-детектор взгляда игроков. Если не задан — ищется на этом объекте.")]
+        [SerializeField] protected PlayerLookDetector lookDetector;
 
         // Ссылки на универсальные компоненты бота
         protected BotAgent botAgent;
@@ -49,16 +61,15 @@ namespace Assets.Casino.Bot
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
+
         public bool HasBotStood => _hasBotStood.Value;
         public bool IsPlaying => _isPlaying.Value;
 
         public event Action<bool> OnBotStoodChanged;
         public event Action<bool> OnBotPlayChanged;
 
-        /// <summary>
-        /// Тип стола, с которым работает это поведение.
-        /// </summary>
         public abstract System.Type SupportedTableType { get; }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -70,34 +81,37 @@ namespace Assets.Casino.Bot
             _isPlaying.OnValueChanged -= HandleBotPlayChanged;
 
             if (gameTable != null && IsServer)
-            {
                 gameTable.OnGameStateChanged -= OnGameStateChanged;
-            }
+
             base.OnNetworkDespawn();
         }
+
         protected virtual void Awake()
         {
             botAgent = GetComponent<BotAgent>();
             cheatController = GetComponent<BotCheatController>();
             bluffController = GetComponent<BotBluffController>();
             displeasureController = GetComponent<BotDispleasureController>();
+
+            // Автопоиск детектора, если не задан в инспекторе
+            if (lookDetector == null)
+                lookDetector = GetComponent<PlayerLookDetector>();
+
+            if (lookDetector == null)
+                Debug.LogError($"[{name}] PlayerLookDetector не найден! Состояние наблюдения всегда будет Absent.", this);
         }
 
         public virtual void InitializeGame(IGameTable table)
         {
-            // Отписка от предыдущего стола (защита от двойной подписки)
             if (gameTable != null && IsServer)
-            {
                 gameTable.OnGameStateChanged -= OnGameStateChanged;
-            }
 
             gameTable = table;
 
             if (IsServer)
             {
-                _hasBotStood.Value = false; // Сброс
+                _hasBotStood.Value = false;
                 NotifyBotStoodChangedClientRpc(false);
-
                 gameTable.OnGameStateChanged += OnGameStateChanged;
             }
         }
@@ -113,15 +127,18 @@ namespace Assets.Casino.Bot
             }
         }
 
-        public virtual void HandleBotArrivedChanged(bool hasArrived)
-        {
-        }
+        public virtual void HandleBotArrivedChanged(bool hasArrived) { }
 
         public virtual void StartSession()
         {
             Debug.Log($"[BaseBotBehavior] Бот начал сессию на столе '{gameTable.TableName}'");
             if (!IsServer || IsPlaying) return;
+
             _isPlaying.Value = true;
+
+            // Включаем детектор наблюдения на время сессии
+            lookDetector?.SetIsStartTrack(true);
+
             StartCoroutine(PlaySessionRoutine());
         }
 
@@ -130,6 +147,9 @@ namespace Assets.Casino.Bot
             Debug.Log($"[BaseBotBehavior] Бот закончил сессию на столе '{gameTable.TableName}'");
             StopAllCoroutines();
             _isPlaying.Value = false;
+
+            // Отключаем детектор вне сессии
+            lookDetector?.SetIsStartTrack(false);
         }
 
         private void OnGameStateChanged(bool isGameStarted)
@@ -182,18 +202,27 @@ namespace Assets.Casino.Bot
             float currentCheatChance = baseCheatChance * personalityCheatMod;
             float currentBluffChance = baseBluffChance * personalityBluffMod;
 
-            bool isBeingWatched = CheckIfPlayerIsWatching();
-            if (isBeingWatched)
+            PlayerWatchState watchState = GetPlayerWatchState();
+            float oldChance = currentCheatChance;
+
+            switch (watchState)
             {
-                float oldChance = currentCheatChance;
-                currentCheatChance *= watchedCheatMultiplier;
-                Debug.Log($"[SuspiciousAction] Игрок смотрит! Чит-шанс: {oldChance:F3} -> {currentCheatChance:F3} (x{watchedCheatMultiplier})");
+                case PlayerWatchState.Watching:
+                    currentCheatChance *= watchedCheatMultiplier;
+                    break;
+                case PlayerWatchState.Absent:
+                    currentCheatChance *= absentCheatMultiplier;
+                    break;
+                case PlayerWatchState.Present:
+                    break;
             }
+
+            Debug.Log($"[SuspiciousAction] Состояние: {watchState} | Чит-шанс: {oldChance:F3} -> {currentCheatChance:F3}");
 
             float randomRoll = UnityEngine.Random.value;
             float totalThreshold = currentCheatChance + currentBluffChance;
 
-            Debug.Log($"[SuspiciousAction] Roll: {randomRoll:F3} | Cheat: {currentCheatChance:F3} | Bluff: {currentBluffChance:F3} | Watched: {isBeingWatched} | Name: {name}");
+            Debug.Log($"[SuspiciousAction] Roll: {randomRoll:F3} | Cheat: {currentCheatChance:F3} | Bluff: {currentBluffChance:F3} | Watched: {watchState} | Name: {name}");
 
             if (randomRoll < currentCheatChance)
             {
@@ -246,7 +275,8 @@ namespace Assets.Casino.Bot
             yield break;
         }
 
-        #region Abstract & Virtual Methods (Для наследников)
+        #region Abstract & Virtual Methods
+
         protected virtual void OnBotFinishedSession()
         {
             if (!IsServer) return;
@@ -259,15 +289,46 @@ namespace Assets.Casino.Bot
         {
             OnBotStoodChanged?.Invoke(hasStood);
         }
+
         private void HandleBotPlayChanged(bool previous, bool current)
         {
             Debug.Log($"[Server/NetVar] HandleBotPlayChanged: {current}. Подписчиков: {OnBotPlayChanged?.GetInvocationList().Length ?? 0}");
             OnBotPlayChanged?.Invoke(current);
         }
+
         protected abstract bool EvaluateAndPerformGameAction();
-        protected virtual float GetPersonalityCheatModifier() => personality == BotPersonality.Risky ? 1.5f : (personality == BotPersonality.Cautious ? 0.5f : 1f);
-        protected virtual float GetPersonalityBluffModifier() => personality == BotPersonality.Risky ? 0.8f : (personality == BotPersonality.Cautious ? 1.2f : 1f);
-        protected virtual bool CheckIfPlayerIsWatching() => false;
+
+        protected virtual float GetPersonalityCheatModifier() =>
+            personality == BotPersonality.Risky ? 1.5f :
+            personality == BotPersonality.Cautious ? 0.5f : 1f;
+
+        protected virtual float GetPersonalityBluffModifier() =>
+            personality == BotPersonality.Risky ? 0.8f :
+            personality == BotPersonality.Cautious ? 1.2f : 1f;
+
+        /// <summary>
+        /// Возвращает текущее состояние наблюдения, полученное от PlayerLookDetector.
+        /// Если детектор отсутствует — считаем, что игроков рядом нет (Absent).
+        /// </summary>
+        public PlayerWatchState GetPlayerWatchState()
+        {
+            if (lookDetector == null)
+                return PlayerWatchState.Absent;
+
+            return lookDetector.GetPlayerWatchState();
+        }
+
+        /// <summary>
+        /// Удобный шорткат: смотрит ли сейчас хотя бы один игрок.
+        /// </summary>
+        public bool IsBeingWatched => lookDetector != null && lookDetector.IsBeingWatched;
+
+        /// <summary>
+        /// Список игроков, которые сейчас смотрят на бота.
+        /// </summary>
+        public IReadOnlyList<NetworkObject> PlayersLookAtMe =>
+            lookDetector != null ? lookDetector.PlayersLookAtMe : Array.Empty<NetworkObject>();
+
         public void SetPersonality(BotPersonality newPersonality) => personality = newPersonality;
 
         #endregion

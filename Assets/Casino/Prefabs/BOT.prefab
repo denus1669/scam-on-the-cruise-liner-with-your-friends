@@ -303,7 +303,7 @@ Transform:
   m_GameObject: {fileID: 3214826041473833782}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.417}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -813,6 +813,9 @@ GameObject:
   - component: {fileID: 603416445241012076}
   - component: {fileID: 8071987795693044403}
   - component: {fileID: 5227721383909466426}
+  - component: {fileID: 3774962495988251155}
+  - component: {fileID: 3422549942218336041}
+  - component: {fileID: 5535715648064379728}
   m_Layer: 10
   m_Name: BOT
   m_TagString: Bot
@@ -991,6 +994,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   maxDispleasure: 100
   baseDispleasureRate: 5
+  watchersDispleasureRate: 7
   decayRate: 2
   currentDispleasure:
     m_InternalValue: 0
@@ -1057,6 +1061,8 @@ MonoBehaviour:
   baseCheatChance: 0.15
   baseBluffChance: 0.25
   watchedCheatMultiplier: 0.1
+  absentCheatMultiplier: 1.5
+  lookDetector: {fileID: 0}
   spinCooldown: 0.5
 --- !u!114 &8071987795693044403
 MonoBehaviour:
@@ -1072,11 +1078,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackGregBotBehavior
   ShowTopMostFoldoutHeaderGroup: 1
   personality: 0
-  delayBetweenActionsMin: 1.5
-  delayBetweenActionsMax: 3
+  delayBetweenActionsMin: 5
+  delayBetweenActionsMax: 10
   baseCheatChance: 0.15
   baseBluffChance: 0.25
   watchedCheatMultiplier: 0.1
+  absentCheatMultiplier: 1.5
+  lookDetector: {fileID: 5535715648064379728}
   stupidityChance: 0.08
 --- !u!114 &5227721383909466426
 MonoBehaviour:
@@ -1099,8 +1107,72 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dbb11fb2cee687740843dc3060062ba0, type: 2}
   currentCheatAction: {fileID: 0}
   characterAnimator: {fileID: 0}
+--- !u!114 &3774962495988251155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1be4332c09c2f349af6e5d5c7069604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Bot.BotVision
+  ShowTopMostFoldoutHeaderGroup: 1
+  config: {fileID: 11400000, guid: 7e663d7dcb25def4dbfa0135569afae5, type: 2}
+  head: {fileID: 451274446392714034}
+  drawDebugRuntime: 1
+--- !u!114 &3422549942218336041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8311c997e40e37c42a4dcfc2cd81f713, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Bot.BotCheatVisionHandler
+  ShowTopMostFoldoutHeaderGroup: 1
+  cheatDispleasurePerSecond: 10
+  checkInterval: 0.25
+  _botVision: {fileID: 3774962495988251155}
+  _displeasureController: {fileID: 4877028851096292619}
+  _botAgent: {fileID: 7170024236539094336}
+  drawDebugLine: 1
+  debugLineBotHeight: 1.7
+  debugLinePlayerHeight: 1.5
+--- !u!114 &5535715648064379728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5497669901684611537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988944310ecceee48b9a227cf21fb4ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Bot.PlayerLookDetector
+  ShowTopMostFoldoutHeaderGroup: 1
+  baseBotBehaviour: {fileID: 603416445241012076}
+  botVision: {fileID: 3774962495988251155}
   botAgent: {fileID: 0}
-  displeasureController: {fileID: 0}
+  lookAngleThreshold: 60
+  maxPitchAngle: 45
+  maxDistance: 10
+  checkInterval: 0.25
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  lookTarget: {fileID: 451274446392714034}
+  usePlayerCamera: 1
+  useHeightCheck: 1
+  maxHeightDifference: 3
+  checkViewPitch: 1
+  playersLookAtMe: []
 --- !u!1001 &3905408004520809531
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1341,6 +1413,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5374257894846411671}
   m_SourcePrefab: {fileID: 100100000, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+--- !u!4 &451274446392714034 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7446341098796831297, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+  m_PrefabInstance: {fileID: 6995647616031633779}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7394683042014615192 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}

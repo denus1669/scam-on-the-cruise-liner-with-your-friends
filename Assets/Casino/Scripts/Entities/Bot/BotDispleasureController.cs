@@ -12,7 +12,9 @@ namespace Assets.Casino.Bot
         [Header("Настройки недовольства")]
         [SerializeField] private float maxDispleasure = 100f;
         [SerializeField] private float baseDispleasureRate = 5f;
+        [SerializeField] private float watchersDispleasureRate = 5f;
         [SerializeField] private float decayRate = 2f;
+
 
         [SerializeField] private NetworkVariable<float> currentDispleasure = new NetworkVariable<float>(0f);
 
@@ -27,7 +29,11 @@ namespace Assets.Casino.Bot
         {
             botAgent = GetComponent<BotAgent>();
         }
-
+        private void Update()
+        {
+            if (!IsServer) return;
+            WatchersAddDispleasure();
+        }
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -44,27 +50,6 @@ namespace Assets.Casino.Bot
         private void OnDispleasureValueChanged(float oldValue, float newValue)
         {
             OnDispleasureChanged?.Invoke(newValue);
-        }
-
-        private void Update()
-        {
-            if (!IsServer) return;
-
-            IGameTable table = GetCurrentTable();
-            if (table == null || !table.IsGameStarted) return;
-
-            if (watchers.Count > 0)
-            {
-                float increase = baseDispleasureRate * Time.deltaTime * watchers.Count;
-                currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + increase, 0f, maxDispleasure);
-
-                if (currentDispleasure.Value >= maxDispleasure)
-                {
-                    HandleMaxDispleasure(table);
-                }
-            }
-            // OnDispleasureChanged вызывается автоматически через OnValueChanged.
-            // Ручной вызов убран.
         }
 
         [Rpc(SendTo.Server)]
@@ -89,7 +74,6 @@ namespace Assets.Casino.Bot
         public void AddInstantDispleasure(float amount)
         {
             currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + amount, 0f, maxDispleasure);
-            Debug.Log($"[Displeasure] Бот {gameObject.name} получил мгновенное раздражение: +{amount}. Текущее: {currentDispleasure.Value}");
 
             if (currentDispleasure.Value >= maxDispleasure)
             {
@@ -122,6 +106,29 @@ namespace Assets.Casino.Bot
         private IGameTable GetCurrentTable()
         {
             return botAgent != null ? botAgent.CurrentTable : null;
+        }
+
+        private void WatchersAddDispleasure()
+        {
+            if (watchers.Count > 0)
+            {
+                float increase = watchersDispleasureRate * Time.deltaTime * watchers.Count;
+                currentDispleasure.Value = Mathf.Clamp(currentDispleasure.Value + increase, 0f, maxDispleasure);
+
+                if (currentDispleasure.Value >= maxDispleasure)
+                {
+                    HandleMaxDispleasure(GetCurrentTable());
+                }
+            }
+        }
+
+        private void ProcessDecay()
+        {
+            if (currentDispleasure.Value <= 0f) return;
+            currentDispleasure.Value = Mathf.Clamp(
+                currentDispleasure.Value - decayRate * Time.deltaTime,
+                0f, maxDispleasure
+            );
         }
     }
 }

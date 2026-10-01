@@ -9,10 +9,6 @@ namespace Assets.Casino.Cheating
 {
     public class BotCheatController : CheatController
     {
-        [Header("Ссылки")]
-        [SerializeField] private BotAgent botAgent;
-        [SerializeField] private BotDispleasureController displeasureController;
-
         public override bool CanCheat()
         {
             // Проверяем, что персонаж не в процессе мухлежа
