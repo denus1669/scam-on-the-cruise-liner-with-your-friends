@@ -274,6 +274,7 @@ namespace Assets.Casino.Bot
 
         private void LogState()
         {
+            /*
             switch (_watchState)
             {
                 case PlayerWatchState.Watching:
@@ -285,7 +286,7 @@ namespace Assets.Casino.Bot
                 case PlayerWatchState.Absent:
                     Debug.Log("<color=red>[LookDetector] Absent: игроков рядом нет</color>", this);
                     break;
-            }
+            }*/
         }
 
 #if UNITY_EDITOR

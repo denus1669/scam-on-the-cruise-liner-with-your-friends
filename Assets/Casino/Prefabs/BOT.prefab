@@ -144,6 +144,118 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BotArrivalIndicator
   targetObject: {fileID: 1972026076234249946}
   botAgent: {fileID: 7170024236539094336}
+--- !u!1 &2492156919707958870
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7634361214261544805}
+  - component: {fileID: 4196200579340404482}
+  - component: {fileID: 5443967288258432128}
+  - component: {fileID: 164229192223737399}
+  - component: {fileID: 4639777066951235085}
+  - component: {fileID: 4801010860978663024}
+  m_Layer: 9
+  m_Name: AttentionTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7634361214261544805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4376745090154585811}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4196200579340404482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab921843ec8254740b46dd1c2eb86860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Attention.AttentionTargetReceiver
+--- !u!114 &5443967288258432128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dec2c46c87dfcf747b1b20b1c71408c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Scripts.Actions.Attention.BotCheatAttentionHighlighter
+  highlightConfig: {fileID: 11400000, guid: 21dc88355d6f070428c459ef0aff2388, type: 2}
+  cardsRoot: {fileID: 703854091639277208}
+  _cheatController: {fileID: 5227721383909466426}
+--- !u!114 &164229192223737399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5f22318778721246800c144e6a96bd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BotCheatingReactionHandler
+  cheatController: {fileID: 5227721383909466426}
+  attentionReceiver: {fileID: 4196200579340404482}
+  cheatIndicator: {fileID: 1196171496923494744}
+--- !u!114 &4639777066951235085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e025cd6b3dcffe446b42e2ae811d44fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.BotDispleasureAttentionHandler
+  botDispleasure: {fileID: 4877028851096292619}
+--- !u!65 &4801010860978663024
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2492156919707958870}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 1, z: 1}
+  m_Center: {x: 0, y: 1, z: 1}
 --- !u!1 &2963750233750049523
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,14 +392,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 703854091639277208}
-  - component: {fileID: 7162283054248481240}
-  - component: {fileID: 4782374077190005773}
-  - component: {fileID: 386570628561090758}
   - component: {fileID: 8262880651204589176}
-  - component: {fileID: 4860884630546524510}
-  - component: {fileID: 2641061353582983763}
-  - component: {fileID: 8618909681432102683}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: CardHandPosition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -303,58 +409,12 @@ Transform:
   m_GameObject: {fileID: 3214826041473833782}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.417}
+  m_LocalPosition: {x: 0, y: 1, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4376745090154585811}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &7162283054248481240
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2, y: 1, z: 1}
-  m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &4782374077190005773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab921843ec8254740b46dd1c2eb86860, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.AttentionTargetReceiver
---- !u!114 &386570628561090758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e025cd6b3dcffe446b42e2ae811d44fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Blocks.Gameplay.Core.BotDispleasureAttentionHandler
-  botDispleasure: {fileID: 4877028851096292619}
 --- !u!114 &8262880651204589176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,50 +427,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8fb9f80192ece24b8100a94d1fbaf5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CardHandInspector
+  _attentionReceiver: {fileID: 4196200579340404482}
   _currentCards: []
---- !u!114 &4860884630546524510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5f22318778721246800c144e6a96bd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BotCheatingReactionHandler
-  cheatController: {fileID: 5227721383909466426}
-  attentionReceiver: {fileID: 4782374077190005773}
-  cheatIndicator: {fileID: 1196171496923494744}
---- !u!114 &2641061353582983763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f01ff64f3b684df4e991d4eebc7e1dab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Attention.PlayerAttentionController
-  ShowTopMostFoldoutHeaderGroup: 1
---- !u!114 &8618909681432102683
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3214826041473833782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dec2c46c87dfcf747b1b20b1c71408c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Scripts.Actions.Attention.BotCheatAttentionHighlighter
-  highlightConfig: {fileID: 11400000, guid: 21dc88355d6f070428c459ef0aff2388, type: 2}
-  cardsRoot: {fileID: 703854091639277208}
-  _cheatController: {fileID: 5227721383909466426}
 --- !u!1 &3475600998146616932
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,6 +862,7 @@ Transform:
   - {fileID: 6985484879570346910}
   - {fileID: 8558609216288889962}
   - {fileID: 7099895581468459415}
+  - {fileID: 7634361214261544805}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!195 &7092812726947163157
@@ -1142,6 +1161,7 @@ MonoBehaviour:
   _displeasureController: {fileID: 4877028851096292619}
   _botAgent: {fileID: 7170024236539094336}
   drawDebugLine: 1
+  logVisionChanges: 1
   debugLineBotHeight: 1.7
   debugLinePlayerHeight: 1.5
 --- !u!114 &5535715648064379728

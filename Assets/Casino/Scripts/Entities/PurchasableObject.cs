@@ -1,4 +1,5 @@
 using Assets.Casino.Bank;
+using Assets.Casino.PhaseDay;
 using System;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,7 +9,8 @@ public class PurchasableObject : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private CasinoBank casinoBank;
-    [SerializeField] private PurchaseVisualController visualController;
+    [SerializeField] private GameObject unpurchasedState;
+    [SerializeField] private GameObject purchasedState;
 
     [Header("Settings")]
     [SerializeField] private int price = 100;
@@ -18,6 +20,7 @@ public class PurchasableObject : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
+    private bool _visible = true;
 
     public bool IsPurchased => _isPurchased.Value;
     public int Price => price;
@@ -28,11 +31,8 @@ public class PurchasableObject : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (casinoBank == null)
-            casinoBank = GetComponent<CasinoBank>();
-
-        if (visualController == null)
-            visualController = GetComponentInChildren<PurchaseVisualController>();
+        if (casinoBank == null && GameSessionManager.Instance != null)
+            casinoBank = GameSessionManager.Instance.Bank;
 
         _isPurchased.OnValueChanged += HandlePurchasedChanged;
 
@@ -75,12 +75,6 @@ public class PurchasableObject : NetworkBehaviour
             _isPurchased.Value = true;
     }
 
-    public void SetPhaseVisible(bool visible)
-    {
-        if (visualController == null) return;
-        visualController.SetVisible(visible);
-    }
-
     private void HandlePurchasedChanged(bool previousValue, bool newValue)
     {
         ApplyPurchaseVisual();
@@ -89,7 +83,23 @@ public class PurchasableObject : NetworkBehaviour
 
     private void ApplyPurchaseVisual()
     {
-        if (visualController == null) return;
-        visualController.SetPurchased(_isPurchased.Value);
+        if (unpurchasedState != null) unpurchasedState.SetActive(!_isPurchased.Value);
+        if (purchasedState != null) purchasedState.SetActive(_isPurchased.Value);
+    }
+
+    public void SetPhaseVisible(bool visibleInPhase)
+    {
+        if (_isPurchased.Value)
+        {
+            // Купленные объекты видны всегда
+            if (purchasedState != null) purchasedState.SetActive(true);
+            if (unpurchasedState != null) unpurchasedState.SetActive(false);
+        }
+        else
+        {
+            // Не купленные подчиняются фазе
+            if (unpurchasedState != null) unpurchasedState.SetActive(visibleInPhase);
+            if (purchasedState != null) purchasedState.SetActive(false);
+        }
     }
 }

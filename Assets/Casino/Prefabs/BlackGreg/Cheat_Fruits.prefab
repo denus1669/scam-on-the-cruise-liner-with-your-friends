@@ -1,0 +1,548 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &593486562063528730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7771969580140920106}
+  - component: {fileID: 6574641876537138500}
+  - component: {fileID: 3267466971995294646}
+  m_Layer: 8
+  m_Name: Cheat_Fruits
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7771969580140920106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593486562063528730}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.4440007, y: 0.944, z: 0.171}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5077240125531541059}
+  - {fileID: 5050313205466997122}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6574641876537138500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593486562063528730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2533243210
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 8
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &3267466971995294646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593486562063528730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b8be3530e775024baf03638fa70af43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::PurchasableObject
+  ShowTopMostFoldoutHeaderGroup: 1
+  casinoBank: {fileID: 0}
+  unpurchasedState: {fileID: 3764838163239719132}
+  purchasedState: {fileID: 2301557660070712160}
+  price: 5
+--- !u!1 &2301557660070712160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 90174542818462986, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5050313205466997122}
+  - component: {fileID: 1522572821639983004}
+  - component: {fileID: 817703008039862677}
+  - component: {fileID: 8985082628563282849}
+  - component: {fileID: 7657262799228387878}
+  - component: {fileID: 6664389988362080879}
+  - component: {fileID: 5083552005548854808}
+  m_Layer: 8
+  m_Name: Cheat_Fruits_Purchased
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5050313205466997122
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7771969580140920106}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &1522572821639983004
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 6170191281149192972, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Mesh: {fileID: -3111100884641205727, guid: 128f47ada3ce499f933ae6ffc05f8260, type: 3}
+--- !u!23 &817703008039862677
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 5646290549554870018, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 7dccd4e7b11ffc04684dd929a850e5ac, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8985082628563282849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1714271302229230430, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa6dc162d688ff4aab543fcd71dbcdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CheatInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  thisTableComponent: {fileID: 0}
+  triggerMode: 0
+  priority: 5
+  promptText: "\u041C\u0443\u0445\u043B\u0435\u0432\u0430\u0442\u044C (E)"
+  availableCheats: {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+--- !u!65 &7657262799228387878
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1437299543258038224, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.45384145, y: 0.26186392, z: 0.45033628}
+  m_Center: {x: 0.0014030784, y: 0.13093193, z: 0.0014030784}
+--- !u!114 &6664389988362080879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 3590131822271581080, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &5083552005548854808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 4666222934046248601, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+  m_PrefabInstance: {fileID: 3299497942462631361}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301557660070712160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 8985082628563282849}
+  availabilityCheckInterval: 0.5
+--- !u!1 &3764838163239719132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 90174542818462986, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5077240125531541059}
+  - component: {fileID: 6704976629305254250}
+  - component: {fileID: 494183831944539044}
+  - component: {fileID: 6982834665433265663}
+  - component: {fileID: 6358731433156400500}
+  - component: {fileID: 5166793922574084022}
+  - component: {fileID: 818769410496489135}
+  m_Layer: 8
+  m_Name: Cheat_Fruits_Unpurchased
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5077240125531541059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7771969580140920106}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &6704976629305254250
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 6170191281149192972, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Mesh: {fileID: -3111100884641205727, guid: 128f47ada3ce499f933ae6ffc05f8260, type: 3}
+--- !u!23 &494183831944539044
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 5646290549554870018, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 9311a2fcde9d9a94489d0b1a54d40325, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &6982834665433265663
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1437299543258038224, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.45384145, y: 0.26186392, z: 0.45033628}
+  m_Center: {x: 0.0014030784, y: 0.13093193, z: 0.0014030784}
+--- !u!114 &6358731433156400500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 3590131822271581080, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &5166793922574084022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 4666222934046248601, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+  m_PrefabInstance: {fileID: 3290301746909798912}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Highlighter
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 818769410496489135}
+  availabilityCheckInterval: 0.5
+--- !u!1001 &3290301746909798912
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7771969580140920106}
+    m_Modifications:
+    - target: {fileID: 90174542818462986, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_Name
+      value: Cheat_Fruits_Unpurchased
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710328017120520631, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2226316390
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 0}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 90174542818462986, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 818769410496489135}
+  m_SourcePrefab: {fileID: 100100000, guid: de15598263a102a4ba76bea0801b7bd6, type: 3}
+--- !u!114 &818769410496489135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3764838163239719132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57de0258ae0458440a4c4f671267557d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::PurchaseInteractable
+  ShowTopMostFoldoutHeaderGroup: 1
+  purchasableObject: {fileID: 3267466971995294646}
+  triggerMode: 0
+  priority: 5
+  _timeToHold: 1
+  promptText: "\u041A\u0443\u043F\u0438\u0442\u044C (E)"
+  promptTextNoMoney: "\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E
+    \u0441\u0440\u0435\u0434\u0441\u0442\u0432"
+  promptTextWrongPhase: "\u041F\u043E\u043A\u0443\u043F\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430"
+  promptTextAlreadyPurchased: "\u0423\u0436\u0435 \u043A\u0443\u043F\u043B\u0435\u043D\u043E"
+--- !u!1001 &3299497942462631361
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7771969580140920106}
+    m_Modifications:
+    - target: {fileID: 90174542818462986, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_Name
+      value: Cheat_Fruits_Purchased
+      objectReference: {fileID: 0}
+    - target: {fileID: 5710328017120520631, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2383475237
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7772222296425311299, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 0}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5b7fd5b011354934fac9d3a37e60ae1c, type: 3}

@@ -352,11 +352,11 @@ namespace Assets.Casino.Games.BlackGreg
             // 4. Пауза для демонстрации результата (настраивается в инспекторе стола)
             yield return new WaitForSeconds(config.highlightPauseDuration);
 
-            // 5. Подтверждение завершения игры на сервере (очистка логических данных)
-            ConfirmGameEndServerRpc();
-            
             // 6. Сброс карт
             DiscardCards();
+            
+            // 5. Подтверждение завершения игры на сервере (очистка логических данных)
+            ConfirmGameEndServerRpc();
 
             if (botScoreDisplay != null) botScoreDisplay.ResetScore();
             if (playerScoreDisplay != null) playerScoreDisplay.ResetScore();
@@ -426,7 +426,7 @@ namespace Assets.Casino.Games.BlackGreg
                 float distB = Vector3.Distance(b.transform.position, discardPosition.position);
                 return distA.CompareTo(distB);
             });
-
+            Debug.Log($"allCards.Count{allCards.Count}");
             for (int i = 0; i < allCards.Count; i++)
             {
                 if (allCards[i] != null)
@@ -479,8 +479,6 @@ namespace Assets.Casino.Games.BlackGreg
             botHandData = new List<CardData>(syncedBotHand);
 
             CardViewCleaner(_playerSpawnedCardViews);
-
-            placeNextCardOnLeft = true;
 
             // Определяем, должны ли карты игрока быть открытыми
 
@@ -590,23 +588,25 @@ namespace Assets.Casino.Games.BlackGreg
         private Vector3 GetNextCardPosition(int currentCardIndex)
         {
             Vector3 position = config.startPosition;
+
             if (currentCardIndex == 0)
             {
-                placeNextCardOnLeft = true;
                 return position;
             }
-            if (placeNextCardOnLeft)
+
+            // Нечетные индексы (1, 3, 5...) уходят влево
+            if (currentCardIndex % 2 != 0)
             {
                 int leftCount = (currentCardIndex + 1) / 2;
-                position.x = config.startPosition.x - leftCount * config.spreadDistance;
-                placeNextCardOnLeft = false;
+                position.x -= leftCount * config.spreadDistance;
             }
+            // Четные индексы (2, 4, 6...) уходят вправо
             else
             {
-                int rightCount = (currentCardIndex + 1) / 2;
-                position.x = config.startPosition.x + rightCount * config.spreadDistance;
-                placeNextCardOnLeft = true;
+                int rightCount = currentCardIndex / 2;
+                position.x += rightCount * config.spreadDistance;
             }
+
             return position;
         }
 

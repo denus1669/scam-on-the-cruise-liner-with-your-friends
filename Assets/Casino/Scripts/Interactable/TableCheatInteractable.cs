@@ -22,7 +22,6 @@ namespace Assets.Casino.Cheating
         [SerializeField] private string promptText = "Мухлевать (E)";
 
         [SerializeField] private BlackGregCheatAction availableCheats;
-        private PlayerCheatController _ownerCheatController;
 
         private bool _localAvailabilityCache;
         private ulong _eligibleClientId = ulong.MaxValue;
@@ -52,6 +51,24 @@ namespace Assets.Casino.Cheating
                 return promptText;
             }
         }
+
+        protected void OnEnable()
+        {
+
+            // Когда объект включается (после покупки), сервер должен 
+            // переподписаться на occupant и переслать доступность клиенту
+            if (IsServer && thisTableComponent != null)
+            {
+                SubscribeToPlayer(thisTableComponent.OccupiedByClientId);
+                EvaluateAndPushAvailability();
+            }
+        }
+
+        protected void OnDisable()
+        {
+            UnsubscribeFromPlayer();
+        }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -178,6 +195,8 @@ namespace Assets.Casino.Cheating
         [Rpc(SendTo.SpecifiedInParams)]
         private void UpdateAvailabilityClientRpc(bool isAvailable, RpcParams rpcParams = default)
         {
+            if (!gameObject.activeInHierarchy) return; 
+
             if (_localAvailabilityCache != isAvailable)
             {
                 _localAvailabilityCache = isAvailable;

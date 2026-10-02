@@ -4,10 +4,9 @@ using UnityEngine;
 
 namespace Assets.Casino.Attention
 {
-    [RequireComponent(typeof(AttentionTargetReceiver))]
     public class CardHandInspector : MonoBehaviour
     {
-        private AttentionTargetReceiver _attentionReceiver;
+        [SerializeField] private AttentionTargetReceiver _attentionReceiver;
         [SerializeField] private CardView[] _currentCards;
 
         private bool _isFocused;
@@ -15,7 +14,8 @@ namespace Assets.Casino.Attention
 
         private void Awake()
         {
-            _attentionReceiver = GetComponent<AttentionTargetReceiver>();
+            if (_attentionReceiver == null)
+                Debug.LogError("_attentionReceiver == null");
         }
 
         private void OnEnable()
