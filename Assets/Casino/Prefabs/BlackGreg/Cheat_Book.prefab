@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1020360889
+  GlobalObjectIdHash: 240012970
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -73,10 +73,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: CasinoScripts::PurchasableObject
   ShowTopMostFoldoutHeaderGroup: 1
+  itemDefinition: {fileID: 11400000, guid: 4d29363cdd1c528409dbd2b4f66ac118, type: 2}
   casinoBank: {fileID: 0}
   unpurchasedState: {fileID: 2374543878977711453}
   purchasedState: {fileID: 670368746026752252}
-  price: 100
 --- !u!1 &670368746026752252
 GameObject:
   m_ObjectHideFlags: 0

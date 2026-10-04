@@ -6874,6 +6874,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: CasinoScripts::PurchaseManager
   ShowTopMostFoldoutHeaderGroup: 1
   gameSessionManager: {fileID: 2054266439}
+  casinoBank: {fileID: 0}
   visibleState: 0
 --- !u!1001 &1028819189
 PrefabInstance:
@@ -7402,6 +7403,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1774114328211390414, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      propertyPath: casinoBank
+      value: 
+      objectReference: {fileID: 441953932}
+    - target: {fileID: 1774114328211390414, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      propertyPath: itemDefinition
+      value: 
+      objectReference: {fileID: 11400000, guid: a5e55455cff8c7d4ea0d0d2095a8e69b, type: 2}
     - target: {fileID: 2096198610175206839, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1020360889
@@ -11215,7 +11224,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4241009712326279512, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4905901269071621734, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       propertyPath: GlobalObjectIdHash
@@ -11363,7 +11372,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8652828095510751699, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1174407550}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3855295636739351531, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 8843466757178727449, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 1226645977529342791, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: d42eaaade86dffd4a88e697b27faccd2, type: 3}
 --- !u!4 &1651685213 stripped
 Transform:
