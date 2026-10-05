@@ -77,26 +77,12 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             PurchaseManager.Instance?.TryPurchase(this, operatorId);
         }
 
-        /// <summary>Только для сервера. Меняет состояние индивидуальной покупки.</summary>
-        public void SetPurchased(bool value)
+        public void SetPurchasedIndividual(bool value)
         {
             if (!IsServer) return;
             if (itemDefinition == null || itemDefinition.scope != PurchaseScope.Individual) return;
             _isPurchasedIndividual.Value = value;
         }
-
-        /*
-        public void TryPurchase(ulong operatorId)
-        {
-            if (!IsServer) return;
-            if (!CanPurchase()) return;
-
-            int withdrawn = casinoBank.TryWithdraw(Price, operatorId, "Покупка объекта");
-
-            if (withdrawn == Price)
-                _isPurchasedIndividual.Value = true;
-            else Debug.LogError("withdrawn == price*?******");
-        }*/
 
         private void HandlePurchasedChanged(bool previousValue, bool newValue)
         {

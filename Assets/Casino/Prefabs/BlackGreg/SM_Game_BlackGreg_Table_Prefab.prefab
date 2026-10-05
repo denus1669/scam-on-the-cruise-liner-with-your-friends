@@ -130,6 +130,18 @@ PrefabInstance:
       propertyPath: thisTableComponent
       value: 
       objectReference: {fileID: 5928564804139097094}
+    - target: {fileID: 4132368860950101936, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: caeb848bf5f4370429d19250506706ee, type: 2}
+    - target: {fileID: 4132368860950101936, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: caeb848bf5f4370429d19250506706ee, type: 2}
+    - target: {fileID: 5180478438258612598, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: caeb848bf5f4370429d19250506706ee, type: 2}
     - target: {fileID: 5261318417951688506, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
       propertyPath: m_Name
       value: 'BlackGreg_Purchased '
@@ -138,6 +150,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5906610879164007812, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: caeb848bf5f4370429d19250506706ee, type: 2}
     - target: {fileID: 6076498297266054623, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
       propertyPath: m_IsActive
       value: 1

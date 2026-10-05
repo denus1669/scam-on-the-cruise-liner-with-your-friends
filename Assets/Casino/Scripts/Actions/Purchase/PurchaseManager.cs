@@ -27,8 +27,6 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-
-
         // Реестр купленных глобальных групп
         public event Action<int> OnGroupPurchased;
 
@@ -37,9 +35,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             return Instance != null && Instance.IsGroupPurchased(groupId);
         }
 
-
         private readonly HashSet<PurchasableObject> _purchasedObjects = new();
-
 
         public static void RegisterObject(PurchasableObject purchasableObject)
         {
@@ -82,9 +78,6 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             else
                 GameSessionManager.OnInstanceReady += HandleGameSessionReady;
 
-            //_purchasedGroupsRaw.OnValueChanged += HandleGroupsRawChanged;
-            //ApplyGroupsRaw(_purchasedGroupsRaw.Value);
-
 
             CollectSceneObjects();
             ApplyCurrentPhase();
@@ -102,7 +95,6 @@ namespace Assets.Casino.Scripts.Actions.Purchase
                 gameSessionManager.OnStateChanged -= HandleGameStateChanged;
 
             GameSessionManager.OnInstanceReady -= HandleGameSessionReady;
-            //_purchasedGroupsRaw.OnValueChanged -= HandleGroupsRawChanged;
 
             base.OnNetworkDespawn();
         }
@@ -124,11 +116,6 @@ namespace Assets.Casino.Scripts.Actions.Purchase
         public bool IsGroupPurchased(PurchaseGroupId groupId)
         {
             return !(groupId == 0) && _purchasedGroups.Contains(groupId);
-        }
-
-        private void SerializeGroups()
-        {
-            //_purchasedGroupsRaw.Value = string.Join(";", _purchasedGroups);
         }
 
         // ---------------- Покупка ----------------
@@ -162,12 +149,11 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
             if (itemDef.scope == PurchaseScope.Individual)
             {
-                purchasableObject.SetPurchased(true);
+                purchasableObject.SetPurchasedIndividual(true);
             }
             else
             {
                 _purchasedGroups.Add(itemDef.groupId);
-                SerializeGroups();
                 OnGroupPurchased?.Invoke((int)itemDef.groupId);
                 NotifyGroupPurchasedClientRpc((int)itemDef.groupId);
             }
@@ -190,10 +176,9 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             if (!IsServer) return;
 
             foreach (var obj in _purchasedObjects)
-                if (obj != null) obj.SetPurchased(false);
+                if (obj != null) obj.SetPurchasedIndividual(false);
 
             _purchasedGroups.Clear();
-            SerializeGroups();
         }
 
         // ---------------- Фаза / видимость ----------------

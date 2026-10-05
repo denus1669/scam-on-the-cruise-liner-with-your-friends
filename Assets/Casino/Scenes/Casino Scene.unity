@@ -13191,10 +13191,10 @@ PrefabInstance:
     - target: {fileID: 935785778575424115, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: purchasedState
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 426374826256700473}
     - target: {fileID: 935785778575424115, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: isPurchasedIndividual
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2292916628215411207, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: m_Name
@@ -13313,6 +13313,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+--- !u!1 &426374826256700473 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8064924000711316987, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+  m_PrefabInstance: {fileID: 426374826256700472}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &576437163273637546
 PrefabInstance:
   m_ObjectHideFlags: 0
