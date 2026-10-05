@@ -16,6 +16,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
         [SerializeField] private CasinoBank casinoBank;
         [SerializeField] private GameObject unpurchasedState;
         [SerializeField] private GameObject purchasedState;
+        [SerializeField] private bool isPurchasedIndividual;
 
         private readonly NetworkVariable<bool> _isPurchasedIndividual = new(
             false,
@@ -47,6 +48,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
                 casinoBank = GameSessionManager.Instance.Bank;
 
             _isPurchasedIndividual.OnValueChanged += HandlePurchasedChanged;
+            _isPurchasedIndividual.Value = isPurchasedIndividual;
 
             PurchaseManager.RegisterObject(this);
             ApplyPurchaseVisual();

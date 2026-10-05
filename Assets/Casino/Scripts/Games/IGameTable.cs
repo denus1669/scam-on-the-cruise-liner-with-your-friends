@@ -34,7 +34,7 @@ namespace Assets.Casino.Games
         /// <summary>Тип стола.</summary>
         string TableType { get; }
         /// <summary>Место бота за столом.</summary>
-        Transform BotWaitPoint { get; }
+        Transform BotPlaceAtTheTable { get; }
 
         /// <summary>Срабатывает при смене владельца стола. Передаётся новый OccupiedByClientId или ulong.MaxValue при освобождении.</summary>
         event Action<ulong> OnOccupantChanged;

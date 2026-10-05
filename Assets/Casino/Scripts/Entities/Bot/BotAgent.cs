@@ -111,6 +111,29 @@ namespace Assets.Casino.Bot
         #region Public Navigation Methods
 
         /// <summary>
+        /// Convenience-метод: находит свободный стол и идёт к нему.
+        /// Если столов нет — переходит в режим ожидания.
+        /// </summary>
+        public void GoToRandomFreeTable()
+        {
+            if (!IsServer) return;
+
+            IGameTable freeTable = FindFreeTable();
+            Debug.Log($"[BotAgent] freeTable {freeTable}");
+
+            if (freeTable != null)
+            {
+                GoToTable(freeTable);
+            }
+            else
+            {
+                Debug.Log($"[BotAgent] Бот {gameObject.name} ожидает освобождения стола.");
+                WaitForFreeTable();
+            }
+        }
+
+
+        /// <summary>
         /// Находит любой свободный стол на сцене с учётом CanAssignBot().
         /// Возвращает null, если свободных столов нет.
         /// </summary>
@@ -164,30 +187,11 @@ namespace Assets.Casino.Bot
             }
 
             // [ИЗМЕНЕНО] Используем TableTransform и BotWaitPoint (если есть)
-            Transform targetTransform = table.BotWaitPoint ?? table.TableTransform;
+            Transform targetTransform = table.BotPlaceAtTheTable ?? table.TableTransform;
             MoveToTarget(targetTransform, OnReachedTable);
         }
 
-        /// <summary>
-        /// Convenience-метод: находит свободный стол и идёт к нему.
-        /// Если столов нет — переходит в режим ожидания.
-        /// </summary>
-        public void GoToRandomFreeTable()
-        {
-            if (!IsServer) return;
 
-            IGameTable freeTable = FindFreeTable();
-
-            if (freeTable != null)
-            {
-                GoToTable(freeTable);
-            }
-            else
-            {
-                Debug.Log($"[BotAgent] Бот {gameObject.name} ожидает освобождения стола.");
-                WaitForFreeTable();
-            }
-        }
 
         /// <summary>
         /// Отправляет бота к точке выхода из казино.
@@ -364,7 +368,7 @@ namespace Assets.Casino.Bot
         private IEnumerator SmoothAlignToTable()
         {
             // 1. Определяем целевые позицию и ротацию
-            Transform waitPoint = currentTable.BotWaitPoint;
+            Transform waitPoint = currentTable.BotPlaceAtTheTable;
             Vector3 targetPosition;
             Quaternion targetRotation;
 

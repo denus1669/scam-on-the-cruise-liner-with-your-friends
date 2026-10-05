@@ -19,19 +19,24 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         [Header("Phase visibility")]
         [SerializeField] private GameState visibleState = GameState.Preparing;
+        private readonly HashSet<PurchaseGroupId> _purchasedGroups = new();
+
+        // NetworkList<int> для синхронизации с клиентами (включая Late Joiners)
+        private readonly NetworkList<int> _purchasedGroupsNet = new(
+            null,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
+
+
 
         // Реестр купленных глобальных групп
-        private readonly HashSet<string> _purchasedGroups = new();
-        public event Action<string> OnGroupPurchased;
+        public event Action<int> OnGroupPurchased;
 
-        public static bool IsGroupPurchasedStatic(string groupId)
+        public static bool IsGroupPurchasedStatic(PurchaseGroupId groupId)
         {
             return Instance != null && Instance.IsGroupPurchased(groupId);
         }
 
-        // Синхронизация реестра (включая late joiners)
-        private readonly NetworkVariable<string> _purchasedGroupsRaw = new(
-            string.Empty, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
         private readonly HashSet<PurchasableObject> _purchasedObjects = new();
 
@@ -61,9 +66,10 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             if (Instance != this) return;
 
-            base.OnNetworkSpawn();
 
             if (gameSessionManager == null)
                 gameSessionManager = GameSessionManager.Instance;
@@ -76,8 +82,8 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             else
                 GameSessionManager.OnInstanceReady += HandleGameSessionReady;
 
-            _purchasedGroupsRaw.OnValueChanged += HandleGroupsRawChanged;
-            ApplyGroupsRaw(_purchasedGroupsRaw.Value);
+            //_purchasedGroupsRaw.OnValueChanged += HandleGroupsRawChanged;
+            //ApplyGroupsRaw(_purchasedGroupsRaw.Value);
 
 
             CollectSceneObjects();
@@ -96,7 +102,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
                 gameSessionManager.OnStateChanged -= HandleGameStateChanged;
 
             GameSessionManager.OnInstanceReady -= HandleGameSessionReady;
-            _purchasedGroupsRaw.OnValueChanged -= HandleGroupsRawChanged;
+            //_purchasedGroupsRaw.OnValueChanged -= HandleGroupsRawChanged;
 
             base.OnNetworkDespawn();
         }
@@ -115,29 +121,14 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         // ---------------- Реестр групп ----------------
 
-        public bool IsGroupPurchased(string groupId)
+        public bool IsGroupPurchased(PurchaseGroupId groupId)
         {
-            return !string.IsNullOrEmpty(groupId) && _purchasedGroups.Contains(groupId);
-        }
-        private void HandleGroupsRawChanged(string previous, string current) => ApplyGroupsRaw(current);
-
-        private void ApplyGroupsRaw(string raw)
-        {
-            _purchasedGroups.Clear();
-
-            if (!string.IsNullOrEmpty(raw))
-            {
-                foreach (var id in raw.Split(';'))
-                {
-                    if (!string.IsNullOrEmpty(id))
-                        _purchasedGroups.Add(id);
-                }
-            }
+            return !(groupId == 0) && _purchasedGroups.Contains(groupId);
         }
 
         private void SerializeGroups()
         {
-            _purchasedGroupsRaw.Value = string.Join(";", _purchasedGroups);
+            //_purchasedGroupsRaw.Value = string.Join(";", _purchasedGroups);
         }
 
         // ---------------- Покупка ----------------
@@ -151,41 +142,41 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             if (purchasableObject.IsPurchased) return false;
             if (casinoBank == null) return false;
 
-            var def = purchasableObject.ItemDefinition;
-            int price = def.price;
+            var itemDef = purchasableObject.ItemDefinition;
+            int price = itemDef.price;
 
             if (casinoBank.CurrentBalance < price) return false;
 
-            if (def.scope == PurchaseScope.Global)
+            if (itemDef.scope == PurchaseScope.Global)
             {
-                if (string.IsNullOrEmpty(def.groupId))
+                if ((itemDef.groupId) == 0)
                 {
-                    Debug.LogError($"[PurchaseManager] {def.itemId}: Global без groupId");
+                    Debug.LogError($"[PurchaseManager] {itemDef.itemId}: Global без groupId");
                     return false;
                 }
-                if (_purchasedGroups.Contains(def.groupId)) return false;
+                if (_purchasedGroups.Contains(itemDef.groupId)) return false;
             }
 
-            int withdrawn = casinoBank.TryWithdraw(price, operatorId, $"Покупка: {def.displayName}");
+            int withdrawn = casinoBank.TryWithdraw(price, operatorId, $"Покупка: {itemDef.displayName}");
             if (withdrawn != price) return false;
 
-            if (def.scope == PurchaseScope.Individual)
+            if (itemDef.scope == PurchaseScope.Individual)
             {
                 purchasableObject.SetPurchased(true);
             }
             else
             {
-                _purchasedGroups.Add(def.groupId);
+                _purchasedGroups.Add(itemDef.groupId);
                 SerializeGroups();
-                OnGroupPurchased?.Invoke(def.groupId);
-                NotifyGroupPurchasedClientRpc(def.groupId);
+                OnGroupPurchased?.Invoke((int)itemDef.groupId);
+                NotifyGroupPurchasedClientRpc((int)itemDef.groupId);
             }
 
             return true;
         }
 
         [ClientRpc]
-        private void NotifyGroupPurchasedClientRpc(string groupId)
+        private void NotifyGroupPurchasedClientRpc(int groupId)
         {
             if (IsServer) return; // сервер уже вызвал локально
             OnGroupPurchased?.Invoke(groupId);

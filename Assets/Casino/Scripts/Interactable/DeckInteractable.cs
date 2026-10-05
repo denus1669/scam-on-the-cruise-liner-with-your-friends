@@ -125,7 +125,7 @@ namespace Assets.Casino.Interactable
         {
             if (blackGregTable == null || !blackGregTable.IsBotReachedTable)
             {
-                Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
+                //Debug.Log($"(blackGregTable == {blackGregTable == null} || blackGregTable.IsOccupied == {blackGregTable.IsOccupied} || !blackGregTable.IsBotReachedTable == {!blackGregTable.IsBotReachedTable}");
                 return false;
             }
 
@@ -133,7 +133,7 @@ namespace Assets.Casino.Interactable
 
             if (blackGregTable.IsOccupied && blackGregTable.OccupiedByClientId != clientId)
             {
-                Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
+                //Debug.Log($"blackGregTable.IsOccupied == {blackGregTable.IsOccupied} && blackGregTable.OccupiedByClientId != clientId == {blackGregTable.OccupiedByClientId != clientId}");
                 return false;
             }
             return blackGregTable.playersInGameArea.Contains(clientId);

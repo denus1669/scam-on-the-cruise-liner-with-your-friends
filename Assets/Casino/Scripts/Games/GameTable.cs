@@ -19,9 +19,9 @@ namespace Assets.Casino.Games
     /// </summary>
     public abstract class GameTable : NetworkBehaviour, IGameTable
     {
-        [SerializeField] private Transform botWaitPoint;
+        [SerializeField] private Transform botPlaceAtTheTable;
 
-        public Transform BotWaitPoint => botWaitPoint != null ? botWaitPoint : transform;
+        public Transform BotPlaceAtTheTable => botPlaceAtTheTable != null ? botPlaceAtTheTable : transform;
 
         // ---------- Сетевые переменные ----------
         protected readonly NetworkVariable<bool> isOccupied = new NetworkVariable<bool>(
@@ -108,6 +108,16 @@ namespace Assets.Casino.Games
             isBotReachedTable.OnValueChanged -= OnBotReachedTableChanged;
 
             base.OnNetworkDespawn();
+        }
+
+        public void OnEnable()
+        {
+            GameTableManager.Instance?.RegisterTable(this);
+        }
+
+        public void OnDisable()
+        {
+            GameTableManager.Instance?.UnregisterTable(this);
         }
 
         // ---------- Обработчики изменений NetworkVariable ----------

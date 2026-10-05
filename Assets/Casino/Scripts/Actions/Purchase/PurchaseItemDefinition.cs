@@ -1,4 +1,12 @@
 using UnityEngine;
+public enum PurchaseGroupId
+{
+    None = 0,
+    CheatSwapCard,
+    CheatLockpick,
+    CheatStealChips,
+    CheatReadCards
+}
 
 public enum PurchaseScope
 {
@@ -22,5 +30,5 @@ public class PurchaseItemDefinition : ScriptableObject
     public PurchaseScope scope = PurchaseScope.Individual;
 
     [Tooltip("Для Global: общий ключ группы. Например 'cheat_swap_card'")]
-    public string groupId;
+    public PurchaseGroupId groupId;
 }

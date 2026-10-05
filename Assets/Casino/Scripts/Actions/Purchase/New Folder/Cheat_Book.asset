@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: CasinoScripts::PurchaseItemDefinition
   itemId: Cheat_Book
   displayName: Cheat_Book
-  price: 100
-  scope: 0
-  groupId: 
+  price: 2
+  scope: 1
+  groupId: 2

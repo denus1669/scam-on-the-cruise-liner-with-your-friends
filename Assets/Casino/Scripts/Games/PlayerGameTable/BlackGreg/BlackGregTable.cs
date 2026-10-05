@@ -60,7 +60,6 @@ namespace Assets.Casino.Games.BlackGreg
         // Визуал на клиентах
         private List<CardView> _botSpawnedCardViews = new List<CardView>();
         private List<CardView> _playerSpawnedCardViews = new List<CardView>();
-        private bool placeNextCardOnLeft = true;
 
         // Копия руки бота до мухлежа. Хранится только пока активен мухлеж в текущем раунде.
         private List<CardData> _originalBotHand;
@@ -230,7 +229,11 @@ namespace Assets.Casino.Games.BlackGreg
                 if (handParent == null) handParent = botHandParent;
             }
 
-            if (handParent == null || cardViewPrefab == null || deckPosition == null) return;
+            if (handParent == null || cardViewPrefab == null || deckPosition == null)
+            {
+                Debug.Log($"[BlackGregTable]handParent == null {handParent == null} || cardViewPrefab == null {cardViewPrefab == null} || deckPosition == null {deckPosition == null}");
+                return;
+            }
 
             // Обновляем данные на клиенте
             if (!IsServer)
@@ -248,6 +251,7 @@ namespace Assets.Casino.Games.BlackGreg
 
             // Спавним карту
             CardView view = Instantiate(cardViewPrefab, handParent);
+            Debug.Log($"[BlackGregTable] view {view}");
             view.SetCardData(newCard);
             view.SetVisible(isPlayer);
 
