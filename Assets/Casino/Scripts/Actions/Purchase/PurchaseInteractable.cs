@@ -26,7 +26,8 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         private GameSessionManager _sessionManager;
         private CasinoBank _bank;
-        private bool _isAvailable;
+        private bool _isAvailable; // можно купить (для подсветки)
+        private bool _isInteractable;   // можно взаимодействовать (показывать промпт)
 
         public override InteractionTriggerMode TriggerMode => triggerMode;
         public override int Priority => priority;
@@ -97,27 +98,43 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         private void EvaluateAvailability()
         {
-            if (purchasableObject.ItemDefinition == null) return;
-
-            bool available = false;
-
-            if (purchasableObject != null &&
-                !purchasableObject.IsPurchased &&
-                _sessionManager != null && _sessionManager.CurrentState == GameState.Preparing &&
-                _bank != null && _bank.CurrentBalance >= purchasableObject.Price)
+            if (purchasableObject == null || purchasableObject.ItemDefinition == null)
             {
-                available = true;
+                SetInteractable(false);
+                SetAvailable(false);
+                return;
             }
 
-            if (_isAvailable != available)
-            {
-                _isAvailable = available;
-                OnAvailabilityChanged?.Invoke(_isAvailable);
-            }
+            bool inRightPhase = _sessionManager != null
+                                && _sessionManager.CurrentState == GameState.Preparing;
+            bool notPurchased = !purchasableObject.IsPurchased;
+            bool hasMoney = _bank != null
+                                && _bank.CurrentBalance >= purchasableObject.Price;
+
+            // Показывать промпт: фаза правильная и объект ещё не куплен
+            // (деньги тут не учитываем — иначе не увидим «Недостаточно средств»)
+            SetInteractable(inRightPhase && notPurchased);
+
+            // Подсветка: то же самое + хватает денег
+            SetAvailable(inRightPhase && notPurchased && hasMoney);
         }
 
-        public override bool CanInteract(GameObject interactor) => _isAvailable;
-        public override bool HasAnyAvailableInteractor() => _isAvailable;
+        private void SetAvailable(bool value)
+        {
+            if (_isAvailable == value) return;
+            _isAvailable = value;
+            OnAvailabilityChanged?.Invoke(_isAvailable); // это подсветка
+        }
+
+        private void SetInteractable(bool value)
+        {
+            if (_isInteractable == value) return;
+            _isInteractable = value;
+            // если у базового класса есть отдельное событие для промпта — дерните его здесь
+        }
+
+        public override bool CanInteract(GameObject interactor) => _isInteractable;
+        public override bool HasAnyAvailableInteractor() => _isInteractable;
 
         public override void Interact(GameObject interactor)
         {

@@ -144,12 +144,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94db232b714d1324e937f8a1e05bc82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Games.PlayerGameTableHighlighter
-  availableColor: {r: 1, g: 1, b: 1, a: 1}
-  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  availableWidth: 2
-  focusWidth: 6
-  _interactable: {fileID: 0}
-  availabilityCheckInterval: 0.5
   _playerTable: {fileID: 5928564804139097094}
 --- !u!1 &2292916628215411207
 GameObject:
@@ -415,6 +409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8875828825885324083, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+    - {fileID: 6371827110729620129, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 7171570111646227565, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
