@@ -619,6 +619,9 @@ MonoBehaviour:
   availableCheats:
   - {fileID: 11400000, guid: dbf54dba537f8634b8d7e91f628b1dce, type: 2}
   - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+  - {fileID: 11400000, guid: cddab9678bafc8545ab5af5039195bce, type: 2}
+  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
+  - {fileID: 11400000, guid: c32cb3527686e2f41aa117ecf2ebec40, type: 2}
   currentCheatAction: {fileID: 0}
   characterAnimator: {fileID: 178504057993001136}
   _minigameManager: {fileID: 571656227073775018}

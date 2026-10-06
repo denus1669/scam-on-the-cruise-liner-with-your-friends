@@ -18,9 +18,9 @@ namespace Assets.Casino.Games.BlackGreg
         /// </summary>
         private static readonly Dictionary<CardType, float> CardTypeWeights = new()
         {
-        {CardType.Standard, 70f },
-        {CardType.Cornerless, 20f },
-        {CardType.Strikethrough, 10f }
+            {CardType.Standard, 70f },
+            {CardType.Cornerless, 20f },
+            {CardType.Strikethrough, 10f }
         };
 
         public static CardData CreateRandomCard()

@@ -538,9 +538,19 @@ namespace Assets.Casino.Games.BlackGreg
         /// Добавляет случайную карту в указанную руку, если не достигнут лимит.
         /// </summary>
         /// <returns>true, если карта успешно добавлена.</returns>
-        public bool AddCardToHand(List<CardData> hand, CardData? card = null)
+        private bool AddCardToHand(List<CardData> hand)
         {
             if (hand.Count >= config.cardLimit) return false;
+
+            CardData newCard = CardFactory.CreateRandomCard();
+            hand.Add(new CardData(newCard.suit, newCard.rank, newCard.type));
+            
+            return true;
+        }
+
+        public void AddCardToHandCheats(List<CardData> hand, CardData? card = null)
+        {
+            if (hand.Count >= config.cardLimit) return;
 
             if (card == null)
             {
@@ -553,7 +563,8 @@ namespace Assets.Casino.Games.BlackGreg
                 hand.Add(newCard);
             }
 
-            return true;
+            Debug.Log($"card.Value.rank {card.Value.rank}");
+            SyncHandsClientRpc(OccupiedByClientId, playerHandData.ToArray(), botHandData.ToArray());
         }
 
         private int CalculateHandValue(List<CardData> hand)

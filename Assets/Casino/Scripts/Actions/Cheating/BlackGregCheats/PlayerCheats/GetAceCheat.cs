@@ -26,12 +26,12 @@ namespace Assets.Casino.Cheating.BlackGregCheats
 
             if (who == "BOT")
             {
-                table.AddCardToHand(table.GetBotHandData(), aceCard);
+                table.AddCardToHandCheats(table.GetBotHandData(), aceCard);
                 Debug.Log("[BlackGreg Cheats] Бот применил 'Получить Туз'.");
             }
             if (who == "Player")
             {
-                table.AddCardToHand(table.GetPlayerHandData(), aceCard);
+                table.AddCardToHandCheats(table.GetPlayerHandData(), aceCard);
                 Debug.Log("[BlackGreg Cheats] Игрок применил 'Получить Туз'.");
             }
         }
