@@ -19,53 +19,60 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         [Header("Phase visibility")]
         [SerializeField] private GameState visibleState = GameState.Preparing;
-        private readonly HashSet<PurchaseGroupId> _purchasedGroups = new();
 
-        // NetworkList<int> для синхронизации с клиентами (включая Late Joiners)
+        // [ИЗМЕНЕНО] Единственный источник правды для глобальных покупок.
+        // Синхронизируется автоматически, включая late-join.
         private readonly NetworkList<int> _purchasedGroupsNet = new(
             null,
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server);
 
-        // Реестр купленных глобальных групп
-        public event Action<int> OnGroupPurchased;
-
-        public static bool IsGroupPurchasedStatic(PurchaseGroupId groupId)
-        {
-            return Instance != null && Instance.IsGroupPurchased(groupId);
-        }
-
         private readonly HashSet<PurchasableObject> _purchasedObjects = new();
 
-        public static void RegisterObject(PurchasableObject purchasableObject)
+        /// <summary>Вызывается при добавлении группы (на сервере и на всех клиентах).</summary>
+        public event Action<int> OnGroupPurchased;
+
+        /// <summary>Вызывается при полном сбросе покупок (на сервере и на всех клиентах).</summary>
+        public event Action OnGroupsReset;
+
+        // ---------------- Public API ----------------
+
+        public static bool IsGroupPurchasedStatic(PurchaseGroupId groupId)
+            => Instance != null && Instance.IsGroupPurchased(groupId);
+
+        public bool IsGroupPurchased(PurchaseGroupId groupId)
         {
-            if (Instance == null || purchasableObject == null) return;
-            Instance.Register(purchasableObject);
+            if (groupId == 0) return false;
+            // [ИЗМЕНЕНО] Читаем из NetworkList — работает и на сервере, и на клиентах.
+            return _purchasedGroupsNet.Contains((int)groupId);
         }
 
-        public static void UnregisterObject(PurchasableObject purchasableObject)
+        public static void RegisterObject(PurchasableObject obj)
         {
-            if (Instance == null || purchasableObject == null) return;
-            Instance.Unregister(purchasableObject);
+            if (Instance != null && obj != null) Instance.Register(obj);
         }
+
+        public static void UnregisterObject(PurchasableObject obj)
+        {
+            if (Instance != null && obj != null) Instance.Unregister(obj);
+        }
+
+        // ---------------- Lifecycle ----------------
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
             if (Instance != this) return;
 
+            // [ИЗМЕНЕНО] Подписываемся на изменения NetworkList.
+            // Событие придёт и на сервере (после Add), и на всех клиентах.
+            _purchasedGroupsNet.OnListChanged += HandlePurchasedGroupsChanged;
 
             if (gameSessionManager == null)
                 gameSessionManager = GameSessionManager.Instance;
@@ -76,8 +83,9 @@ namespace Assets.Casino.Scripts.Actions.Purchase
                 gameSessionManager.OnStateChanged += HandleGameStateChanged;
             }
             else
+            {
                 GameSessionManager.OnInstanceReady += HandleGameSessionReady;
-
+            }
 
             CollectSceneObjects();
             ApplyCurrentPhase();
@@ -85,11 +93,9 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
         public override void OnNetworkDespawn()
         {
-            if (Instance != this)
-            {
-                base.OnNetworkDespawn();
-                return;
-            }
+            if (Instance != this) { base.OnNetworkDespawn(); return; }
+
+            _purchasedGroupsNet.OnListChanged -= HandlePurchasedGroupsChanged;
 
             if (gameSessionManager != null)
                 gameSessionManager.OnStateChanged -= HandleGameStateChanged;
@@ -111,18 +117,26 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             ApplyCurrentPhase();
         }
 
-        // ---------------- Реестр групп ----------------
+        // ---------------- NetworkList change handling ----------------
 
-        public bool IsGroupPurchased(PurchaseGroupId groupId)
+        private void HandlePurchasedGroupsChanged(NetworkListEvent<int> changeEvent)
         {
-            return !(groupId == 0) && _purchasedGroups.Contains(groupId);
+            switch (changeEvent.Type)
+            {
+                case NetworkListEvent<int>.EventType.Add:
+                case NetworkListEvent<int>.EventType.Insert:
+                    OnGroupPurchased?.Invoke(changeEvent.Value);
+                    break;
+
+                case NetworkListEvent<int>.EventType.Clear:
+                    OnGroupsReset?.Invoke();
+                    break;
+            }
         }
 
-        // ---------------- Покупка ----------------
+        // ---------------- Purchase ----------------
 
-        /// <summary>
-        /// Единая точка покупки. Вызывается только на сервере.
-        /// </summary>
+        /// <summary>Единая точка покупки. Вызывается только на сервере.</summary>
         public bool TryPurchase(PurchasableObject purchasableObject, ulong operatorId)
         {
             if (!IsServer || purchasableObject == null || purchasableObject.ItemDefinition == null) return false;
@@ -136,12 +150,12 @@ namespace Assets.Casino.Scripts.Actions.Purchase
 
             if (itemDef.scope == PurchaseScope.Global)
             {
-                if ((itemDef.groupId) == 0)
+                if ((int)itemDef.groupId == 0)
                 {
                     Debug.LogError($"[PurchaseManager] {itemDef.itemId}: Global без groupId");
                     return false;
                 }
-                if (_purchasedGroups.Contains(itemDef.groupId)) return false;
+                if (_purchasedGroupsNet.Contains((int)itemDef.groupId)) return false;
             }
 
             int withdrawn = casinoBank.TryWithdraw(price, operatorId, $"Покупка: {itemDef.displayName}");
@@ -153,48 +167,39 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             }
             else
             {
-                _purchasedGroups.Add(itemDef.groupId);
-                OnGroupPurchased?.Invoke((int)itemDef.groupId);
-                NotifyGroupPurchasedClientRpc((int)itemDef.groupId);
+                // [ИЗМЕНЕНО] NetworkList сам разошлёт всем.
+                // OnGroupPurchased сработает через OnListChanged и на сервере, и на клиентах.
+                _purchasedGroupsNet.Add((int)itemDef.groupId);
             }
 
             return true;
         }
 
-        [ClientRpc]
-        private void NotifyGroupPurchasedClientRpc(int groupId)
-        {
-            if (IsServer) return; // сервер уже вызвал локально
-            OnGroupPurchased?.Invoke(groupId);
-        }
-
-        /// <summary>
-        /// Полный сброс покупок (новый день/сессия). Вызывать на сервере.
-        /// </summary>
+        /// <summary>Полный сброс покупок (новый день/сессия). Только сервер.</summary>
         public void ResetAllPurchases()
         {
             if (!IsServer) return;
 
+            // Индивидуальные — точечно.
             foreach (var obj in _purchasedObjects)
                 if (obj != null) obj.SetPurchasedIndividual(false);
 
-            _purchasedGroups.Clear();
+            // [ИЗМЕНЕНО] Clear вызовет OnListChanged(Clear) на всех клиентах.
+            // PurchasableObject рефрешнёт визуал через OnGroupsReset.
+            _purchasedGroupsNet.Clear();
         }
 
-        // ---------------- Фаза / видимость ----------------
+        // ---------------- Phase / visibility ----------------
 
         private void CollectSceneObjects()
         {
             var objects = FindObjectsByType<PurchasableObject>(FindObjectsSortMode.None);
-
-            foreach (var obj in objects)
-                Register(obj);
+            foreach (var obj in objects) Register(obj);
         }
 
         private void Register(PurchasableObject purchasableObject)
         {
             if (purchasableObject == null) return;
-
             _purchasedObjects.Add(purchasableObject);
             ApplyPhaseToObject(purchasableObject);
         }
@@ -205,10 +210,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             _purchasedObjects.Remove(purchasableObject);
         }
 
-        private void HandleGameStateChanged(GameState newState)
-        {
-            ApplyPhase(newState);
-        }
+        private void HandleGameStateChanged(GameState newState) => ApplyPhase(newState);
 
         private void ApplyCurrentPhase()
         {
@@ -219,19 +221,15 @@ namespace Assets.Casino.Scripts.Actions.Purchase
         private void ApplyPhase(GameState state)
         {
             bool visible = state == visibleState;
-
             _purchasedObjects.RemoveWhere(x => x == null);
-
-            foreach (var purchasableObject in _purchasedObjects)
-                purchasableObject.SetPhaseVisible(visible);
+            foreach (var obj in _purchasedObjects)
+                obj.SetPhaseVisible(visible);
         }
 
-        private void ApplyPhaseToObject(PurchasableObject purchasableObject)
+        private void ApplyPhaseToObject(PurchasableObject obj)
         {
-            if (purchasableObject == null) return;
-            if (gameSessionManager == null) return;
-
-            purchasableObject.SetPhaseVisible(gameSessionManager.CurrentState == visibleState);
+            if (obj == null || gameSessionManager == null) return;
+            obj.SetPhaseVisible(gameSessionManager.CurrentState == visibleState);
         }
     }
 }

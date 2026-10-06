@@ -9430,6 +9430,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Game_BlackGreg_Table_Prefab  (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 2292916628215411207, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3094456399103205797, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3816256244
@@ -9497,19 +9501,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1738664782520340391, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 27537131612516652, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 7338383732571260270, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 3298379246391013793, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
 --- !u!1001 &1600705348
 PrefabInstance:
@@ -13200,6 +13192,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: 'SM_Game_BlackGreg_Table_Prefab '
       objectReference: {fileID: 0}
+    - target: {fileID: 2911973881031305349, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2911973881031305349, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8ff3c9eccd394b5469eed5acaa64128c, type: 2}
     - target: {fileID: 3094456399103205797, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1764264842

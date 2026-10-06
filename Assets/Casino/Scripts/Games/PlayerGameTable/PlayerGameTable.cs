@@ -80,6 +80,7 @@ public abstract class PlayerGameTable : GameTable
 
     public override void BotReachedTable(bool reached)
     {
+        // Нужно чтобы обновить состояние 
         if (boxCollider != null)
             boxCollider.center = readyGameCollider;
         base.BotReachedTable(reached);

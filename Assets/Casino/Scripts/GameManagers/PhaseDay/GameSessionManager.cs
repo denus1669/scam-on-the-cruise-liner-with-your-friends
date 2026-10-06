@@ -181,25 +181,25 @@ namespace Assets.Casino.PhaseDay
         private void ValidateReferences()
         {
             if (dayConfiguration == null)
-                Debug.LogError($"{name}: dayConfiguration is not assigned!");
+                Debug.LogWarning($"{name}: dayConfiguration is not assigned!");
 
             if (slotMachineBreakdownManager == null)
-                Debug.LogError($"{name}: slotMachineBreakdownManager is not assigned!");
+                Debug.LogWarning($"{name}: slotMachineBreakdownManager is not assigned!");
 
             if (casinoBank == null)
-                Debug.LogError($"{name}: casinoBank is not assigned!");
+                Debug.LogWarning($"{name}: casinoBank is not assigned!");
 
             if (botSpawner == null)
-                Debug.LogError($"{name}: botSpawner is not assigned!");
+                Debug.LogWarning($"{name}: botSpawner is not assigned!");
 
             if (gameTables == null || gameTables.Length == 0)
-                Debug.LogError($"{name}: gameTables is not assigned or empty!");
+                Debug.LogWarning($"{name}: gameTables is not assigned or empty!");
             else
             {
                 for (int i = 0; i < gameTables.Length; i++)
                 {
                     if (gameTables[i] == null)
-                        Debug.LogError($"{name}: gameTables[{i}] is not assigned!");
+                        Debug.LogWarning($"{name}: gameTables[{i}] is not assigned!");
                 }
             }
         }

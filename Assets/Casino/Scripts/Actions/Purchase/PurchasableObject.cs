@@ -9,7 +9,6 @@ namespace Assets.Casino.Scripts.Actions.Purchase
     [RequireComponent(typeof(NetworkObject))]
     public class PurchasableObject : NetworkBehaviour
     {
-
         [Header("Item")]
         [SerializeField] private PurchaseItemDefinition itemDefinition;
         [Header("References")]
@@ -23,6 +22,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
+
         public bool IsPurchased
         {
             get
@@ -35,6 +35,7 @@ namespace Assets.Casino.Scripts.Actions.Purchase
                 return PurchaseManager.IsGroupPurchasedStatic(itemDefinition.groupId);
             }
         }
+
         public int Price => itemDefinition != null ? itemDefinition.price : 0;
         public PurchaseItemDefinition ItemDefinition => itemDefinition;
 
@@ -51,6 +52,18 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             _isPurchasedIndividual.Value = isPurchasedIndividual;
 
             PurchaseManager.RegisterObject(this);
+
+            // [ИЗМЕНЕНО] Подписка на глобальные покупки, если это Global-объект.
+            if (itemDefinition != null && itemDefinition.scope == PurchaseScope.Global
+                && PurchaseManager.Instance != null)
+            {
+                PurchaseManager.Instance.OnGroupPurchased += HandleGroupPurchased;
+                PurchaseManager.Instance.OnGroupsReset += HandleGroupsReset;
+            }
+
+            // [ИЗМЕНЕНО] Первичный визуал. Для late-join это единственный
+            // момент, когда мы подтянем уже существующие глобальные покупки —
+            // NetworkList к этому моменту уже синхронизирован.
             ApplyPurchaseVisual();
         }
 
@@ -58,6 +71,13 @@ namespace Assets.Casino.Scripts.Actions.Purchase
         {
             _isPurchasedIndividual.OnValueChanged -= HandlePurchasedChanged;
             PurchaseManager.UnregisterObject(this);
+
+            if (itemDefinition != null && itemDefinition.scope == PurchaseScope.Global
+                && PurchaseManager.Instance != null)
+            {
+                PurchaseManager.Instance.OnGroupPurchased -= HandleGroupPurchased;
+                PurchaseManager.Instance.OnGroupsReset -= HandleGroupsReset;
+            }
 
             base.OnNetworkDespawn();
         }
@@ -84,11 +104,35 @@ namespace Assets.Casino.Scripts.Actions.Purchase
             _isPurchasedIndividual.Value = value;
         }
 
+        // ---------------- Event handlers ----------------
+
         private void HandlePurchasedChanged(bool previousValue, bool newValue)
         {
             ApplyPurchaseVisual();
             OnPurchasedChanged?.Invoke(newValue);
         }
+
+        // [НОВОЕ] Срабатывает на сервере и на всех клиентах в момент покупки группы.
+        private void HandleGroupPurchased(int groupId)
+        {
+            if (itemDefinition == null) return;
+            if (itemDefinition.scope != PurchaseScope.Global) return;
+            if ((int)itemDefinition.groupId != groupId) return;
+
+            ApplyPurchaseVisual();
+            OnPurchasedChanged?.Invoke(true);
+        }
+
+        // [НОВОЕ] Сброс — пересчитываем визуал (IsPurchased вернёт false).
+        private void HandleGroupsReset()
+        {
+            if (itemDefinition == null || itemDefinition.scope != PurchaseScope.Global) return;
+
+            ApplyPurchaseVisual();
+            OnPurchasedChanged?.Invoke(IsPurchased);
+        }
+
+        // ---------------- Visuals ----------------
 
         private void ApplyPurchaseVisual()
         {
@@ -100,13 +144,11 @@ namespace Assets.Casino.Scripts.Actions.Purchase
         {
             if (IsPurchased)
             {
-                // Купленные объекты видны всегда
                 if (purchasedState != null) purchasedState.SetActive(true);
                 if (unpurchasedState != null) unpurchasedState.SetActive(false);
             }
             else
             {
-                // Не купленные подчиняются фазе
                 if (unpurchasedState != null) unpurchasedState.SetActive(visibleInPhase);
                 if (purchasedState != null) purchasedState.SetActive(false);
             }

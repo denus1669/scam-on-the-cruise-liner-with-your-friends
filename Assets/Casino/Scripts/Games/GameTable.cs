@@ -131,16 +131,19 @@ namespace Assets.Casino.Games
         private void OnBotOccupiedChanged(bool previous, bool current)
         {
             OnBotOccupancyChanged?.Invoke(current);
+            Debug.Log($"OnBotOccupancyChanged {OnBotOccupancyChanged}");
         }
 
         public void OnGameProgressChanged(bool previous, bool current)
         {
             OnGameStateChanged?.Invoke(current);
+            Debug.Log($"OnGameStateChanged {OnGameStateChanged}");
         }
 
         public void OnBotReachedTableChanged(bool previous, bool current)
         {
-            OnBotReachedTableStateChanged?.Invoke(current); 
+            OnBotReachedTableStateChanged?.Invoke(current);
+            Debug.Log($"OnBotReachedTableStateChanged {OnBotReachedTableStateChanged}");
         }
 
 

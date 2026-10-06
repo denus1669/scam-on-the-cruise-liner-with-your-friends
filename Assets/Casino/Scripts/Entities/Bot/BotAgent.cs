@@ -430,7 +430,6 @@ namespace Assets.Casino.Bot
             if (currentTable.TableType == "SlotMachine")
                 currentTable.StartGame();
             if (currentTable.TableType == "BlackGreg")
-
                 SetArrived(true);
             currentTable.BotReachedTable(true);
         }
