@@ -17,19 +17,35 @@ namespace Assets.Casino.Games.BlackGreg
         /// Чем больше вес, тем выше шанс.
         /// </summary>
         private static readonly Dictionary<CardType, float> CardTypeWeights = new()
-    {
+        {
         {CardType.Standard, 70f },
         {CardType.Cornerless, 20f },
         {CardType.Strikethrough, 10f }
-    };
+        };
 
-        public static Card CreateRandomCard()
+        public static CardData CreateRandomCard()
+        {
+            CardSuit randomCardSuit = CreateRandomSuit();
+            CardRank randomCardRank = CreateRandomRank();
+            CardType cardtype = CreateRandomType();
+
+            return new CardData(randomCardSuit, randomCardRank, cardtype);
+        }
+
+        public static CardSuit CreateRandomSuit()
         {
             CardSuit randomCardSuit = cardSuits[UnityEngine.Random.Range(0, cardSuits.Length)];
+            return randomCardSuit;
+        }
+        
+        public static CardRank CreateRandomRank()
+        {
             CardRank randomCardRank = cardRanks[UnityEngine.Random.Range(0, cardRanks.Length)];
-            CardType cardtype = GetRandomCardTypeByWeight();
-
-            return new Card(randomCardSuit, randomCardRank, cardtype);
+            return randomCardRank;
+        }
+        public static CardType CreateRandomType()
+        {
+            return GetRandomCardTypeByWeight(); 
         }
         /// <summary>
         /// Возвращает случайный <see cref="CardType"/> на основе заданных весов.

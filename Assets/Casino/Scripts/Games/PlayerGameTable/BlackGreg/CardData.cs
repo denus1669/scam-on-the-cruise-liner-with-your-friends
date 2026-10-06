@@ -4,6 +4,36 @@ using Unity.Netcode;
 namespace Assets.Casino.Games.BlackGreg
 {
     [System.Serializable]
+    public enum CardRank
+    {
+        Two = 2,
+        Three = 3,
+        Four = 4,
+        Five = 5,
+        Six = 6,
+        Seven = 7,
+        Eight = 8,
+        Nine = 9,
+        Ten = 10,
+        Jack = 11,
+        Queen = 12,
+        King = 13,
+        Ace = 14
+    }
+    public enum CardSuit
+    {
+        Hearts,
+        Diamonds,
+        Clubs,
+        Spades
+    }
+    public enum CardType
+    {
+        Standard,   // Обычная карта
+        Strikethrough,   // Перечеркнутая карта
+        Cornerless,   // Безуголковая карта
+    }
+
     public struct CardData : INetworkSerializable, IEquatable<CardData>
     {
         public CardSuit suit;

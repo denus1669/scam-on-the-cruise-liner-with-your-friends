@@ -72,6 +72,8 @@ namespace Assets.Casino.Games.BlackGreg
         public int GetPlayerScore() => CalculateHandValue(playerHandData);
         public int GetBotCardCount() => botHandData.Count;
         public int GetPlayerCardCount() => playerHandData.Count;
+        public List<CardData> GetBotHandData() => botHandData;
+        public List<CardData> GetPlayerHandData() => playerHandData;
 
         public List<CardData> GetBotHandCopy()
         {
@@ -536,12 +538,21 @@ namespace Assets.Casino.Games.BlackGreg
         /// Добавляет случайную карту в указанную руку, если не достигнут лимит.
         /// </summary>
         /// <returns>true, если карта успешно добавлена.</returns>
-        private bool AddCardToHand(List<CardData> hand)
+        public bool AddCardToHand(List<CardData> hand, CardData? card = null)
         {
             if (hand.Count >= config.cardLimit) return false;
 
-            Card newCard = CardFactory.CreateRandomCard();
-            hand.Add(new CardData(newCard.CardSuit, newCard.CardRank, newCard.CardType));
+            if (card == null)
+            {
+                CardData newCard = CardFactory.CreateRandomCard();
+                hand.Add(new CardData(newCard.suit, newCard.rank, newCard.type));
+            }
+            else
+            {
+                CardData newCard = new CardData(card.Value.suit, card.Value.rank, card.Value.type);
+                hand.Add(newCard);
+            }
+
             return true;
         }
 

@@ -256,6 +256,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5928564804139097094}
     - target: {fileID: 846144510277716365, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: availableCheats
+      value: 
+      objectReference: {fileID: 11400000, guid: cddab9678bafc8545ab5af5039195bce, type: 2}
+    - target: {fileID: 846144510277716365, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
       propertyPath: thisTableComponent
       value: 
       objectReference: {fileID: 5928564804139097094}
