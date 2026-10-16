@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Casino.Cheating
 {
@@ -27,12 +28,12 @@ namespace Assets.Casino.Cheating
         private readonly List<BotDispleasureController> _affectedBots = new();
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             if (IsServer)
             {
                 OnCheatingStateChanged += HandleCheatingStateChanged;
             }
-
-            base.OnNetworkSpawn();
 
             if (IsServer && IsCheating)
             {
@@ -126,60 +127,25 @@ namespace Assets.Casino.Cheating
 
             // Запускаем мини-игру у владельца
             // Передаем имя чита как контекст, чтобы мини-игра знала, что именно отображать/проверять
-            StartPlayerMinigameClientRpc(cheat.name);
+
+            string currentMinigame = _minigameManager.GetRandomMinigame(cheat);
+            
+            _minigameManager.RequestStartGame(currentMinigame, HandleMinigameFinished);
         }
 
-        [ClientRpc]
-        private void StartPlayerMinigameClientRpc(string cheatActionName)
+        
+        private void HandleMinigameFinished(bool isSuccess)
         {
-            if (!IsOwner) return;
+            // 1. Игнорируем результат, если чит уже был прерван сервером (поймали/таймаут)
+            if (!IsCheating) return; 
 
-            if (_minigameManager == null)
-            {
-                Debug.LogError("[PlayerCheatController] MinigameManager отсутствует, невозможно запустить UI.");
-                return;
-            }
+            // 2. Проверяем, относится ли результат к текущему активному читу
+            if (currentCheatAction == null) return;
 
-            // Получаем все зарегистрированные игры
-            var availableGames = _minigameManager.GetAllGameKeys();
-
-            if (availableGames.Count == 0)
-            {
-                Debug.LogError("[PlayerCheatController] Нет доступных мини-игр!");
-                return;
-            }
-
-            // Выбираем случайную
-            int randomIndex = UnityEngine.Random.Range(0, availableGames.Count);
-            string minigameTypeKey = availableGames[randomIndex];
-
-            Debug.Log($"[PlayerCheatController] Выбрана случайная мини-игра: '{minigameTypeKey}'");
-            Debug.Log($"[PlayerCheatController] Запрос мини-игры '{minigameTypeKey}' через менеджер. Контекст: {cheatActionName}");
-
-            _minigameManager.RequestStartGame(minigameTypeKey, cheatActionName, HandleMinigameResult);
-        }
-
-        private void HandleMinigameResult(bool isSuccess)
-        {
-            Debug.Log($"[PlayerCheatController] Мини-игра завершена локально. Успех: {isSuccess}. Отправка на сервер...");
+            // 3. Отправляем результат на сервер (безопасно, так как мы IsOwner)
             FinishPlayerCheatServerRpc(isSuccess);
         }
-
-        /// <summary>
-        /// Вызывается сервером через RPC, когда чит прерван инспектором или другим игроком.
-        /// </summary>
-        public void ForceCloseActiveMinigame()
-        {
-            if (_minigameManager == null) return;
-
-            var activeGame = _minigameManager.GetActiveGame();
-            if (activeGame != null)
-            {
-                Debug.Log("[PlayerCheatController] Мини-игра принудительно закрыта из-за поимки.");
-                activeGame.ForceClose();
-            }
-        }
-
+        
         [Rpc(SendTo.Server)]
         public void FinishPlayerCheatServerRpc(bool isSuccess)
         {
@@ -207,12 +173,11 @@ namespace Assets.Casino.Cheating
             }
 
         }
-
-
+        
         public override void HandleCheatCaught(ulong accuserClientId)
         {
             base.HandleCheatCaught(accuserClientId);
-            ForceCloseMinigameClientRpc();
+            _minigameManager.ForceCloseActiveMinigameClientRpc();
             ExposureManager.Instance?.AddExposure();
         }
 

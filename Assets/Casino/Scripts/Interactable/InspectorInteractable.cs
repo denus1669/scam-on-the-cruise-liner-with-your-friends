@@ -1,3 +1,4 @@
+using Assets.Casino.Cheating.MiniGames;
 using Assets.Casino.Inspector;
 using Blocks.Gameplay.Core;
 using Unity.Netcode;
@@ -21,7 +22,7 @@ namespace Assets.Casino.Inspector
 
         [Header("Время удержания")]
         [Tooltip("Время удержания кнопки E для остановки инспектора")]
-        [SerializeField] private float distractHoldDuration = 2f;
+        [SerializeField] private float distractHoldDuration = 0.5f;
 
         private string _cachedPrompt;
         private bool _lastIsStopped;

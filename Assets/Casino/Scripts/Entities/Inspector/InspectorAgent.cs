@@ -4,12 +4,19 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Netcode;
 using Assets.Casino.Cheating;
+using Assets.Casino.Cheating.MiniGames;
 
 namespace Assets.Casino.Inspector
 {
     [RequireComponent(typeof(NavMeshAgent))]
     public class InspectorAgent : NetworkBehaviour
     {
+        [Header("Minigame Integration")]
+        [SerializeField] private PlayerMinigameManager _minigameManager;
+        [Header("MinigameGroup")]
+        [SerializeField] private MinigameGroup minigameGroup;
+        private bool _minigameFinished;
+        
         [Header("Патруль")]
         [SerializeField] private List<Transform> patrolPoints = new List<Transform>();
         [SerializeField] private float patrolStopDistance = 0.25f;
@@ -340,6 +347,13 @@ namespace Assets.Casino.Inspector
             return Mathf.Max(0f, _nextInteractionTime.Value - Time.time);
         }
 
+
+        [Rpc(SendTo.Server)]
+        public void RequestStopByPlayerInteractionServerRpc(ulong playerId)
+        {
+            TryStopByPlayerInteraction(playerId);
+        }
+        
         /// <summary>
         /// Вызывается другим классом, когда игрок заполнил виджет взаимодействия.
         /// </summary>
@@ -354,24 +368,46 @@ namespace Assets.Casino.Inspector
             if (_stopCoroutine != null)
                 StopCoroutine(_stopCoroutine);
 
-            _stopCoroutine = StartCoroutine(StopByPlayerRoutine());
+            _stopCoroutine = StartCoroutine(StopByPlayerRoutine(playerId));
             return true;
         }
 
-        [Rpc(SendTo.Server)]
-        public void RequestStopByPlayerInteractionServerRpc(ulong playerId)
-        {
-            TryStopByPlayerInteraction(playerId);
-        }
-
-        private IEnumerator StopByPlayerRoutine()
+        private IEnumerator StopByPlayerRoutine(ulong playerId)
         {
             _isStoppedByPlayer.Value = true;
 
             if (_agent != null && _agent.isOnNavMesh)
                 _agent.isStopped = true;
 
-            yield return new WaitForSeconds(stopDuration);
+            
+            _minigameFinished = false;
+            
+            // 1. Получаем PlayerMinigameManager конкретного игрока
+            if (NetworkManager.Singleton.ConnectedClients.TryGetValue(playerId, out var networkClient))
+            {
+                if (networkClient.PlayerObject != null)
+                {
+                    // Используем GetComponentInChildren, если менеджер висит на дочернем объекте игрока,
+                    // или просто GetComponent, если он на корне.
+                    _minigameManager = networkClient.PlayerObject.GetComponentInChildren<PlayerMinigameManager>();
+                }
+            }
+            
+            // Защита от случая, если игрок не найден или у него нет компонента
+            if (_minigameManager == null)
+            {
+                Debug.LogWarning($"[InspectorAgent] Не удалось найти PlayerMinigameManager для clientId {playerId}");
+                _isStoppedByPlayer.Value = false;
+                if (_agent != null && _agent.isOnNavMesh)
+                    _agent.isStopped = false;
+                _nextInteractionTime.Value = Time.time + interactionCooldown;
+                yield break;
+            }
+            
+            string currentMinigame = _minigameManager.GetRandomMinigame(minigameGroup);
+            _minigameManager.RequestStartGame(currentMinigame, HandleMinigameFinished);
+
+            yield return new WaitUntil(() => _minigameFinished);
 
             _isStoppedByPlayer.Value = false;
 
@@ -382,13 +418,10 @@ namespace Assets.Casino.Inspector
             _lastPathRefreshTime = Time.time;
         }
 
-        private void OnDrawGizmosSelected()
+        private void HandleMinigameFinished(bool isSuccess)
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, detectionRadius);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, catchDistance);
+            _minigameFinished = true;
         }
+
     }
 }

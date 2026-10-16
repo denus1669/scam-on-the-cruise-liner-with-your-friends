@@ -1,8 +1,9 @@
+using Assets.Casino.Cheating.MiniGames;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-namespace Assets.Casino.Cheating.MiniGames
+namespace Casino.Scripts.Actions.Cheating.MiniGames
 {
     /// <summary>
     /// Мини-игра: нажать кнопку, когда ползунок в зеленой зоне.
@@ -22,10 +23,10 @@ namespace Assets.Casino.Cheating.MiniGames
 
         protected override void OnGameStarted()
         {
-            _isPlaying = true;
+            base.OnGameStarted();
             _movingRight = true;
 
-            if (progressSlider != null)
+            if (progressSlider)
                 progressSlider.value = 0f;
 
             // Можно использовать _contextData для изменения сложности, если нужно
@@ -36,7 +37,7 @@ namespace Assets.Casino.Cheating.MiniGames
         {
             if (!_isPlaying) return;
 
-            if (progressSlider != null)
+            if (progressSlider)
             {
                 float step = speed * Time.deltaTime;
                 progressSlider.value += _movingRight ? step : -step;
@@ -45,7 +46,7 @@ namespace Assets.Casino.Cheating.MiniGames
                 if (progressSlider.value <= 0f) _movingRight = true;
             }
 
-            // Ввод: Пробел или Клик мышью
+            // Ввод: Пробел 
             if (Keyboard.current.spaceKey.wasPressedThisFrame)
             {
                 CheckResult();
@@ -59,7 +60,6 @@ namespace Assets.Casino.Cheating.MiniGames
             if (val >= targetMin && val <= targetMax)
             {
                 Debug.Log("[Minigame] Победа! (Реакция)");
-                _isPlaying = false;
                 WinGame();
             }
             else

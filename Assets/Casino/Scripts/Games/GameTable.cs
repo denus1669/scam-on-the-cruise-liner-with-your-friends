@@ -19,6 +19,8 @@ namespace Assets.Casino.Games
     /// </summary>
     public abstract class GameTable : NetworkBehaviour, IGameTable
     {
+        [SerializeField] private GameTableDefinition definition;
+
         [SerializeField] private Transform botPlaceAtTheTable;
 
         public Transform BotPlaceAtTheTable => botPlaceAtTheTable != null ? botPlaceAtTheTable : transform;

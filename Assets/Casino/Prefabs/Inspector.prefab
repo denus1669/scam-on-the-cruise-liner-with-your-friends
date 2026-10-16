@@ -71,6 +71,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectorAgent
   ShowTopMostFoldoutHeaderGroup: 1
+  _minigameManager: {fileID: 0}
+  minigameGroup: {fileID: 11400000, guid: 4aec56b0104e4c842addc5416a4a4e2e, type: 2}
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}

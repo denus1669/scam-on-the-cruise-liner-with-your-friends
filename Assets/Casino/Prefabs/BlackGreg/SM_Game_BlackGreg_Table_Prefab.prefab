@@ -324,6 +324,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8406486406562090695, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
+      propertyPath: definition
+      value: 
+      objectReference: {fileID: 11400000, guid: 00001849c0acdc748b76ad84869bd44b, type: 2}
+    - target: {fileID: 8406486406562090695, guid: 52789fcd4637f0c42a63a92823b821da, type: 3}
       propertyPath: boxCollider
       value: 
       objectReference: {fileID: 2734792855175613355}

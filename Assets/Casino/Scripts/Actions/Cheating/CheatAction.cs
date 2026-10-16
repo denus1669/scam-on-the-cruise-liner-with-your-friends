@@ -1,41 +1,43 @@
-using Assets.Casino.Games;
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using Assets.Casino.Cheating.MiniGames;
+using Assets.Casino.Games;
 using UnityEngine;
 
 namespace Assets.Casino.Cheating
 {
+    [Flags]
+    public enum CheatAudience
+    {
+        None   = 0,
+        Player = 1 << 0,
+        Bot    = 1 << 1,
+        Both   = Player | Bot
+    }
 
-    /// <summary>
-    /// Базовый класс для любого вида мухлежа.
-    /// Подходит для ботов.
-    /// </summary>
     public abstract class CheatAction : ScriptableObject
     {
-        [Header("Базовые настройки мухлежа")]
+        [Header("Идентификация")]
         public string CheatName = "Неизвестный мухлеж";
 
-        public string CheatForCodeName = "";
-
+        [Header("Анимация")]
         [Tooltip("ID анимации для Animator (должен быть на префабе и игрока, и бота)")]
         public string AnimationTriggerName = "Cheat_Generic";
 
-        [Tooltip("Длительность анимации (время, за которое можно поймать за руку)")]
+        [Tooltip("Длительность анимации для бота (время, за которое можно поймать за руку)")]
         public float AnimationDuration = 2.0f;
 
-        [Tooltip("Вероятность для ИИ. Для игрока это поле может игнорироваться или влиять на стоимость мухлежа.")]
+        [Header("Баланс")]
+        [Tooltip("Вероятность для бота. Для игрока это поле может игнорироваться или влиять на стоимость мухлежа.")]
         public int SelectionWeight = 10;
 
-        /// <summary>
-        /// Проверяет, можно ли сейчас выполнить этот мухлеж.
-        /// Вызывается только на СЕРВЕРЕ.
-        /// </summary>
-        public abstract bool CanExecute(IGameTable table, string who);
+        [Header("Мини-игры")]
+        [Tooltip("Список мини-игр для этого чита. При срабатывании одна выбирается случайно (реализация выбора — отдельно).")]
+        [SerializeField] private List<MinigameDefinition> minigames = new();
 
-        /// <summary>
-        /// Применяет фактический результат мухлежа (подмена карт, изменение счета).
-        /// Вызывается на СЕРВЕРЕ, если мухлеж не был прерван/раскрыт.
-        /// </summary>
+        public IReadOnlyList<MinigameDefinition> Minigames => minigames;
+
+        public abstract bool CanExecute(IGameTable table, string who);
         public abstract void ApplyCheatResult(IGameTable table, string who);
     }
 }

@@ -47,18 +47,12 @@ namespace Assets.Casino.Cheating.MiniGames
 
         private Camera _camera;
 
-        public override void StartGame(string contextData, Action<bool> onComplete)
-        {
-            // Дополнительная страховка, если менеджер выключил GameObject префаба/панели.
-            gameObject.SetActive(true);
-            base.StartGame(contextData, onComplete);
-        }
-
         protected override void OnGameStarted()
         {
             StopAllCoroutines();
-
-            _isPlaying = true;
+            
+            base.OnGameStarted();
+            
             _dragging = false;
             _resetting = false;
             _dragOffset = Vector2.zero; // Сбрасываем оффсет перетаскивания

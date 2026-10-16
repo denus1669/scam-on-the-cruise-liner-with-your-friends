@@ -167,16 +167,6 @@ namespace Assets.Casino.Cheating
         }
 
         [ClientRpc]
-        protected void ForceCloseMinigameClientRpc(ClientRpcParams clientRpcParams = default)
-        {
-            // Для ботов это не нужно, но метод универсальный
-            if (this is PlayerCheatController pcc)
-            {
-                pcc.ForceCloseActiveMinigame();
-            }
-        }
-
-        [ClientRpc]
         protected virtual void GameInterruptedClientRpc(ulong accuserClientId)
         {
             Debug.Log($"[UI/FX] ИГРА ПРЕРВАНА!");

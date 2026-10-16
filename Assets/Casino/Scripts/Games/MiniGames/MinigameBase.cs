@@ -42,11 +42,21 @@ namespace Assets.Casino.Cheating.MiniGames
             OnGameStarted();
         }
 
-        protected virtual void OnGameStarted() { }
+        protected virtual void OnGameStarted()
+        {
+            _isPlaying = true;
+            GameInitializer(_isPlaying);
+        }
+        
+        protected virtual void GameInitializer(bool _isPlaying){}
+        protected virtual void GameProcess() {}
+        protected virtual void PlayerGameActions(){}
 
         protected void FinishGame(bool isSuccess)
         {
             inputModeSwitcher?.ExitUIMode(manageCursor);
+
+            _isPlaying = false;
 
             if (panelRoot != null)
                 panelRoot.SetActive(false);

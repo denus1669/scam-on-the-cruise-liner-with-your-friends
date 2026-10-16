@@ -155,7 +155,7 @@ namespace Assets.Casino.Cheating
             Debug.Log($"[TableCheatInteractable] Игрок {playerManager.OwnerClientId} начал мухлеж! {availableCheats.CheatName} ");
 
             // Вызываем метод на контроллере игрока
-            cheatController.RequestCheatServerRpc(availableCheats.CheatForCodeName);
+            cheatController.RequestCheatServerRpc(availableCheats.CheatName);
         }
 
         private void EvaluateAndPushAvailability()
