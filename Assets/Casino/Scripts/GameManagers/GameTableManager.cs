@@ -69,12 +69,9 @@ namespace Assets.Casino
         public IGameTable GetRandomFreeTable()
         {
             List<IGameTable> freeTables = new List<IGameTable>();
-            Debug.Log($"[GameTableManager] freeTables: {freeTables.Count} ");
-            Debug.Log($"[GameTableManager] _activeTables: {_activeTables.Count} ");
 
             foreach (var table in _activeTables)
             {
-                Debug.Log($"[GameTableManager] table: {table} ");
                 if (table.CanAssignBot())
                 {
                     freeTables.Add(table);

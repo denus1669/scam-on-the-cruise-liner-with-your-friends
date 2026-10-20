@@ -40,14 +40,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1622983692659440329}
     m_Modifications:
+    - target: {fileID: 851234780058680375, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.83
+      objectReference: {fileID: 0}
     - target: {fileID: 5191356249105735580, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 616925882
+      value: 4013875963
       objectReference: {fileID: 0}
     - target: {fileID: 5191356249105735580, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 1091315092
       objectReference: {fileID: 0}
+    - target: {fileID: 5351477470187709449, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: slotMachine
+      value: 
+      objectReference: {fileID: 8064573791343137167}
+    - target: {fileID: 5351477470187709449, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: reelFirstTransform
+      value: 
+      objectReference: {fileID: 3596216243828766734}
+    - target: {fileID: 5351477470187709449, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: reelThirdTransform
+      value: 
+      objectReference: {fileID: 7835211643332433778}
+    - target: {fileID: 5351477470187709449, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: reelSecondTransform
+      value: 
+      objectReference: {fileID: 1359169929082216831}
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_Name
       value: SM_Slots Variant (6)
@@ -55,6 +75,10 @@ PrefabInstance:
     - target: {fileID: 7305609297544467547, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7785698961808674554, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}
       propertyPath: m_LocalPosition.x
@@ -96,11 +120,42 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 8145709116426912129, guid: 979800a05373b94498442d0af6798959, type: 3}
+      propertyPath: spinDuration
+      value: 5
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 7785698961808674554, guid: 979800a05373b94498442d0af6798959, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 979800a05373b94498442d0af6798959, type: 3}
+--- !u!4 &1359169929082216831 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 881858573740667249, guid: 979800a05373b94498442d0af6798959, type: 3}
+  m_PrefabInstance: {fileID: 2224849040899002382}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3596216243828766734 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3388980662538102784, guid: 979800a05373b94498442d0af6798959, type: 3}
+  m_PrefabInstance: {fileID: 2224849040899002382}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7835211643332433778 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8240464786198022012, guid: 979800a05373b94498442d0af6798959, type: 3}
+  m_PrefabInstance: {fileID: 2224849040899002382}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8064573791343137167 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8145709116426912129, guid: 979800a05373b94498442d0af6798959, type: 3}
+  m_PrefabInstance: {fileID: 2224849040899002382}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 486bc0f1faf862e40bbb38d33b9e022e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotMachine
 --- !u!4 &8127075611479564015 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7937994976135057121, guid: 979800a05373b94498442d0af6798959, type: 3}

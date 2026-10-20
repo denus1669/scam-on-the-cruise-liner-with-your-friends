@@ -34,9 +34,6 @@ namespace Assets.Casino.Slots
         [Tooltip("Шанс выигрыша (0.10 = 10%)")]
         [SerializeField] private float winChance = 0.10f;
 
-        [Tooltip("Длительность анимации спина в секундах")]
-        [SerializeField] private float spinDuration = 4f;
-
         [Tooltip("Выигрышные комбинации")]
         [SerializeField] private SlotCombo[] winningCombos;
 
@@ -187,7 +184,7 @@ namespace Assets.Casino.Slots
         private void HandleSpinningStateChanged(bool previousValue, bool current)
         {
             if (current)
-                OnSpinStarted?.Invoke(spinDuration);
+                OnSpinStarted?.Invoke(_animator.SpinDuration);
             Debug.Log($"[SlotMachine] Рулетка вращается");
         }
 
@@ -209,9 +206,10 @@ namespace Assets.Casino.Slots
             if (!IsServer) return;
             if (_isBroken.Value || _isExploded.Value) return;
 
-            _isBroken.Value = true;
             _animator.HandlerBrokenSlot();
             _animator.HandlerRepairIconSlot(true);
+            
+            _isBroken.Value = true;
             
             RemoveBot();
             Debug.Log($"<color=red>[ПОЛОМКА]</color> Игровой автомат '{slotMachineName}' сломался! Требуется починка.");
@@ -244,10 +242,10 @@ namespace Assets.Casino.Slots
             Occupy(clientId);
             Debug.Log($"[SlotMachine] Игрок {clientId} начал починку автомата '{slotMachineName}'");
 
+            _animator.HandlerRepairIconSlot(false);
+            _animator.HandlerRepairIconHideSlot();
             _isBroken.Value = false;
             Debug.Log($"<color=green>[ПОЧИНКА]</color> Игровой автомат '{slotMachineName}' успешно починен игроком (Client ID: {clientId})!");
-
-            _animator.HandlerRepairIconSlot(false);
             
             Leave(clientId);
             Debug.Log($"[SlotMachine] Игрок {clientId} завершил починку, стол освобождён");
@@ -334,9 +332,10 @@ namespace Assets.Casino.Slots
         private IEnumerator SpinRoutine(bool isWin, int comboIndex)
         {
             _isSpinning.Value = true;
-            PlaySpinAnimationClientRpc(isWin, comboIndex, spinDuration);
+            PlaySpinAnimationClientRpc(isWin, comboIndex, _animator.SpinDuration);
 
-            yield return new WaitForSeconds(spinDuration);
+            _animator.HandlerReelsSpinSlot();
+            yield return new WaitForSeconds(_animator.SpinDuration);
 
             InterpretResult(isWin, comboIndex);
             _isSpinning.Value = false;
