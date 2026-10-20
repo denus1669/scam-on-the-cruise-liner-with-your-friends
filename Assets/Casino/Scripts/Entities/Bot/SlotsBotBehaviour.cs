@@ -23,10 +23,10 @@ namespace Assets.Casino.Bot
         [Tooltip("Задержка между попытками крутить (чтобы не спамить)")]
         [SerializeField] private float spinCooldown = 0.5f;
 
-        private float _lastSpinTime = -999f;
-
         public override Type SupportedTableType => typeof(SlotMachine);
 
+        private float _lastSpinTime = -999f;
+        
         #region IBotGameBehavior Implementation
 
         public override void InitializeGame(IGameTable table)
@@ -45,14 +45,22 @@ namespace Assets.Casino.Bot
         }
 
         public override void HandleBotArrivedChanged(bool hasArrived)
-        {
+        { 
             if (hasArrived)
-                gameTable.StartGame();
+            {
+                if (gameTable != null && !gameTable.IsGameStarted)
+                {
+                    gameTable.StartGame();
+                }
+            }
+            else
+            {
+                if (IsPlaying) EndSession();
+            }
         }
 
         public override void StartSession()
         {
-
             base.StartSession();
 
             if (_currentSlot == null) return;
@@ -61,20 +69,20 @@ namespace Assets.Casino.Bot
             _currentSlot.OnSlotMachineExplosionChanged += HandleSlotExploded;
             _currentSlot.OnSlotMachineBreakdownChanged += HandleSlotBreakdownChanged;
             _currentSlot.OnSpinCompleted += HandleSpinCompleted;
-
         }
 
         public override void EndSession()
         {
             Debug.Log($"[SlotsBotBehaviour] Бот завершил сессию на автомате '{_currentSlot?.slotMachineName}'");
             // Отписываемся от событий
-            if (_currentSlot != null)
-            {
-                _currentSlot.OnSlotMachineExplosionChanged -= HandleSlotExploded;
-                _currentSlot.OnSlotMachineBreakdownChanged -= HandleSlotBreakdownChanged;
-                _currentSlot.OnSpinCompleted -= HandleSpinCompleted;
-                _currentSlot = null;
-            }
+            if (_currentSlot == null) return;
+            
+            _currentSlot.OnSlotMachineExplosionChanged -= HandleSlotExploded;
+            _currentSlot.OnSlotMachineBreakdownChanged -= HandleSlotBreakdownChanged;
+            _currentSlot.OnSpinCompleted -= HandleSpinCompleted;
+            
+            _currentSlot = null;
+            
             base.EndSession();
         }
 
@@ -84,6 +92,9 @@ namespace Assets.Casino.Bot
 
         protected override IEnumerator SuspiciousActionPhase()
         {
+            /////// Пока что не выполняется из-за строки ниже 
+            yield return false;
+            
             if (bluffController == null) yield break;
 
             float currentBluffChance = baseBluffChance * GetPersonalityBluffModifier();
@@ -141,11 +152,12 @@ namespace Assets.Casino.Bot
                 Debug.LogWarning("[SlotsBotBehaviour] Игра не начата на автомате");
                 return false;
             }
+ 
+            botAnimator.HandlerSpinSlot();            
 
-            // Всё ок — крутим автомат!
             _currentSlot.Spin();
             _lastSpinTime = Time.time;
-
+            
             return true;
         }
 

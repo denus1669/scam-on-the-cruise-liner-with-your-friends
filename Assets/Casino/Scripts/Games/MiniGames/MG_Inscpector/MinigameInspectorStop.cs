@@ -116,7 +116,7 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
             if (Keyboard.current.dKey.isPressed) move += Vector2.right;
 
             // Двигаем через velocity — физика учитывает столкновения
-            _playerRb.velocity = move.normalized * _playerSpeed;
+            _playerRb.linearVelocity = move.normalized * _playerSpeed;
         }
 
         private void InspectorGameActions()

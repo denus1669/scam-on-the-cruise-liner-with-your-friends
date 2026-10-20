@@ -28,6 +28,8 @@ namespace Assets.Casino.Slots
     /// </summary>
     public class SlotMachine : GameTable
     {
+        [SerializeField] private SlotAnimator _animator;
+        
         [Header("Игровая логика спина")]
         [Tooltip("Шанс выигрыша (0.10 = 10%)")]
         [SerializeField] private float winChance = 0.10f;
@@ -208,6 +210,9 @@ namespace Assets.Casino.Slots
             if (_isBroken.Value || _isExploded.Value) return;
 
             _isBroken.Value = true;
+            _animator.HandlerBrokenSlot();
+            _animator.HandlerRepairIconSlot(true);
+            
             RemoveBot();
             Debug.Log($"<color=red>[ПОЛОМКА]</color> Игровой автомат '{slotMachineName}' сломался! Требуется починка.");
         }
@@ -219,6 +224,8 @@ namespace Assets.Casino.Slots
 
             _isExploded.Value = true;
             _isBroken.Value = false;
+            
+            _animator.HandlerExplodeSlot();
 
             Debug.Log($"<color=red>[ВЗРЫВ]</color> Игровой автомат '{slotMachineName}' взорвался! Все боты в локации получили раздражение.");
         }
@@ -240,6 +247,8 @@ namespace Assets.Casino.Slots
             _isBroken.Value = false;
             Debug.Log($"<color=green>[ПОЧИНКА]</color> Игровой автомат '{slotMachineName}' успешно починен игроком (Client ID: {clientId})!");
 
+            _animator.HandlerRepairIconSlot(false);
+            
             Leave(clientId);
             Debug.Log($"[SlotMachine] Игрок {clientId} завершил починку, стол освобождён");
 
@@ -316,6 +325,7 @@ namespace Assets.Casino.Slots
             {
                 comboIndex = UnityEngine.Random.Range(0, winningCombos.Length);
             }
+            _animator.HandlerSpinSlot(); 
 
             Debug.Log($"[SlotMachine] Автомат '{slotMachineName}' начинает спин. Результат: {(isWin ? "ПОБЕДА" : "ПРОИГРЫШ")}");
             StartCoroutine(SpinRoutine(isWin, comboIndex));

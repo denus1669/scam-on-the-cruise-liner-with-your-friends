@@ -875,7 +875,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 7
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -1074,6 +1074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotsBotBehaviour
   ShowTopMostFoldoutHeaderGroup: 1
+  botAnimator: {fileID: 1112257777466658016}
   personality: 0
   delayBetweenActionsMin: 1.5
   delayBetweenActionsMax: 3
@@ -1096,6 +1097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BlackGregBotBehavior
   ShowTopMostFoldoutHeaderGroup: 1
+  botAnimator: {fileID: 1112257777466658016}
   personality: 0
   delayBetweenActionsMin: 5
   delayBetweenActionsMax: 10
@@ -1432,6 +1434,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1100122909510150677, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5374257894846411671}
+    - targetCorrespondingSourceObject: {fileID: 1100122909510150677, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1112257777466658016}
   m_SourcePrefab: {fileID: 100100000, guid: f2a0f2552bdeef7439204e3e7182a460, type: 3}
 --- !u!4 &451274446392714034 stripped
 Transform:
@@ -1598,3 +1603,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TextureGroupSwitcher
   textureIndex: 3
+--- !u!114 &1112257777466658016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7949384974061312870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c3882d43b2256439c50272c4eafac6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::BotAnimator
+  _animator: {fileID: 5001768662862906153}

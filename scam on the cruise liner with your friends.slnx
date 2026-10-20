@@ -1,12 +1,12 @@
-﻿<Solution>
-  <Project Path="CasinoScripts.csproj" />
-  <Project Path="Blocks.Gameplay.Core.csproj" />
-  <Project Path="Blocks.Sessions.Common.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="EditMode.csproj" />
-  <Project Path="Blocks.Gameplay.Core.Editor.csproj" />
-  <Project Path="PlayMode.csproj" />
-  <Project Path="Blocks.Sessions.csproj" />
-  <Project Path="Blocks.Common.csproj" />
+<Solution>
+  <Project Path="CasinoScripts.csproj" Id="8f908155-2969-2db3-1b35-515f92010943" />
+  <Project Path="Blocks.Gameplay.Core.csproj" Id="b49324a7-5fc9-dc7c-266f-0ca1eee71851" />
+  <Project Path="Blocks.Sessions.Common.csproj" Id="be1f6f6e-f3e1-832c-c364-9f9073bdd0b0" />
+  <Project Path="Assembly-CSharp.csproj" Id="5f8ecaa7-3871-40b7-6b4b-5d8ba0fc4afa" />
+  <Project Path="Assembly-CSharp-Editor.csproj" Id="265d8d45-df24-bc98-4f1e-15906ea2a47b" />
+  <Project Path="EditMode.csproj" Id="d34e3e5d-c704-f575-c8dc-477fc149a290" />
+  <Project Path="Blocks.Gameplay.Core.Editor.csproj" Id="8586f4c0-3022-69b9-be1d-b1ca632c77c3" />
+  <Project Path="PlayMode.csproj" Id="6ff8a978-d3e1-05cf-c1cd-490bb3b294b0" />
+  <Project Path="Blocks.Sessions.csproj" Id="5414965a-494e-e336-a48b-80710a3dc6d0" />
+  <Project Path="Blocks.Common.csproj" Id="a0997456-6706-9868-6894-3470b3da9dde" />
 </Solution>

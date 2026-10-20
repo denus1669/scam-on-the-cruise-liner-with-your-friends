@@ -9,7 +9,7 @@ namespace Assets.Casino.Slap.Bot
     /// которые вызываются сетевыми компонентами (через ClientRpc).
     /// </summary>
     /// 
-
+    
     public class BotSlapAnimationAudio : MonoBehaviour
 {
     [Header("Компоненты отображения")]

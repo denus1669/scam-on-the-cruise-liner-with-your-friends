@@ -44,8 +44,8 @@ namespace Assets.Casino.Bot
 
         public IGameTable CurrentTable => currentTable;
 
-        public Action<bool> OnArrivedChanged;
-
+        public event Action<bool> OnArrivedChanged;
+        
         private void Awake()
         {
             navAgent = GetComponent<NavMeshAgent>();
@@ -72,7 +72,6 @@ namespace Assets.Casino.Bot
         }
         public override void OnNetworkDespawn()
         {
-            base.OnNetworkDespawn();
             _isArrived.OnValueChanged -= HandleOnArrivedChanged;
 
             // Освобождаем стол при сетевом деспавне
@@ -82,11 +81,12 @@ namespace Assets.Casino.Bot
                 currentTable.RemoveBot();
                 currentTable = null;
             }
+            OnArrivedChanged = null;
+            base.OnNetworkDespawn();
         }
 
         public override void OnDestroy()
         {
-            base.OnDestroy();
 
             if (IsServer && currentTable != null)
             {
@@ -99,6 +99,10 @@ namespace Assets.Casino.Bot
             {
                 GameTableManager.Instance.OnAnyTableFreed -= OnAnyTableFreed;
             }
+            
+            OnArrivedChanged = null;
+            
+            base.OnDestroy();
         }
 
 
@@ -225,7 +229,6 @@ namespace Assets.Casino.Bot
             if (_isArrived.Value == arrived) return;
 
             _isArrived.Value = arrived;
-            OnArrivedChanged?.Invoke(arrived);
         }
 
         /// <summary>
@@ -426,11 +429,8 @@ namespace Assets.Casino.Bot
 
             // 6. Запускаем игровую логику
             ActivateBehaviorForTable(currentTable);
-
-            if (currentTable.TableType == "SlotMachine")
-                currentTable.StartGame();
-            if (currentTable.TableType == "BlackGreg")
-                SetArrived(true);
+            
+            SetArrived(true);
             currentTable.BotReachedTable(true);
         }
 

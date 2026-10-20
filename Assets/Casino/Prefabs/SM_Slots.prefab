@@ -356,6 +356,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5277537753022767718}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1250988976644760727}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1412836167471966594}
   m_SourcePrefab: {fileID: 100100000, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}
 --- !u!1 &8087864717487773554 stripped
 GameObject:
@@ -418,9 +424,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotMachine
   ShowTopMostFoldoutHeaderGroup: 1
-  botWaitPoint: {fileID: 4262319595558650338}
-  casinoBank: {fileID: 0}
-  anteAmount: 0
+  definition: {fileID: 0}
+  botPlaceAtTheTable: {fileID: 0}
+  _animator: {fileID: 0}
   winChance: 0.5
   spinDuration: 4
   winningCombos:
@@ -443,6 +449,7 @@ MonoBehaviour:
   slotMachine: {fileID: 6936879655637228433}
   explosionParticles: {fileID: 0}
   smokeParticles: {fileID: 0}
+  winParticles: {fileID: 0}
   explosionAudioSource: {fileID: 0}
   explosionSound: {fileID: 8300000, guid: 1374a61232a09c942a3155b9549041b7, type: 3}
   enableCameraShake: 1
@@ -568,6 +575,42 @@ MonoBehaviour:
   explosionSound: {fileID: 8300000, guid: 093ce1938db37184e826a7ab5c6d2e38, type: 3}
   fixSound: {fileID: 8300000, guid: a5d79be5ed1e84342aabcd40e7c66d12, type: 3}
   slotMachine: {fileID: 6936879655637228433}
+--- !u!114 &1250988976644760727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8371449471237639755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::Assets.Casino.QuickOutline.Scripts.Outline
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
+--- !u!114 &1412836167471966594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8371449471237639755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e3ebafd8c5aec4c82b88b917bb895d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: CasinoScripts::HighlighterInteractable
+  availableColor: {r: 1, g: 1, b: 1, a: 1}
+  focusColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  availableWidth: 2
+  focusWidth: 6
+  _interactable: {fileID: 4303774317041295173}
+  availabilityCheckInterval: 0.5
 --- !u!4 &9180179217993700593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ae12eb988ef0b9f46958ed7245ebe233, type: 3}

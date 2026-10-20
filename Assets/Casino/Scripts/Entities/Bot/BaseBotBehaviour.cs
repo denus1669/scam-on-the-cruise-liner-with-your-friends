@@ -25,6 +25,8 @@ namespace Assets.Casino.Bot
     [RequireComponent(typeof(PlayerLookDetector))]
     public abstract class BaseBotBehaviour : NetworkBehaviour, IBotGameBehaviour
     {
+        [SerializeField] protected BotAnimator botAnimator;
+        
         [Header("Универсальные настройки ИИ")]
         [SerializeField] protected BotPersonality personality = BotPersonality.Balanced;
 
@@ -74,6 +76,8 @@ namespace Assets.Casino.Bot
         {
             base.OnNetworkSpawn();
             _isPlaying.OnValueChanged += HandleBotPlayChanged;
+            if (botAgent != null)
+                botAgent.OnArrivedChanged += HandleBotArrivedChanged;
         }
 
         public override void OnNetworkDespawn()
@@ -82,6 +86,9 @@ namespace Assets.Casino.Bot
 
             if (gameTable != null && IsServer)
                 gameTable.OnGameStateChanged -= OnGameStateChanged;
+            
+            if (botAgent != null)
+                botAgent.OnArrivedChanged -= HandleBotArrivedChanged;
 
             base.OnNetworkDespawn();
         }
