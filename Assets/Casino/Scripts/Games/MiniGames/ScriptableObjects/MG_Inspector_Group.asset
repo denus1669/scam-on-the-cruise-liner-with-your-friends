@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: CasinoScripts::Assets.Casino.Cheating.MiniGames.MinigameGroup
   GroupName: MG_Inspector_Group
   minigames:
-  - {fileID: 11400000, guid: 8791f3eb478573b4ea31626f266492e3, type: 2}
+  - {fileID: 11400000, guid: 1f8e8749e774043409534a4071995966, type: 2}
