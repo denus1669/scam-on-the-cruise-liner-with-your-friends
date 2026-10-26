@@ -6,11 +6,8 @@ namespace Assets.Casino.Cheating.MiniGames
 {
     public abstract class MinigameBase : MonoBehaviour
     {
-        protected Action<bool> _onComplete;
-        protected string _contextData;
-        protected bool _isPlaying;
-
         [Header("Базовые настройки")]
+        [Tooltip("Передавать ссылку на самого себя. Нужно чтобы при запуске в состоянии false мог отрабатывать StartGame")]
         [SerializeField] protected GameObject panelRoot;
 
         [Header("Настройки курсора")]
@@ -19,6 +16,10 @@ namespace Assets.Casino.Cheating.MiniGames
         [Header("Переключатель управления")]
         [Tooltip("Если не назначен — будет найден автоматически на сцене")]
         [SerializeField] private InputModeSwitcher inputModeSwitcher;
+        
+        protected Action<bool> _onComplete;
+        protected string _contextData;
+        protected bool _isPlaying;
 
         private void Awake()
         {
