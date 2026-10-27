@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Assets.Casino
 {
-
     /// <summary>
     /// Менеджер, хранящий список всех активных столов и управляющий событиями их занятости.
     /// </summary>
@@ -99,6 +98,19 @@ namespace Assets.Casino
                 }
             }
             return null;
+        }
+        
+        public void ForceStopAllGames(string reason)
+        {
+            // итерируемся с конца / по копии — на случай,
+            // если стол в ForceStopGame дерегистрируется (Remove из списка)
+            for (int i = _activeTables.Count - 1; i >= 0; i--)
+            {
+                var table = _activeTables[i];
+                if (table == null) continue;
+                if (!table.IsGameStarted) continue;
+                table.ForceStopGame(false, reason);
+            }
         }
 
         private void OnDestroy()

@@ -29,6 +29,7 @@ namespace Assets.Casino.Bot
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
         public bool IsArrived => _isArrived.Value;
+        public BaseBotBehaviour SelectedBehavior => selectedBehavior;
 
         private NavMeshAgent navAgent;
         private Coroutine movementCoroutine;

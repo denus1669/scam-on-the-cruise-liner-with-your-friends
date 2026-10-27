@@ -20,8 +20,7 @@ namespace Assets.Casino.PhaseDay
         [SerializeField] private SlotMachineBreakdownManager slotMachineBreakdownManager;
         [SerializeField] private CasinoBank casinoBank;
         [SerializeField] private BotSpawner botSpawner;
-        [SerializeField] private GameTable[] gameTables;
-
+        
         private readonly NetworkVariable<GameState> _gameState = new(GameState.Preparing,
             NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
         private readonly NetworkVariable<int> _currentDay = new(0,
@@ -55,7 +54,6 @@ namespace Assets.Casino.PhaseDay
         private void Awake()
         {
             ValidateReferences();
-
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
             OnInstanceReady?.Invoke();
@@ -132,14 +130,7 @@ namespace Assets.Casino.PhaseDay
 
         public void ForceStopAllGames()
         {
-            foreach (var table in gameTables)
-            {
-                if (table == null) continue; // <-- защита от уничтоженных столов
-                if (table.IsGameStarted)
-                {
-                    table.ForceStopGame(false, "DayEnded");
-                }
-            }
+            GameTableManager.Instance?.ForceStopAllGames("DayEnded");
         }
 
         public void SendBotsToExit()
@@ -191,17 +182,6 @@ namespace Assets.Casino.PhaseDay
 
             if (botSpawner == null)
                 Debug.LogWarning($"{name}: botSpawner is not assigned!");
-
-            if (gameTables == null || gameTables.Length == 0)
-                Debug.LogWarning($"{name}: gameTables is not assigned or empty!");
-            else
-            {
-                for (int i = 0; i < gameTables.Length; i++)
-                {
-                    if (gameTables[i] == null)
-                        Debug.LogWarning($"{name}: gameTables[{i}] is not assigned!");
-                }
-            }
         }
     }
 }

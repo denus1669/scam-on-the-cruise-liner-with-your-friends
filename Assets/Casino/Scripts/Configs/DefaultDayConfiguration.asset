@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: DefaultDayConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::DayConfiguration
   daysCount: 5
+  anteByTableType:
+  - TableType: BlackGreg
+    AmountsPerDay: 0100000002000000030000000400000005000000
+  defaultAnte: 1
   gamePhaseDuration: 200
   botCount: 5
   botPrefabs:

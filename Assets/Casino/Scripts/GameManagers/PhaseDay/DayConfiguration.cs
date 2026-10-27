@@ -2,13 +2,24 @@ using UnityEngine;
 
 namespace Assets.Casino.PhaseDay
 {
+    
+    [System.Serializable]
+    public class AnteEntry
+    {
+        public string TableType;   // должно совпадать с IGameTable.TableType
+        public int[] AmountsPerDay; // индекс = день (0-based, как CurrentDay)
+    }
+    
     [CreateAssetMenu(fileName = "DayConfiguration", menuName = "Game/Day Configuration")]
     public class DayConfiguration : ScriptableObject
     {
         [Header("Общие настройки")]
         [Tooltip("Количество дней в сессии")]
         [Min(1)] public int daysCount = 5;
-
+        
+        [SerializeField] private AnteEntry[] anteByTableType;
+        [SerializeField] private int defaultAnte = 1;
+        
         [Tooltip("Длительность игровой фазы в секундах")]
         [Min(1f)] public float gamePhaseDuration = 180f;
 
@@ -65,6 +76,21 @@ namespace Assets.Casino.PhaseDay
                 return dailyChipThresholds[dailyChipThresholds.Length - 1]; // последнее значение для дней вне массива
 
             return dailyChipThresholds[index];
+        }
+        
+        public int GetAnteAmountForDay(string tableType, int day)
+        {
+            int index = Mathf.Max(0, day - 1);   // как в GetChipThresholdForDay
+            if (anteByTableType != null)
+            {
+                foreach (var e in anteByTableType)
+                {
+                    if (e == null || e.TableType != tableType) continue;
+                    if (e.AmountsPerDay == null || e.AmountsPerDay.Length == 0) break;
+                    return e.AmountsPerDay[Mathf.Clamp(index, 0, e.AmountsPerDay.Length - 1)];
+                }
+            }
+            return defaultAnte;
         }
     }
 }

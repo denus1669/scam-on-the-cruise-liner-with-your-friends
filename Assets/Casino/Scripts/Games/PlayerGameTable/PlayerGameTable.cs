@@ -1,5 +1,7 @@
 using Assets.Casino.Bank;
+using Assets.Casino.Bot;
 using Assets.Casino.Games;
+using Assets.Casino.PhaseDay;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,7 +9,7 @@ public abstract class PlayerGameTable : GameTable
 {
     [Header("Экономика")]
     [SerializeField] protected CasinoBank casinoBank;
-    [SerializeField] private int anteAmount = 1;
+    private int _currentBet; // ставка текущей игры (для refund)
 
     [Header("Ссылки")]
     [SerializeField] private BoxCollider boxCollider;
@@ -15,6 +17,8 @@ public abstract class PlayerGameTable : GameTable
     private Vector3 waitingGameCollider = new Vector3(0, -100, 1);
     public NetworkList<ulong> playersInGameArea = new NetworkList<ulong>();
 
+    protected NetworkObject AssignedBotNetworkObject;
+    
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -32,7 +36,13 @@ public abstract class PlayerGameTable : GameTable
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
         base.OnNetworkDespawn();
     }
-
+    
+    public override void AssignBot(NetworkObject bot)
+    {
+        base.AssignBot(bot);
+        AssignedBotNetworkObject = bot;
+    }
+    
     /// <summary>
     /// Проверяет, выполнены ли все условия для начала игры.
     /// По умолчанию требуется наличие и игрока, и бота.
@@ -57,11 +67,14 @@ public abstract class PlayerGameTable : GameTable
             return false;
         }
 
-        // Требуется минимум anteAmount фишек, чтобы обеспечить потенциальный выигрыш игрока
-        if (casinoBank.CurrentBalance < anteAmount)
+
+        int min = GetMinimumAnte();
+        int actual = Mathf.Max(min, ResolveDesiredBet()); // нельзя ниже минимума
+        if (actual > casinoBank.CurrentBalance) return false;        // Требуется минимум _currentGameAnte фишек, чтобы обеспечить потенциальный выигрыш игрока
+        if (casinoBank.CurrentBalance < _currentBet)
         {
             Debug.LogWarning($"[GameTable] Недостаточно средств в кассе для начала игры. " +
-                             $"Требуется: {anteAmount}, доступно: {casinoBank.CurrentBalance}");
+                             $"Требуется: {_currentBet}, доступно: {casinoBank.CurrentBalance}");
             return false;
         }
 
@@ -70,10 +83,21 @@ public abstract class PlayerGameTable : GameTable
 
     public override void StartGame()
     {
+        int min = GetMinimumAnte();
+        int bet = Mathf.Max(min, ResolveDesiredBet()); // «не ставить нельзя» = пол по минимуму
+        if (bet > casinoBank.CurrentBalance)
+        {
+            Debug.LogWarning($"[GameTable] Ставка {bet} > касса {casinoBank.CurrentBalance}");
+            return;
+        }
+
+        _currentBet = bet;
+        
         base.StartGame();
+        
         if (IsServer && casinoBank != null)
         {
-            casinoBank.TryWithdraw(anteAmount, occupiedByClientId.Value, "Ставка", TableType);
+            casinoBank.TryWithdraw(_currentBet, occupiedByClientId.Value, "Ставка", TableType);
         }
     }
 
@@ -88,7 +112,7 @@ public abstract class PlayerGameTable : GameTable
     public override void RemoveBot()
     {
         base.RemoveBot();
-
+        AssignedBotNetworkObject = null;
         if (boxCollider != null)
             boxCollider.center = waitingGameCollider;
     }
@@ -102,15 +126,37 @@ public abstract class PlayerGameTable : GameTable
         // ВОЗВРАТ СТАВКИ: Если игра прервана извне (конец дня), возвращаем анте игроку
         if (casinoBank != null && IsOccupied && occupiedByClientId.Value != ulong.MaxValue && reason != "Cheating")
         {
-            bool refunded = casinoBank.TryDeposit(anteAmount, occupiedByClientId.Value, "Возврат ставки день завершен", TableType);
+            bool refunded = casinoBank.TryDeposit(_currentBet, occupiedByClientId.Value, "Возврат ставки день завершен", TableType);
             if (refunded)
             {
-                Debug.Log($"[GameTable] Ставка ({anteAmount}) возвращена игроку {occupiedByClientId.Value} из-за конца дня.");
+                Debug.Log($"[GameTable] Ставка ({_currentBet}) возвращена игроку {occupiedByClientId.Value} из-за конца дня.");
                 // Можно добавить ClientRpc, чтобы показать игроку всплывающий текст "+1 фишка (возврат)"
             }
         }
         // Переводим состояние игры в "не активна"
         EndGame();
+    }
+    
+    private int GetMinimumAnte()
+    {
+        var s = GameSessionManager.Instance;
+        return s?.DayConfiguration?.GetAnteAmountForDay(TableType, s.CurrentDay) ?? 1;
+    }
+
+    private int ResolveDesiredBet()
+    {
+        int min = GetMinimumAnte();
+        int maxAffordable = casinoBank != null ? casinoBank.CurrentBalance : min;
+
+        var botObj = AssignedBotNetworkObject;
+        if (botObj != null
+            && botObj.TryGetComponent<BotAgent>(out var botAgent)
+            && botAgent.SelectedBehavior != null)
+        {
+            return botAgent.SelectedBehavior.ChooseBet(min, maxAffordable);
+        }
+
+        return min; // fallback: бот ещё не прибыл / поведение не выбрано
     }
 
     // ---------- Обработка триггера ----------

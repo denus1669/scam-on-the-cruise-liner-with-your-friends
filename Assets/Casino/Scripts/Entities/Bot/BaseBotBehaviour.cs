@@ -281,6 +281,30 @@ namespace Assets.Casino.Bot
 
             yield break;
         }
+        
+        /// <summary>
+        /// Выбирает ставку бота в диапазоне [minAnte, maxAffordable].
+        /// Бот всегда ставит (нельзя не ставить) — нижняя граница = минимум дня.
+        /// Верхняя граница — по личности и кассе казино.
+        /// С бота ничего не списывается: это декларация ставки для игровой логики.
+        /// </summary>
+        public virtual int ChooseBet(int minAnte, int maxAffordable)
+        {
+            if (minAnte < 1) minAnte = 1;
+            if (maxAffordable < minAnte) return minAnte; // касса не покроет — стол сам отклонит старт
+
+            int personalityCap = personality switch
+            {
+                BotPersonality.Cautious => minAnte,                              // всегда минимум
+                BotPersonality.Risky    => Mathf.RoundToInt(minAnte * 4f),       // до 4x
+                _                       => minAnte * 2                           // Balanced до 2x
+            };
+
+            int upperBound = Mathf.Min(personalityCap, maxAffordable);
+            if (upperBound <= minAnte) return minAnte;
+
+            return UnityEngine.Random.Range(minAnte, upperBound + 1); // [min, upperBound]
+        }
 
         #region Abstract & Virtual Methods
 
