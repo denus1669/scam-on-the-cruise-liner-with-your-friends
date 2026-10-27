@@ -1,4 +1,5 @@
 using System;
+using Assets.Casino.Games;
 
 namespace Assets.Casino.Bank
 {
@@ -31,7 +32,7 @@ namespace Assets.Casino.Bank
         /// <param name="reason">Причина операции.</param>
         /// <param name="tableType">Тип стола (опционально, может быть null).</param>
         /// <returns>true, если операция успешна.</returns>
-        bool TryDeposit(int amount, ulong operatorId, string reason, string tableType = null);
+        bool TryDeposit(int amount, ulong operatorId, string reason, GameType tableType = GameType.None);
 
         /// <summary>
         /// Списать из кассы. Если средств недостаточно — списывает столько, сколько есть (до 0).
@@ -41,6 +42,6 @@ namespace Assets.Casino.Bank
         /// <param name="reason">Причина операции.</param>
         /// <param name="tableType">Тип стола (опционально, может быть null).</param>
         /// <returns>Фактически списанная сумма (может быть меньше запрошенной).</returns>
-        int TryWithdraw(int amount, ulong operatorId, string reason, string tableType = null);
+        int TryWithdraw(int amount, ulong operatorId, string reason, GameType tableType = GameType.None);
     }
 }

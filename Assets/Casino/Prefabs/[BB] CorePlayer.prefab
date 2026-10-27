@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5120571484398155217
 RectTransform:
   m_ObjectHideFlags: 0
@@ -743,7 +743,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3442790941387504889
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1023,15 +1023,9 @@ MonoBehaviour:
   panelRoot: {fileID: 3731127354107684617}
   manageCursor: 1
   inputModeSwitcher: {fileID: 5942201885861022358}
-  wireLayer: {fileID: 1115652806881797905}
-  previewWire: {fileID: 3943550010634745954}
-  wirePrefab: {fileID: 19198506830144207}
-  nodes:
-  - {fileID: 3127688280528882671}
-  - {fileID: 3100707850743821076}
-  - {fileID: 6525882018584450536}
-  - {fileID: 3165587084041369460}
-  wireThickness: 8
+  nodesList: {fileID: 0}
+  startSlots: []
+  finishSlots: []
 --- !u!1 &4603590549357399392
 GameObject:
   m_ObjectHideFlags: 0
@@ -1344,7 +1338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3708003208642677036
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1462,11 +1456,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70e21c9808f285342a09f83ea7827183, type: 3}
---- !u!1 &19198506830144207 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 210484546355131490, guid: 70e21c9808f285342a09f83ea7827183, type: 3}
-  m_PrefabInstance: {fileID: 193653018139350701}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1652496217162995170 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1459490537408922447, guid: 70e21c9808f285342a09f83ea7827183, type: 3}
@@ -1809,17 +1798,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
---- !u!114 &6525882018584450536 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7892724073394744112, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
-  m_PrefabInstance: {fileID: 3969924879625223896}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89e0aec59aa84a547bb8c84db66f3ea3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::WireNode
 --- !u!224 &8741605712234034787 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5640879137963362491, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
@@ -2296,17 +2274,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5640879137963362491, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
   m_PrefabInstance: {fileID: 5073016995713621060}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3165587084041369460 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7892724073394744112, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
-  m_PrefabInstance: {fileID: 5073016995713621060}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89e0aec59aa84a547bb8c84db66f3ea3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::WireNode
 --- !u!1001 &5084418734698240036
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2409,17 +2376,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5640879137963362491, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
   m_PrefabInstance: {fileID: 5084418734698240036}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3100707850743821076 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7892724073394744112, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
-  m_PrefabInstance: {fileID: 5084418734698240036}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89e0aec59aa84a547bb8c84db66f3ea3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::WireNode
 --- !u!1001 &5111393513406046431
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2522,17 +2478,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5640879137963362491, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
   m_PrefabInstance: {fileID: 5111393513406046431}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3127688280528882671 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7892724073394744112, guid: aaf4a46fd40f9724a9e4ba90769c7d58, type: 3}
-  m_PrefabInstance: {fileID: 5111393513406046431}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89e0aec59aa84a547bb8c84db66f3ea3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: CasinoScripts::WireNode
 --- !u!1001 &7474129684665400873
 PrefabInstance:
   m_ObjectHideFlags: 0

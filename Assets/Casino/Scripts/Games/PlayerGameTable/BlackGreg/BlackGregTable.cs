@@ -65,8 +65,8 @@ namespace Assets.Casino.Games.BlackGreg
         private List<CardData> _originalBotHand;
         private List<CardData> _originalPlayerHand;
 
-        public override string TableType => "BlackGreg";
-
+        public override GameType TableType => GameType.BlackGreg;
+        
         // ---------- Реализация ICardGameTable ----------
         public int GetBotScore() => CalculateHandValue(botHandData);
         public int GetPlayerScore() => CalculateHandValue(playerHandData);

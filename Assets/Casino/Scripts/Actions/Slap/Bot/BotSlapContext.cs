@@ -18,9 +18,9 @@ namespace Assets.Casino.Slap.Bot
         public BotAgent BotAgent;
 
         // Вспомогательный метод для получения актуального TableType
-        public string GetCurrentTableType()
+        public GameType GetCurrentTableType()
         {
-            return BotAgent?.CurrentTable?.TableType ?? "Unknown";
+            return BotAgent?.CurrentTable?.TableType ?? 0;
         }
 
         // Вспомогательный метод для получения актуального стола

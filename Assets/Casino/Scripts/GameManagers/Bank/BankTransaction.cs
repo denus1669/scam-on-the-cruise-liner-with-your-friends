@@ -1,3 +1,5 @@
+using Assets.Casino.Games;
+
 namespace Assets.Casino.Bank
 {
 
@@ -30,7 +32,7 @@ namespace Assets.Casino.Bank
         public string Reason;
 
         /// <summary>Тип стола, где произошла операция ("BlackGreg", "Dice" и т.д.).</summary>
-        public string TableType;
+        public GameType TableType;
 
         /// <summary>Серверное время операции для сортировки в статистике.</summary>
         public double Timestamp;

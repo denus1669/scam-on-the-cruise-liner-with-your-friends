@@ -6,10 +6,11 @@ namespace Assets.Casino.Games
 {
     public enum GameType
     {
-        BlackGreg,
-        Roulette,
-        Poker,
-        Slots
+        None        = 0,   // защита от «потерянных» значений в ассетах
+        BlackGreg   = 1,
+        Roulette    = 2,
+        Poker       = 3,
+        SlotMachine = 4,
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ namespace Assets.Casino.Games
         public bool IsGameStarted => gameInProgress.Value;
 
         public bool IsBotReachedTable => isBotReachedTable.Value;
-        public abstract string TableType { get; }
+        public abstract GameType TableType { get; }
 
         /// <inheritdoc />
         public event Action<ulong> OnOccupantChanged;

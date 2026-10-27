@@ -67,7 +67,7 @@ namespace Assets.Casino.Slots
         public bool IsBroken => _isBroken.Value;
         public bool IsExploded => _isExploded.Value;
         public float TimeToExplode => _serverTimeToExplode; // Актуально только на сервере
-        public override string TableType => "SlotMachine";
+        public override GameType TableType => GameType.SlotMachine;
         public bool IsSpinning => _isSpinning.Value;
 
         // Событие для подписки ботом и другими системами

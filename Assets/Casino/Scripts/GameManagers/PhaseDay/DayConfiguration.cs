@@ -1,3 +1,4 @@
+using Assets.Casino.Games;
 using UnityEngine;
 
 namespace Assets.Casino.PhaseDay
@@ -6,7 +7,7 @@ namespace Assets.Casino.PhaseDay
     [System.Serializable]
     public class AnteEntry
     {
-        public string TableType;   // должно совпадать с IGameTable.TableType
+        public GameType TableType;   // должно совпадать с IGameTable.TableType
         public int[] AmountsPerDay; // индекс = день (0-based, как CurrentDay)
     }
     
@@ -78,7 +79,7 @@ namespace Assets.Casino.PhaseDay
             return dailyChipThresholds[index];
         }
         
-        public int GetAnteAmountForDay(string tableType, int day)
+        public int GetAnteAmountForDay(GameType tableType, int day)
         {
             int index = Mathf.Max(0, day - 1);   // как в GetChipThresholdForDay
             if (anteByTableType != null)

@@ -1,4 +1,5 @@
 using System;
+using Assets.Casino.Games;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace Assets.Casino.Bank
         public int Amount;
         public TransactionType Type;
         public string Reason;
-        public string TableType;
+        public GameType TableType;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {

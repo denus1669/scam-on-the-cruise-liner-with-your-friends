@@ -32,7 +32,7 @@ namespace Assets.Casino.Games
         bool IsGameStarted { get; }
 
         /// <summary>Тип стола.</summary>
-        string TableType { get; }
+        GameType TableType { get; }
         /// <summary>Место бота за столом.</summary>
         Transform BotPlaceAtTheTable { get; }
 

@@ -1,3 +1,4 @@
+using Assets.Casino.Games;
 using Assets.Casino.Slap;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,7 +16,8 @@ namespace Assets.Casino.Slap.Bot
 
             if (context.Router.CasinoBank != null)
             {
-                string tableType = context.GetCurrentTableType(); // ← Актуальный TableType
+                GameType tableType = context.GetCurrentTableType(); // ← Актуальный TableType
+                
                 bool actualWithdrawn = context.Router.CasinoBank.TryDeposit(
                     1,
                     slapperClientId,

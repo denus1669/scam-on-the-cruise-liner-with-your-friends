@@ -2734,7 +2734,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &441953928
 Transform:
   m_ObjectHideFlags: 0
@@ -10437,7 +10437,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1948044416
 Transform:
   m_ObjectHideFlags: 0
@@ -11309,7 +11309,6 @@ MonoBehaviour:
   slotMachineBreakdownManager: {fileID: 698027261}
   casinoBank: {fileID: 441953932}
   botSpawner: {fileID: 2054266438}
-  gameTables: []
 --- !u!4 &2054266440
 Transform:
   m_ObjectHideFlags: 0

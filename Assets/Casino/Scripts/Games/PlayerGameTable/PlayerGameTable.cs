@@ -83,22 +83,26 @@ public abstract class PlayerGameTable : GameTable
 
     public override void StartGame()
     {
+        if (!IsServer || casinoBank == null) return;
+
         int min = GetMinimumAnte();
-        int bet = Mathf.Max(min, ResolveDesiredBet()); // «не ставить нельзя» = пол по минимуму
+        int bet = Mathf.Max(min, ResolveDesiredBet());
+        if (bet > casinoBank.CurrentBalance) bet = min;
         if (bet > casinoBank.CurrentBalance)
         {
-            Debug.LogWarning($"[GameTable] Ставка {bet} > касса {casinoBank.CurrentBalance}");
+            Debug.LogWarning("[GameTable] Даже минимум не покрывается кассой.");
             return;
         }
 
-        _currentBet = bet;
-        
-        base.StartGame();
-        
-        if (IsServer && casinoBank != null)
+        int withdrawn = casinoBank.TryWithdraw(bet, occupiedByClientId.Value, "Ставка", TableType);
+        if (withdrawn <= 0)
         {
-            casinoBank.TryWithdraw(_currentBet, occupiedByClientId.Value, "Ставка", TableType);
+            Debug.LogWarning("[GameTable] TryWithdraw failed, игра не начата");
+            return;
         }
+
+        _currentBet = withdrawn;   // ← фактически списано
+        base.StartGame();
     }
 
     public override void BotReachedTable(bool reached)
