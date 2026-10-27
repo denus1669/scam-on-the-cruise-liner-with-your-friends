@@ -7,7 +7,7 @@ namespace Assets.Casino.Cheating.MiniGames.MG_Slots.Wire
 
     public class NodeConnectionList : MonoBehaviour
     {
-        public List<NodeConnection > connections = new List<NodeConnection>();
+        public List<NodeConnection> connections = new List<NodeConnection>();
         
         public event Action OnConnectionChanged;
 
@@ -30,6 +30,12 @@ namespace Assets.Casino.Cheating.MiniGames.MG_Slots.Wire
         {
             Debug.Log("WD@ED");
             OnConnectionChanged?.Invoke();
+        }
+        
+        public void ResetAllVisuals()
+        {
+            for (int i = 0; i < connections.Count; i++)
+                connections[i].SetVisual(false);
         }
     }
 }

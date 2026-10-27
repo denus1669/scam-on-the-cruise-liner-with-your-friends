@@ -4,10 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 namespace Casino.Scripts.Actions.Cheating.MiniGames
 {
-
     /// <summary>
     /// Мини-игра «Баланс».
     /// Игрок держит Пробел — силуэт ускоряется вправо, ускорение линейно растёт от времени удержания.
@@ -110,7 +108,7 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
             _leftEdgeRT = leftEdge.transform.GetComponent<RectTransform>();
             _rightEdgeRT = rightEdge.transform.GetComponent<RectTransform>();
 
-            _playerHalfWidth = playerRT.rect.width  * playerRT.lossyScale.x;
+            _playerHalfWidth = playerRT.rect.width/2;
         }
         
         private void FixedUpdate()
@@ -150,7 +148,7 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
                 _nextBurstTime = UnityEngine.Random.Range(0.8f, 2f);
 
                 _leftBoundX = _leftEdgeRT.localPosition.x + _playerHalfWidth;
-                _rightBoundX = _rightEdgeRT.localPosition.x - _playerHalfWidth;
+                _rightBoundX = _rightEdgeRT.localPosition.x  - _playerHalfWidth;
                 
                 ApplyPositions();
                 UpdateSuccessVisual();

@@ -11,7 +11,6 @@ namespace Assets.Casino.Cheating.MiniGames.MG_Slots.Wire
         private NodeConnection _conn;
 
         private RectTransform nodeStart;
-
         
         private Camera cam;
         private bool _locked;
@@ -70,6 +69,7 @@ namespace Assets.Casino.Cheating.MiniGames.MG_Slots.Wire
 
                 lineRenderer.SetPosition(1, GetWorldPos(targetScreen));
                 _locked = true;
+                _conn.SetVisual(true);
                 _conn.isOccupied = true;
                 list.NotifyChanged();   
             }
