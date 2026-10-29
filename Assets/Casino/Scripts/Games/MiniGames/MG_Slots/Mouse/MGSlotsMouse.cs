@@ -29,16 +29,13 @@ public class MGSlotsMouse : MinigameBase
         int limit = Mathf.Min(maxMice, holeList.holes.Count);
         if (limit <= 0) return;
 
-        _totalMice = Random.Range(1, limit + 1);
+        _totalMice = Random.Range(8, limit + 1);
 
         for (int i = 0; i < _totalMice; i++)
         {
-            Hole h = holeList.GetRandomFreeHole();
-            if (h == null) break;
-
-            MGMouseClick mouse = Instantiate(mousePrefab, h.holeRect);
+            MGMouseClick mouse = Instantiate(mousePrefab, holeList.transform);
             mouse.OnKilled += HandleMouseKilled;
-            mouse.StartLife(holeList, h);
+            mouse.StartLife(holeList);
         }
     }
 
@@ -56,12 +53,10 @@ public class MGSlotsMouse : MinigameBase
 
         if (holeList != null)
         {
-            for (int i = 0; i < holeList.holes.Count; i++)
-            {
-                var m = holeList.holes[i].currentMouse;
-                if (m != null) Destroy(m.gameObject);
-                holeList.holes[i].currentMouse = null;
-            }
+            var all = holeList.GetComponentsInChildren<MGMouseClick>(true);
+            for (int i = 0; i < all.Length; i++)
+                Destroy(all[i].gameObject);
+            holeList.ClearAll();
         }
         _killed = 0;
         _totalMice = 0;

@@ -16,6 +16,7 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
     /// </summary>
     public class MGInspectorBalance : MinigameBase
     {
+        [SerializeField] private GameObject spawnPoint;
         [Header("MG GameObjects")] [SerializeField]
         private GameObject inspectorGameObject;
 
@@ -127,6 +128,8 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
 
         protected override void GameInitializer(bool isPlaying)
         {
+            inspectorGameObject.transform.position = spawnPoint.transform.position;
+            playerGameObject.transform.position = spawnPoint.transform.position;
             _finished = false;
             _elapsed = 0f;
             _success = startSuccess;

@@ -17,6 +17,8 @@
             
             public void SetVisual(bool occupied)
             {
+                if (finishImage == null && finish != null)
+                    finishImage = finish.GetComponentInChildren<Image>();
                 if (finishImage != null)
                     finishImage.color = occupied ? activeColor : idleColor;
             }

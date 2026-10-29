@@ -39,11 +39,10 @@ public class MGMouseClick : MonoBehaviour, IPointerClickHandler
         SetVisual(0f, -hideOffset);
     }
 
-    public void StartLife(HoleList holes, Hole initialHole)
+    public void StartLife(HoleList holes)
     {
         _holes = holes;
-        AttachTo(initialHole);
-        _loop = StartCoroutine(LifeLoop());
+        _loop = StartCoroutine(LifeLoop()); 
     }
 
     private void AttachTo(Hole hole)
@@ -59,18 +58,18 @@ public class MGMouseClick : MonoBehaviour, IPointerClickHandler
     {
         while (State != MouseState.Dead)
         {
-            // ждём перед вылазом
             yield return new WaitForSeconds(Random.Range(minHiddenTime, maxHiddenTime));
             if (State == MouseState.Dead) yield break;
 
-            // если сейчас не привязаны к дырке — ищем свободную
-            if (CurrentHole == null)
+            // пробуем занять свободную дырку
+            Hole h = _holes != null ? _holes.GetRandomFreeHole() : null;
+            if (h == null)
             {
-                Hole h = _holes != null ? _holes.GetRandomFreeHole() : null;
-                if (h == null) { yield return null; continue; }
-                AttachTo(h);
+                // нет свободных — ждём и пробуем снова
+                continue;
             }
 
+            AttachTo(h);
             yield return EmergeRoutine();
             if (State == MouseState.Dead) yield break;
 
