@@ -4,8 +4,17 @@ using UnityEngine;
 
 namespace Assets.Casino.Cheating.MiniGames
 {
+    public enum MinigameType
+    {
+        None       = 0,
+        Cheats     = 1,
+        Slots      = 2,
+        Inspector  = 3,
+    }
     public abstract class MinigameBase : MonoBehaviour
     {
+        public abstract MinigameType MinigameKind { get; }
+
         [Header("Базовые настройки")]
         [Tooltip("Передавать ссылку на самого себя. Нужно чтобы при запуске в состоянии false мог отрабатывать StartGame")]
         [SerializeField] protected GameObject panelRoot;
@@ -18,7 +27,6 @@ namespace Assets.Casino.Cheating.MiniGames
         [SerializeField] private InputModeSwitcher inputModeSwitcher;
         
         protected Action<bool> _onComplete;
-        protected string _contextData;
         protected bool _isPlaying;
 
         private void Awake()
@@ -30,9 +38,8 @@ namespace Assets.Casino.Cheating.MiniGames
                 Debug.LogWarning("[MinigameBase] InputModeSwitcher не найден на сцене!", this);
         }
 
-        public virtual void StartGame(string contextData, Action<bool> onComplete)
+        public virtual void StartGame(Action<bool> onComplete)
         {
-            _contextData = contextData;
             _onComplete = onComplete;
 
             if (panelRoot != null)

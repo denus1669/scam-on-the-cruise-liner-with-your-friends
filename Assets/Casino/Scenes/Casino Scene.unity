@@ -5736,7 +5736,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1022342803
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12125,10 +12125,18 @@ PrefabInstance:
       propertyPath: revealPlayerPosition
       value: 
       objectReference: {fileID: 1190007344}
+    - target: {fileID: 6671020337263916887, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+      propertyPath: casinoBank
+      value: 
+      objectReference: {fileID: 441953932}
     - target: {fileID: 6815136436722146357, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3931828983
       objectReference: {fileID: 0}
+    - target: {fileID: 8584261018565419038, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
+      propertyPath: casinoBank
+      value: 
+      objectReference: {fileID: 441953932}
     - target: {fileID: 8803631025065386973, guid: 615c513dfc7c82f45a6691025d2291ff, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 3030392485

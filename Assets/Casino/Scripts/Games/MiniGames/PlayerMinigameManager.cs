@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Casino.Games;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -14,24 +15,14 @@ namespace Assets.Casino.Cheating.MiniGames
     {
         [Header("Registry")]
         [Tooltip("Список доступных мини-игр. Key должен совпадать с тем, что передает вызывающий код.")]
-        [SerializeField] private List<MinigameEntry> registeredGames = new List<MinigameEntry>();
+        [SerializeField] private List<MinigameBase> registeredGames = new List<MinigameBase>();
 
-        public event Action<string, bool> OnMinigameFinished;
-        private string _currentContext;
+        public event Action<bool> OnMinigameFinished;
         private MinigameBase _currentActiveGame;
         
-        private Dictionary<string, MinigameBase> _gamesDictionary = new Dictionary<string, MinigameBase>();
+        private Dictionary<MinigameType, MinigameBase> _gamesDictionary = new Dictionary<MinigameType, MinigameBase>();
 
         private Action<bool> _tempCallback;
-
-
-        [Serializable]
-        public class MinigameEntry
-        {
-            [Tooltip("ScriptableObject с настройками мини-игры")]
-            public MinigameDefinition definition;          
-            public MinigameBase gameInstance; // Ссылка на компонент в сцене (Canvas)
-        }
 
         public override void OnNetworkSpawn()
         {
@@ -43,15 +34,22 @@ namespace Assets.Casino.Cheating.MiniGames
             }
 
             // Инициализация словаря
-            foreach (var entry in registeredGames)
+            foreach (var miniGame in registeredGames)
             {
-                if (!string.IsNullOrEmpty(entry.definition.MinigameName) && entry.gameInstance != null)
+                if (miniGame == null) continue;
+                if (miniGame.MinigameKind == MinigameType.None)
                 {
-                    // Убеждаемся, что панель выключена при старте
-                    entry.gameInstance.gameObject.SetActive(false);
-                    _gamesDictionary[entry.definition.MinigameName] = entry.gameInstance;
-                    //Debug.Log($"[MinigameManager] Зарегистрирована игра: {entry.key}");
+                    Debug.LogError($"[MinigameManager] {miniGame.name} не задал MinigameType", miniGame);
+                    continue;
                 }
+
+                if (_gamesDictionary.ContainsKey(miniGame.MinigameKind))
+                {
+                    
+                }
+                miniGame.gameObject.SetActive(false);
+
+                _gamesDictionary[miniGame.MinigameKind] = miniGame;
             }
         }
 
@@ -61,13 +59,13 @@ namespace Assets.Casino.Cheating.MiniGames
         /// <param name="gameTypeKey">Ключ игры (должен быть в списке выше)</param>
         /// <param name="contextData">Данные для игры (имя чита, ID слота...)</param>
         /// <param name="onResult">Коллбэк результата (true/false)</param>
-        public void RequestStartGame(string contextData, Action<bool> onResult)
+        public void RequestStartGame(MinigameType minigameType, Action<bool> onResult)
         {
             if (!IsOwner) return;
 
-            if (!_gamesDictionary.ContainsKey(contextData))
+            if (!_gamesDictionary.ContainsKey(minigameType))
             {
-                Debug.LogError($"[MinigameManager] Игра с ключом '{contextData}' НЕ НАЙДЕНА! Проверьте инспектор.");
+                Debug.LogError($"[MinigameManager] Игра с ключом '{minigameType}' НЕ НАЙДЕНА! Проверьте инспектор.");
                 onResult?.Invoke(false);
                 return;
             }
@@ -77,39 +75,36 @@ namespace Assets.Casino.Cheating.MiniGames
                 Debug.LogWarning("[MinigameManager] Предыдущая игра не завершена. Закрываем принудительно.");
                 _currentActiveGame.ForceClose();
             }
-            _currentActiveGame = _gamesDictionary[contextData];
+            _currentActiveGame = _gamesDictionary[minigameType];
             // Сохраняем внешний коллбэк, чтобы вызвать его после завершения
             // Мы используем замыкание или временное поле. Проще сделать так:
             
-            _currentContext = contextData; 
-            _currentActiveGame = _gamesDictionary[contextData];
+            _currentActiveGame = _gamesDictionary[minigameType];
 
             // Запускаем игру
             _tempCallback = onResult;
 
-            _currentActiveGame.StartGame(contextData, HandleGameFinishedInternal);
+            _currentActiveGame.StartGame(HandleGameFinishedInternal);
 
-        }
-
-        public List<string> GetAllGameKeys()
-        {
-            return new List<string>(_gamesDictionary.Keys);
         }
         
-        public string GetRandomMinigame(CheatAction cheat)
+        public MinigameType GetRandomMinigame(CheatAction cheat)
+            => PickRandom(cheat != null ? cheat.MinigameTypes : null);
+
+        public MinigameType GetRandomMinigame(MinigameGroup group)
+            => PickRandom(group != null ? group.Minigames : null);
+
+        private MinigameType PickRandom(IReadOnlyList<MinigameType> candidates)
         {
-            if (cheat.Minigames == null || cheat.Minigames.Count == 0)
-                return null;
-            MinigameDefinition minigame = cheat.Minigames[Random.Range(0, cheat.Minigames.Count)];
-            return minigame.MinigameName;
+            if (candidates == null || candidates.Count == 0) return MinigameType.None;
+            var available = new List<MinigameType>(candidates.Count);
+            foreach (var minigameType in candidates)
+                if (minigameType != MinigameType.None && _gamesDictionary.ContainsKey(minigameType))
+                    available.Add(minigameType);
+            return available.Count == 0 ? MinigameType.None : available[Random.Range(0, available.Count)];
         }
-        public string GetRandomMinigame(MinigameGroup minigameGroup)
-        {
-            if (minigameGroup == null || minigameGroup.Minigames.Count == 0)
-                return null;
-            MinigameDefinition minigame = minigameGroup.Minigames[Random.Range(0, minigameGroup.Minigames.Count)];
-            return minigame.MinigameName;
-        }
+        
+        
         /// <summary>
         /// Возвращает текущую запущенную мини-игру (или null).
         /// </summary>
@@ -117,12 +112,12 @@ namespace Assets.Casino.Cheating.MiniGames
         
         
         [ClientRpc]
-        public void StartPlayerMinigameClientRpc(string contextData)
+        public void StartPlayerMinigameClientRpc(MinigameType minigameType)
         {
             if (!IsOwner) return;
 
             // Получаем все зарегистрированные игры
-            var availableGames = GetAllGameKeys();
+            var availableGames = GetAllGameTypes();
 
             if (availableGames.Count == 0)
             {
@@ -130,21 +125,22 @@ namespace Assets.Casino.Cheating.MiniGames
                 return;
             }
 
-            _currentActiveGame.StartGame(contextData, HandleGameFinishedInternal);
-
+            _currentActiveGame.StartGame(HandleGameFinishedInternal);
         }
+        
+        public IReadOnlyCollection<MinigameType> GetAllGameTypes() => _gamesDictionary.Keys;
+
         
         private void HandleGameFinishedInternal(bool isSuccess)
         {
             // Уведомляем всех подписчиков на этом клиенте
-            OnMinigameFinished?.Invoke(_currentContext, isSuccess);
+            OnMinigameFinished?.Invoke(isSuccess);
             _tempCallback?.Invoke(isSuccess);
 
             // Очистка состояния
             _tempCallback = null; 
 
             _currentActiveGame = null;
-            _currentContext = null;
         }
 
                 

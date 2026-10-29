@@ -33,9 +33,9 @@ namespace Assets.Casino.Cheating
 
         [Header("Мини-игры")]
         [Tooltip("Список мини-игр для этого чита. При срабатывании одна выбирается случайно (реализация выбора — отдельно).")]
-        [SerializeField] private List<MinigameDefinition> minigames = new();
+        [SerializeField] private List<MinigameType> minigameTypes  = new();
 
-        public IReadOnlyList<MinigameDefinition> Minigames => minigames;
+        public IReadOnlyList<MinigameType> MinigameTypes => minigameTypes;
 
         public abstract bool CanExecute(IGameTable table, string who);
         public abstract void ApplyCheatResult(IGameTable table, string who);

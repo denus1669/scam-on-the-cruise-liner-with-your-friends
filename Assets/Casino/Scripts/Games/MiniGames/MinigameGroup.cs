@@ -10,9 +10,9 @@ namespace Assets.Casino.Cheating.MiniGames
         [Tooltip("Название группы. Если пусто — берётся имя ассета.")]
         public string GroupName; 
         [Header("Мини-игры группы")]
-        [SerializeField] private List<MinigameDefinition> minigames = new();
+        [SerializeField] private List<MinigameType> minigames = new();
         
-        public IReadOnlyList<MinigameDefinition> Minigames => minigames;
+        public IReadOnlyList<MinigameType> Minigames => minigames;
 
         public string ResolvedName => string.IsNullOrEmpty(GroupName) ? name : GroupName;
     }

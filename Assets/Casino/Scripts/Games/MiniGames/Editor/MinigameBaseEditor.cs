@@ -18,7 +18,7 @@ namespace Assets.Casino.Cheating.MiniGames.Editor
 
             if (GUILayout.Button("▶ Start Game (тест)", GUILayout.Height(30)))
             {
-                minigame.StartGame("editor_test", success =>
+                minigame.StartGame(success =>
                 {
                     Debug.Log($"[MinigameBase] Игра завершена. Успех: {success}");
                 });

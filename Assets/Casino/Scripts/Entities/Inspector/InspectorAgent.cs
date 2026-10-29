@@ -404,7 +404,7 @@ namespace Assets.Casino.Inspector
                 yield break;
             }
             
-            string currentMinigame = _minigameManager.GetRandomMinigame(minigameGroup);
+            MinigameType currentMinigame = _minigameManager.GetRandomMinigame(minigameGroup);
             _minigameManager.RequestStartGame(currentMinigame, HandleMinigameFinished);
 
             yield return new WaitUntil(() => _minigameFinished);

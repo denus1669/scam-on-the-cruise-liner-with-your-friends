@@ -28,6 +28,8 @@ namespace Assets.Casino.Slots
     /// </summary>
     public class SlotMachine : GameTable
     {
+        public override GameType TableType => GameType.SlotMachine;
+        
         [SerializeField] private SlotAnimator _animator;
         
         [Header("Игровая логика спина")]
@@ -67,7 +69,6 @@ namespace Assets.Casino.Slots
         public bool IsBroken => _isBroken.Value;
         public bool IsExploded => _isExploded.Value;
         public float TimeToExplode => _serverTimeToExplode; // Актуально только на сервере
-        public override GameType TableType => GameType.SlotMachine;
         public bool IsSpinning => _isSpinning.Value;
 
         // Событие для подписки ботом и другими системами

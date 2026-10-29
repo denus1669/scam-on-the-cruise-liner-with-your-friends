@@ -2,8 +2,10 @@ using Assets.Casino.Cheating.MiniGames;
 using Assets.Casino.Cheating.MiniGames.MG_Slots.Mouse;
 using UnityEngine;
 
-public class MGSlotsMouse : MinigameBase
+public class MGSlotsMousePanel : MinigameBase
 {
+    public override MinigameType MinigameKind => MinigameType.Slots;
+    
     [Header("Ссылки")]
     [SerializeField] private HoleList holeList;
     [SerializeField] private MGMouseClick mousePrefab;

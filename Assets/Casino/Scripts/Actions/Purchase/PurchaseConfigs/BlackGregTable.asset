@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ca8f68591b4b3141bf8cb0097241156, type: 3}
   m_Name: BlackGregTable
   m_EditorClassIdentifier: CasinoScripts::PurchaseItemDefinition
-  itemId: BlackGregTable_1
+  itemId: BlackGregTable
   displayName: BlackGregTable
   price: 2
   scope: 0

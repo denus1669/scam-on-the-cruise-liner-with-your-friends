@@ -5,6 +5,8 @@ namespace Assets.Casino.Cheating.MiniGames.MG_Slots.Wire
 {
     public class MGSlotsWire : MinigameBase
     {
+        public override MinigameType MinigameKind => MinigameType.Slots;
+
         [SerializeField] private NodeConnectionList nodesList;
         
         [SerializeField] private RectTransform[] startSlots;   // пустые маркеры

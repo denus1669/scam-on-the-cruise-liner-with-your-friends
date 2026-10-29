@@ -44,7 +44,7 @@ namespace Assets.Casino.Games.BlackGreg
             NetworkVariableReadPermission.Everyone,
             NetworkVariableWritePermission.Server
         );
-
+        
         public bool IsRevealed => _isRevealed.Value;
 
         public bool BotHasStood => _botHasStood.Value;

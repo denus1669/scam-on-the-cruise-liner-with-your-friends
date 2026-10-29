@@ -14,6 +14,8 @@ namespace Assets.Casino.Cheating.MiniGames
     /// </summary>
     public class Minigame_CardSleeve : MinigameBase
     {
+        public override MinigameType MinigameKind => MinigameType.Cheats;
+
         [Header("Ссылки UI")]
         [Tooltip("Карта, которую игрок перетаскивает мышью.")]
         [SerializeField] private RectTransform card;

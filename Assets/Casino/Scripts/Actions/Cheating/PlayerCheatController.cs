@@ -128,7 +128,7 @@ namespace Assets.Casino.Cheating
             // Запускаем мини-игру у владельца
             // Передаем имя чита как контекст, чтобы мини-игра знала, что именно отображать/проверять
 
-            string currentMinigame = _minigameManager.GetRandomMinigame(cheat);
+            MinigameType currentMinigame = _minigameManager.GetRandomMinigame(cheat);
             
             _minigameManager.RequestStartGame(currentMinigame, HandleMinigameFinished);
         }

@@ -22,6 +22,8 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
 
     public class MinigameInspectorStop : MinigameBase
     {
+        public override MinigameType MinigameKind => MinigameType.Inspector;
+
         [Header("Inspector")]
         [SerializeField] private GameObject _inspectorGameObject;
         [SerializeField] private Transform inspectorSpawnPoint;

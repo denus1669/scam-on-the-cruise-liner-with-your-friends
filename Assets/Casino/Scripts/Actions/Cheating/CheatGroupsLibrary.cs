@@ -13,7 +13,7 @@ namespace Assets.Casino.Cheating
         public IReadOnlyList<CheatGroup> AllGroups => allGroups;
 
         /// <summary>Читы, подходящие под тип стола и аудиторию.</summary>
-        public IEnumerable<CheatAction> GetCheats(GameTable gameType, CheatAudience audience)
+        public IEnumerable<CheatAction> GetCheats(GameType tableType, CheatAudience audience)
         {
             foreach (var group in allGroups)
             {
@@ -21,7 +21,9 @@ namespace Assets.Casino.Cheating
                 if ((audience & ~group.Audience) != 0) continue;
 
                 var resolvedTable = group.ResolveTableType();
-                if (gameType != null && resolvedTable != null && resolvedTable != gameType) continue;
+                if (tableType != GameType.None 
+                    && resolvedTable != GameType.None
+                    && resolvedTable != tableType) continue;
 
                 foreach (var cheat in group.Cheats)
                     if (cheat != null) yield return cheat;

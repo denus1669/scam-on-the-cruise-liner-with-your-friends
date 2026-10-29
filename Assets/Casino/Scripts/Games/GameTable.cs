@@ -20,7 +20,7 @@ namespace Assets.Casino.Games
     /// </summary>
     public abstract class GameTable : NetworkBehaviour, IGameTable
     {
-        [SerializeField] private GameTableDefinition definition;
+        public abstract GameType TableType { get; }
 
         [SerializeField] private Transform botPlaceAtTheTable;
 
@@ -76,7 +76,6 @@ namespace Assets.Casino.Games
         public bool IsGameStarted => gameInProgress.Value;
 
         public bool IsBotReachedTable => isBotReachedTable.Value;
-        public abstract GameType TableType { get; }
 
         /// <inheritdoc />
         public event Action<ulong> OnOccupantChanged;

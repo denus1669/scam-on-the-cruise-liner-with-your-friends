@@ -16,6 +16,8 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
     /// </summary>
     public class MGInspectorBalance : MinigameBase
     {
+        public override MinigameType MinigameKind => MinigameType.Inspector;
+
         [SerializeField] private GameObject spawnPoint;
         [Header("MG GameObjects")] [SerializeField]
         private GameObject inspectorGameObject;

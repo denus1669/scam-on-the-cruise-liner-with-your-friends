@@ -10,6 +10,7 @@ namespace Casino.Scripts.Actions.Cheating.MiniGames
     /// </summary>
     public class Minigame_ReactionClick : MinigameBase
     {
+        public override MinigameType MinigameKind => MinigameType.Slots;
         [Header("Настройки Реакции")]
         [SerializeField] private Slider progressSlider;
         [SerializeField] private float speed = 2f;

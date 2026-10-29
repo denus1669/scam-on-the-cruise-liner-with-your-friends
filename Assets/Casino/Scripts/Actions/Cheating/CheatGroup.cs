@@ -17,7 +17,7 @@ namespace Assets.Casino.Cheating
         public CheatGroup Parent;
 
         [Tooltip("Тип стола, для которого актуальна группа. Если пусто — наследуется от Parent.")]
-        public GameTableDefinition  GameType;
+        public GameType TableType = GameType.None;
 
         [Tooltip("Для кого доступны читы этой группы.")]
         public CheatAudience Audience = CheatAudience.Both;
@@ -28,15 +28,15 @@ namespace Assets.Casino.Cheating
         public string ResolvedName => string.IsNullOrEmpty(GroupName) ? name : GroupName;
 
         /// <summary>Ищет GameType вверх по иерархии.</summary>
-        public GameTableDefinition ResolveTableType()
+        public GameType ResolveTableType()
         {
             var cheatGroup = this;
             while (cheatGroup != null)
             {
-                if (cheatGroup.GameType != null) return cheatGroup.GameType;
+                if (cheatGroup.TableType != GameType.None) return cheatGroup.TableType;
                 cheatGroup = cheatGroup.Parent;
             }
-            return null;
+            return GameType.None;
         }
 
         /// <summary>Все предки, включая себя.</summary>
